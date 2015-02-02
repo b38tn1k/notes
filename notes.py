@@ -25,7 +25,7 @@ def main():
 
     # Song Seed
     tonality = "minor"
-    track_interval_one = 4
+    track_interval_one = 3
     track_interval_two = 7
     loop_length_in_measures = 4
     number_of_beats_in_a_measure = 4
