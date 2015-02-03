@@ -30,7 +30,7 @@ def main():
     loop_length_in_measures = 4
     number_of_beats_in_a_measure = 4
     beats_in_loop = number_of_beats_in_a_measure*loop_length_in_measures - 1
-    melody_iteration = 7
+    melody_iteration = 10
     inverse_melody_iteration = melody_iteration
 
     # Song Settings
