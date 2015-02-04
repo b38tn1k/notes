@@ -64,7 +64,7 @@ class WesternScale(object):
         if identifier == 2:
             print("Error: Interval error")
             exit()
-        if identifier ==3:
+        if identifier == 3:
             print("Error: no tonality!")
             exit()
 
