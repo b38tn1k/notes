@@ -2,8 +2,6 @@
 /local.properties
 /.idea/workspace.xml
 /.idea/libraries
-.DS_Store
-/build
 /.idea/.name
 /.idea/encodings.xml
 /.idea/misc.xml
@@ -12,3 +10,5 @@
 /.idea/scopes/scope_settings.xml
 /.idea/vcs.xml
 /.idea/workspace.xml
+.DS_Store
+/build
