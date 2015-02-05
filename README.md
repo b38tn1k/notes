@@ -12,11 +12,13 @@ then download midiutil from
 https://code.google.com/p/midiutil/ 
 
 and install by naivagting to the directory with the setup.py file 
-and typing python 
+and typing 
 
-setup.py install 
+python setup.py install 
 
-or sudo python setup install
+or 
+
+sudo python setup install
 
 navigate to the directory notes.py is in in terminal / cmd and type
 
