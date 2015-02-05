@@ -56,6 +56,8 @@ parser.add_argument('-i', '--iterations',
 parser.add_argument('-o', '--output',
                     help='set the name of the outputted MIDI file (no extension required)', required=False)
 parser.add_argument('-v', '--verbose', help='toggle verbose mode', dest='verbose',  action='store_true', required=False)
+parser.add_argument('-f', '--first_note', help='''a number between 0-7 that determines the first note in the sequence,'
+                                                 ' within the major or minor scale''', required=False)
 
 args = vars(parser.parse_args())
 
@@ -86,10 +88,16 @@ def main():
 
     melody_iteration = int(args['iterations'])
 
+
+    if args['first_note']:
+        first_note = int(args['first_note'])
+    else:
+        first_note = 1
+
     if args['output']:
         track_name = str(args['output']) + ".mid"
     else:
-        track_name = "Intervals_" + str(track_interval_one) + "_" + str(track_interval_two) + "_Iterations_" + str(melody_iteration) + "_Tonality_" + tonality + ".mid"
+        track_name = "Intervals_" + str(track_interval_one) + "_" + str(track_interval_two) + "_Iterations_" + str(melody_iteration) + "_Tonality_" + tonality + "_First_Note" + str(first_note) + ".mid"
 
     if args['verbose']:
         verbose = True
@@ -101,14 +109,16 @@ def main():
     # Song Settings
     #TODO: argparser setup!
     track_tempo = 120
-    start_note = 60
-    current_note = start_note
+    root_note = 60
     process_loop = numpy.zeros(beats_in_loop+1)
     process_interval = track_interval_one
     beat = 0
 
     # Initialise Tonality
-    scale = WesternScale(start_note, tonality)
+    scale = WesternScale(root_note, tonality)
+    current_note = int(root_note)
+    for i in range(first_note, 0):
+        current_note = scale.next_pitch(current_note)
 
     # MIDI STUFF
     #
@@ -123,7 +133,8 @@ def main():
     track_handle = MIDIFile(1)
     track_handle.addTrackName(track_index, time_index, track_name)
     track_handle.addTempo(track_index, time_index, track_tempo)
-    # Composition Logic
+
+    # COMPOSITIONAL LOGIC
     while melody_iteration > 0:
         if process_loop[beat] > 0.0:
             if verbose:
