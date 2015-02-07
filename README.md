@@ -9,10 +9,10 @@ Notes requires:
 ##How to...
 ```
 The minimum amount of options required to run Notes is
-python notes.py 2 5 -i 3
+>>python notes.py 2 5 -i 3
 where [2, 5] are two time intervals and -i 3 results in 3 iterations of the algorithim
 more information and methods can be found by typing
-python notes.py -h
+>>python notes.py -h
 ```
 ##Demo
 Demonstration Tracks are listed below:
