@@ -6,6 +6,11 @@ Notes requires:
 <li><a href="http://www.numpy.org/">numpy</a>
 <li><a href="https://code.google.com/p/midiutil/">midiutil</a>
 </ul>
+```
+run
+pip install -r requirements.txt
+to install dependancies
+```
 ##How to...
 ```
 The minimum amount of options required to run Notes is
