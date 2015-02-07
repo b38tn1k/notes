@@ -5,7 +5,7 @@ import numpy
 import random
 
 __author__ = 'jamescarthew'
-from scales import WesternScale
+from scales import NoteMap
 
 ##################################################
 # NOTES
@@ -45,8 +45,11 @@ from scales import WesternScale
 parser = argparse.ArgumentParser(description='NOTES procedurally generates small MIDI files that can be looped')
 parser.add_argument('intervals', metavar='N', type=int, nargs='+',
                    help='two time intervals are required (expressed in beats)')
-parser.add_argument('-t', '--tonality',
-                    help='set the tonality as either "major" or "minor",  default minor', required=False)
+parser.add_argument('-t', '--tonality', help='''set the tonality as either "major",
+                                                "minor" or "drum",  default minor.
+                                                drum mode returns an alternating beat between 2 notes
+                                                useful for layering. Trigger examples include snare and kick,
+                                                open and close hit hat, etc''', required=False)
 parser.add_argument('-l', '--loop_length',
                     help='set the loop length in measures,  default 4',  required=False)
 parser.add_argument('-ts', '--meter',
@@ -56,8 +59,9 @@ parser.add_argument('-i', '--iterations',
 parser.add_argument('-o', '--output',
                     help='set the name of the outputted MIDI file (no extension required)', required=False)
 parser.add_argument('-v', '--verbose', help='toggle verbose mode', dest='verbose',  action='store_true', required=False)
-parser.add_argument('-f', '--first_note', help='''a number between 0-7 that determines the first note in the sequence,'
-                                                 ' within the major or minor scale''', required=False)
+parser.add_argument('-f', '--first_note', help='''a number between 0-7 that determines the first note in the sequence,
+                                                  within the major or minor scale''', required=False)
+parser.add_argument('-k', '--key', help='the key of the song (also the root start note - the first_note interval)', required=False)
 
 args = vars(parser.parse_args())
 
@@ -88,37 +92,42 @@ def main():
 
     melody_iteration = int(args['iterations'])
 
-
     if args['first_note']:
         first_note = int(args['first_note'])
     else:
         first_note = 1
 
+    if args['key']:
+        root_note = int(args['key'])
+    else:
+        root_note = 36
+
+
     if args['output']:
         track_name = str(args['output']) + ".mid"
     else:
-        track_name = "Intervals_" + str(track_interval_one) + "_" + str(track_interval_two) + "_Iterations_" + str(melody_iteration) + "_Tonality_" + tonality + "_First_Note" + str(first_note) + ".mid"
-
+        track_name = "Int{!s}and{!s}Ite{!s}_in_{!s}_{!s}.mid".format(str(track_interval_one), str(track_interval_two), str(melody_iteration), str(first_note), tonality)
     if args['verbose']:
         verbose = True
     else:
         verbose = False
+
     beats_in_loop = meter*loop_length - 1
     inverse_melody_iteration = melody_iteration
 
     # Song Settings
     #TODO: argparser setup!
     track_tempo = 120
-    root_note = 60
+    beat = 0
     process_loop = numpy.zeros(beats_in_loop+1)
     process_interval = track_interval_one
-    beat = 0
+
 
     # Initialise Tonality
-    scale = WesternScale(root_note, tonality)
+    scale = NoteMap(root_note, tonality)
     current_note = int(root_note)
     for i in range(first_note, 0):
-        current_note = scale.next_pitch(current_note)
+        current_note = scale.next_step(current_note)
 
     # MIDI STUFF
     #
@@ -138,33 +147,30 @@ def main():
     while melody_iteration > 0:
         if process_loop[beat] > 0.0:
             if verbose:
-                print "Switch at Iteration: " + str(melody_iteration) + " Beat: " + str(beat) \
-                    + " Interval: " + str(process_interval) + " Note Value: " + str(process_loop[beat]) \
-                      + " Trigger Value: " + str(process_loop[beat])
+                verbose_template = "Switch at Iteration: {!s} Beat: {!s} Interval: {!s} Note Value: {!s} Trigger Value: {!s}"
+                print verbose_template.format(str(melody_iteration), str(beat), str(process_interval), str(process_loop[beat]), str(process_loop[beat]))
             if process_interval == track_interval_one:
                 process_interval = track_interval_two
             else:
                 process_interval = track_interval_one
         process_loop[beat] += 1
         track_handle.addNote(track_index, track_channel, current_note, beat, note_duration, track_volume)
-        current_note = scale.next_pitch(current_note)
+        current_note = scale.next_step(current_note)
         beat += process_interval
         if beat > beats_in_loop:
             if verbose:
-                print 'Reached End of Loop at: ' + str(beat)
+                print 'Reached End of Loop at:', str(beat)
             melody_iteration -= 1
             beat -= beats_in_loop + 1       # The +1 returns the cursor to beat 1 rather than beat 0 (out of bounds)
             if verbose:
-                print 'Beat reset to: ' + str(beat)
+                print 'Beat reset to:', str(beat)
         if verbose:
-            print "Iteration: " + str(inverse_melody_iteration-melody_iteration) + " Beat: " + str(beat)
-            print process_loop
+            print "Iteration: {!s} Beat: {!s} Process Loop: {!s}".format(str(inverse_melody_iteration-melody_iteration), str(beat), str(process_loop))
 
+    print 'I made you {!s} \nhttps://github.com/jamesrobertcarthew/notes for more info'.format(track_name)
     # MIDI print
-    bin_file = open(track_name, 'wb')
-    track_handle.writeFile(bin_file)
-    bin_file.close()
-    exit()
+    with open(track_name, 'wb') as bin_file:
+        track_handle.writeFile(bin_file)
 
 if __name__ == "__main__":
     main()
