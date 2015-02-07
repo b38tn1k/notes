@@ -22,22 +22,8 @@ from scales import NoteMap
 # is used. Additional modes would allow for an
 # extended range of expression
 ##################################################
-# TODO: BEATIDI creates melodies using the
-# procedural generation engine. KICK and SNARE
-# patterns are created using a 2 channel version
-# of procedural generation, hi hat is generated
-# separately, using a single channel and more
-# iterations
-#
-# TODO: MELIDI is a command line version of notes
-# - the western music scale class must be in the
-# same file
-#
 # TODO: the beat reset needs to be carried across
 # loops (currently it is resetting)
-#
-# TODO: convert scale generator into a python
-# generator
 #
 # TODO: look into how midiutil handles 1/2, 1/4,
 # 1/16, etc beats
@@ -46,8 +32,8 @@ parser = argparse.ArgumentParser(description='NOTES procedurally generates small
 parser.add_argument('intervals', metavar='N', type=int, nargs='+',
                    help='two time intervals are required (expressed in beats)')
 parser.add_argument('-t', '--tonality', help='''set the tonality as either "major",
-                                                "minor" or "drum",  default minor.
-                                                drum mode returns an alternating beat between 2 notes
+                                                "minor" or "drums",  default minor.
+                                                drums mode returns an alternating beat between 2 notes
                                                 useful for layering. Trigger examples include snare and kick,
                                                 open and close hit hat, etc''', required=False)
 parser.add_argument('-l', '--loop_length',
@@ -116,7 +102,6 @@ def main():
     inverse_melody_iteration = melody_iteration
 
     # Song Settings
-    #TODO: argparser setup!
     track_tempo = 120
     beat = 0
     process_loop = numpy.zeros(beats_in_loop+1)
