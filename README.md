@@ -5,7 +5,7 @@ Notes requires:
 <ul>
 <li><a href="http://www.numpy.org/">numpy</a>
 <li><a href="https://code.google.com/p/midiutil/">midiutil </a>
-<li><a href="http://www.emergentmusics.org/midiutil"midiutil alternate link</a>
+<li><a href="http://www.emergentmusics.org/midiutil">midiutil alternate link</a>
 </ul>
 ```
 run
