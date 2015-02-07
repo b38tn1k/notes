@@ -1,11 +1,10 @@
 # Notes
-```
 Notes is a procedural music composition tool created in Python2.7. 
+
 Notes requires:
-```
 <ul>
-[numpy](http://www.numpy.org/)
-[midiutil](https://code.google.com/p/midiutil/ )
+<li><a href="http://www.numpy.org/">numpy</a>
+<li><a href="https://code.google.com/p/midiutil/">midiutil</a>
 </ul>
 ##How to...
 ```
@@ -18,7 +17,7 @@ python notes.py -h
 ##Demo
 Demonstration Tracks are listed below:
 <ul>
-[FemVox: ](https://soundcloud.com/b38tn1k/femvox-the-realm-a-procedurally-generated-music-experiment) made with an early version of Notes, only the melodies of FemVox where created in Notes.
+<li><a href="https://soundcloud.com/b38tn1k/femvox-the-realm-a-procedurally-generated-music-experiment">FemVox</a> was made with an early version of Notes with melody only functinonality.
 </ul>
 
 
