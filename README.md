@@ -23,6 +23,8 @@ more information and methods can be found by typing
 Demonstration Tracks are listed below:
 <ul>
 <li><a href="https://soundcloud.com/b38tn1k/femvox-the-realm-a-procedurally-generated-music-experiment">FemVox</a> was made with an early version of Notes with melody only functinonality.
+
+<li><a href="https://soundcloud.com/b38tn1k/machine-drum">Machine Drum</a> demonstrates the drum patterns achievable, in addition to further melodic examples.
 </ul>
 
 
