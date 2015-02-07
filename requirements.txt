@@ -1,0 +1,2 @@
+numpy
+-e svn+http://midiutil.googlecode.com/svn/trunk/  
