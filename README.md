@@ -4,8 +4,8 @@ Notes is a procedural music composition tool created in Python2.7.
 Notes requires:
 ```
 <ul>
-<li>([numpy](http://www.numpy.org/))
-<li>([midiutil](https://code.google.com/p/midiutil/ ))
+[numpy](http://www.numpy.org/)
+[midiutil](https://code.google.com/p/midiutil/ )
 </ul>
 ##How to...
 ```
@@ -18,7 +18,7 @@ python notes.py -h
 ##Demo
 Demonstration Tracks are listed below:
 <ul>
-<li>([FemVox: ](https://soundcloud.com/b38tn1k/femvox-the-realm-a-procedurally-generated-music-experiment)) made with an early version of Notes, only the melodies of FemVox where created in Notes.
+[FemVox: ](https://soundcloud.com/b38tn1k/femvox-the-realm-a-procedurally-generated-music-experiment) made with an early version of Notes, only the melodies of FemVox where created in Notes.
 </ul>
 
 
