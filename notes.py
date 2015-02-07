@@ -22,8 +22,6 @@ from scales import NoteMap
 # is used. Additional modes would allow for an
 # extended range of expression
 ##################################################
-# TODO: the beat reset needs to be carried across
-# loops (currently it is resetting)
 #
 # TODO: look into how midiutil handles 1/2, 1/4,
 # 1/16, etc beats
