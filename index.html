@@ -1,0 +1,80 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>Notes by jamesrobertcarthew</title>
+
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    <script src="javascripts/scale.fix.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="wrapper">
+      <header>
+        <h1 class="header">Notes</h1>
+        <p class="header">Notes procedurally generates melodies and beats</p>
+
+        <ul>
+          <li class="download"><a class="buttons" href="https://github.com/jamesrobertcarthew/notes/zipball/master">Download ZIP</a></li>
+          <li class="download"><a class="buttons" href="https://github.com/jamesrobertcarthew/notes/tarball/master">Download TAR</a></li>
+          <li><a class="buttons github" href="https://github.com/jamesrobertcarthew/notes">View On GitHub</a></li>
+        </ul>
+
+        <p class="header">This project is maintained by <a class="header name" href="https://github.com/jamesrobertcarthew">jamesrobertcarthew</a></p>
+
+
+      </header>
+      <section>
+        <h3>
+<a id="what-does-it-do" class="anchor" href="#what-does-it-do" aria-hidden="true"><span class="octicon octicon-link"></span></a>What does it do?</h3>
+
+<p>Notes generates MIDI files for use with a DAW (Digital Audio Workstation). All DAWs are capable of MIDI playback however Notes was tested using Ableton Live. The procedural generation process used in Notes is explained well in <a href="https://www.youtube.com/watch?v=3Z8CuAC_-bg">this short video</a> and similar tools are available in <a href="https://github.com/igorski/molecular-music-generator">java</a>, <a href="http://www.tomsnively.com/games/MolecularMusicBox.html">a Unity based web version</a> and a <a href="http://www.native-instruments.com/en/community/reaktor-user-library/entry/show/7997/">Native Instruments plugin</a>. Notes operates in terminal and generates a midi file based on the inputted rules.  </p>
+
+<h3>
+<a id="demonstration-tracks" class="anchor" href="#demonstration-tracks" aria-hidden="true"><span class="octicon octicon-link"></span></a>Demonstration Tracks</h3>
+
+<p><a href="https://soundcloud.com/b38tn1k/sets/math-dance-music">A playlist of notes.py generated music is maintained here.</a></p>
+
+<h3>
+<a id="how-do-i-install-it" class="anchor" href="#how-do-i-install-it" aria-hidden="true"><span class="octicon octicon-link"></span></a>How do I install it?</h3>
+
+<ol>
+<li>Ensure you have Python installed by typing <code>python -v</code> into the terminal.<br>
+</li>
+<li>
+<a href="https://github.com/jamesrobertcarthew/notes/archive/master.zip"> Download Notes </a><br>
+</li>
+<li>Navigate to the Notes directory in terminal: <em>cd </em>. If you have no experience with using terminal have a <a href="http://blog.teamtreehouse.com/introduction-to-the-mac-os-x-command-line">read through this</a><br>
+</li>
+<li>Notes requires <a href="http://www.numpy.org/"> numpy</a> and <a href="https://code.google.com/p/midiutil/"> midiutil</a>. To install these dependancies you can try running <code>pip install -r requirements.txt</code> or follow the links for alternate methods.<br>
+</li>
+<li>You may have to type <code>chmod a+x notes.py</code> to make notes.py executable<br>
+</li>
+<li>To check if all is well, type <code>python notes.py 3 4 -i 5</code>. If the installation is successful you should receive the message <code>I made you Int3and4Ite5_in_1_minor.mid</code>.<br>
+</li>
+</ol>
+
+<h3>
+<a id="how-do-i-use-it" class="anchor" href="#how-do-i-use-it" aria-hidden="true"><span class="octicon octicon-link"></span></a>How do I use it?</h3>
+
+<p>I aim Notes at a bin within an Ableton project and generate a stack of MIDI files that I then pull into the Ableton session and apply to a synth or drum. Inside Ableton I will double/ half the tempo of the midi files and apply to either monophonic or polyphonic devices to create pads, basslines and beats. </p>
+
+<p>The minimum required input for Notes is:<br>
+<code>python notes.py 3 4 -i 5</code><br>
+where 3 &amp; 4 determine two time intervals and -i 5 determines the number of iterations of the procedural generation algorithm to be applied.<br>
+For a complete list of options available:<br>
+<code>python notes.py -h</code></p>
+      </section>
+      <footer>
+        <p><small>Hosted on <a href="http://pages.github.com">GitHub Pages</a> using the Dinky theme</small></p>
+      </footer>
+    </div>
+    <!--[if !IE]><script>fixScale(document);</script><![endif]-->
+		
+  </body>
+</html>
