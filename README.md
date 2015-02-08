@@ -1,5 +1,6 @@
 # Notes
-Notes is a procedural music composition tool created in Python2.7. 
+Notes is a procedural music composition tool created in Python2.7.    
+More information can be [found here](http://jamesrobertcarthew.github.io/notes/)   
 
 Notes requires:
 <ul>
@@ -7,19 +8,7 @@ Notes requires:
 <li><a href="https://code.google.com/p/midiutil/">midiutil </a>
 <li><a href="http://www.emergentmusics.org/midiutil">midiutil alternate link</a>
 </ul>
-```
-run
-pip install -r requirements.txt
-to install dependancies
-```
-##How to...
-```
-The smallest command required to run Notes is
->>python notes.py 2 5 -i 3
-where [2, 5] are two time intervals and -i 3 results in 3 iterations of the algorithim
-more information and methods can be found by typing
->>python notes.py -h
-```
+
 ##Demo
 Demonstration Tracks are listed below:
 <ul>
