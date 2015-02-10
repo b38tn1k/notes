@@ -1,9 +1,7 @@
 #!/usr/bin/env python
 import argparse
 from midiutil.MidiFile import MIDIFile
-import numpy
 import random
-
 __author__ = 'jamescarthew'
 from scales import NoteMap
 
@@ -84,7 +82,7 @@ def main():
     if args['key']:
         root_note = int(args['key'])
     else:
-        root_note = 36
+        root_note = 48
 
 
     if args['output']:
@@ -102,7 +100,7 @@ def main():
     # Song Settings
     track_tempo = 120
     beat = 0
-    process_loop = numpy.zeros(beats_in_loop+1)
+    process_loop = zeroes(beats_in_loop+1)
     process_interval = track_interval_one
 
 
@@ -154,6 +152,12 @@ def main():
     # MIDI print
     with open(track_name, 'wb') as bin_file:
         track_handle.writeFile(bin_file)
+
+def zeroes(num):
+    list = []
+    for i in range(num):
+        list.append(0)
+    return list
 
 if __name__ == "__main__":
     main()
