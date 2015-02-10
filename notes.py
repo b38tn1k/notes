@@ -123,13 +123,14 @@ def main():
     track_handle = MIDIFile(1)
     track_handle.addTrackName(track_index, time_index, track_name)
     track_handle.addTempo(track_index, time_index, track_tempo)
+    switch_string = "Switch at Iteration: {!s} Beat: {!s} Interval: {!s} Note Value: {!s} Trigger Value: {!s}"
+    iteration_string = "Iteration: {!s} Beat: {!s} Process Loop: {!s}"
 
     # COMPOSITIONAL LOGIC
     while melody_iteration > 0:
         if process_loop[beat] > 0.0:
             if verbose:
-                verbose_template = "Switch at Iteration: {!s} Beat: {!s} Interval: {!s} Note Value: {!s} Trigger Value: {!s}"
-                print verbose_template.format(str(melody_iteration), str(beat), str(process_interval), str(process_loop[beat]), str(process_loop[beat]))
+                print switch_string.format(str(melody_iteration), str(beat), str(process_interval), str(process_loop[beat]), str(process_loop[beat]))
             if process_interval == track_interval_one:
                 process_interval = track_interval_two
             else:
@@ -146,7 +147,7 @@ def main():
             if verbose:
                 print 'Beat reset to:', str(beat)
         if verbose:
-            print "Iteration: {!s} Beat: {!s} Process Loop: {!s}".format(str(inverse_melody_iteration-melody_iteration), str(beat), str(process_loop))
+            print iteration_string.format(str(inverse_melody_iteration-melody_iteration), str(beat), str(process_loop))
 
     print 'I made you {!s} \nhttps://github.com/jamesrobertcarthew/notes for more info'.format(track_name)
     # MIDI print
