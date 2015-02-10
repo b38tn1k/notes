@@ -4,7 +4,7 @@ More information can be [found here](http://jamesrobertcarthew.github.io/notes/)
 
 Notes requires:
 <ul>
-<li><a href="http://www.numpy.org/">~~numpy~~</a>
+<li><a href="http://www.numpy.org/"><del>numpy</del></a>
 <li><a href="https://code.google.com/p/midiutil/">midiutil </a>
 <li><a href="http://www.emergentmusics.org/midiutil">midiutil alternate link</a>
 </ul>
