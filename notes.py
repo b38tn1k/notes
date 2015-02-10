@@ -91,6 +91,10 @@ def main():
         track_name = "Int{!s}and{!s}Ite{!s}_in_{!s}_{!s}.mid".format(str(track_interval_one), str(track_interval_two), str(melody_iteration), str(first_note), tonality)
     if args['verbose']:
         verbose = True
+        switch_string = "Switch at Iteration: {!s} Beat: {!s} Interval: {!s} Note Value: {!s} Trigger Value: {!s}"
+        iteration_string = "Iteration: {!s} Beat: {!s} Process Loop: {!s}"
+        end_of_loop_string = "Reached End of Loop at: {!s}"
+        beat_reset_string = "Beat reset to: {!s}"
     else:
         verbose = False
 
@@ -123,8 +127,7 @@ def main():
     track_handle = MIDIFile(1)
     track_handle.addTrackName(track_index, time_index, track_name)
     track_handle.addTempo(track_index, time_index, track_tempo)
-    switch_string = "Switch at Iteration: {!s} Beat: {!s} Interval: {!s} Note Value: {!s} Trigger Value: {!s}"
-    iteration_string = "Iteration: {!s} Beat: {!s} Process Loop: {!s}"
+
 
     # COMPOSITIONAL LOGIC
     while melody_iteration > 0:
@@ -141,11 +144,11 @@ def main():
         beat += process_interval
         if beat > beats_in_loop:
             if verbose:
-                print 'Reached End of Loop at:', str(beat)
+                end_of_loop_string.format(str(beat))
             melody_iteration -= 1
             beat -= beats_in_loop + 1       # The +1 returns the cursor to beat 1 rather than beat 0 (out of bounds)
             if verbose:
-                print 'Beat reset to:', str(beat)
+                beat_reset_string.format(str(beat))
         if verbose:
             print iteration_string.format(str(inverse_melody_iteration-melody_iteration), str(beat), str(process_loop))
 
