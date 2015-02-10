@@ -152,7 +152,7 @@ def main():
         if verbose:
             print iteration_string.format(str(inverse_melody_iteration-melody_iteration), str(beat), str(process_loop))
 
-    print 'I made you {!s} \nhttps://github.com/jamesrobertcarthew/notes for more info'.format(track_name)
+    print 'I made you {!s} \nhttp://jamescarthew.com/notes for more info'.format(track_name)
     # MIDI print
     with open(track_name, 'wb') as bin_file:
         track_handle.writeFile(bin_file)
