@@ -24,9 +24,12 @@ from scales import NoteMap
 # TODO: look into how midiutil handles 1/2, 1/4,
 # 1/16, etc beats
 
-parser = argparse.ArgumentParser(description='NOTES procedurally generates small MIDI files that can be looped')
+parser = argparse.ArgumentParser(description='''Notes procedurally generates small MIDI files that can be looped.
+                                                Notes can run in "major", "minor" or "drums" mode.
+                                                http://jamescarthew.com/notes for more info.
+                                                Example usage: python notes.py 5 7 -i 6''')
 parser.add_argument('intervals', metavar='N', type=int, nargs='+',
-                   help='two time intervals are required (expressed in beats)')
+                   help='Two time intervals are required (expressed in beats)')
 parser.add_argument('-t', '--tonality', help='''set the tonality as either "major",
                                                 "minor" or "drums",  default minor.
                                                 drums mode returns an alternating beat between 2 notes
