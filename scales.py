@@ -36,7 +36,7 @@ class NoteMap(object):
 
     def next_step(self, current_pitch):
 
-        if self.octave == 12:
+        if self.tonality == "major" or self.tonality == "minor":
             current_interval = (current_pitch - self.root_note)
             while current_interval > self.octave:
                 current_interval -= self.octave
