@@ -1,5 +1,5 @@
 /*
-NOTES AND SCALES
+NOTES AND SCALES - WORK IN PROGRESS
 jamescarthew
 Notes and Scales procedurally generates midi compositions.
 After initilising Notes and selecting a tempo and key,
