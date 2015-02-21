@@ -14,12 +14,14 @@ import AudioToolbox
 class Notes {
     
     //Class Variables
-    var tones = []
-    var semis = []
+    var tones = [Int]()
+    var semis = [Int]()
     var baseScale = ""
     var tempoBPM = 120
     var tonicNote = 0
     var addDrums = true
+    
+    OSStaus newMusicSequence
     
     //Class Constants
     let majorScaleTones = [0, 2, 5, 7, 9, 12, 14, 17, 21, 24]
@@ -52,7 +54,28 @@ class Notes {
     }
     
     //This function provides notesEngine with the next note in the sequence.
-    func scalesGenerator(){
+    func scalesGenerator(currentPitch: Int) {
+        
+        var nextPitch = currentPitch
+        
+        if self.baseScale == self.major || self.baseScale == self.minor {
+            var currentInterval = currentPitch - self.tonicNote
+            while currentInterval > self.musicOctave {
+                currentInterval -= self.musicOctave
+            }
+            for semi in self.semis {
+                if currentInterval == semi {
+                    nextPitch += 1
+                }
+            }
+            for tone in self.tones {
+                if currentInterval == tone {
+                    nextPitch += 2
+                }
+            }
+            
+            
+        }
         
     }
     
