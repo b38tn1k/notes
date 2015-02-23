@@ -74,7 +74,7 @@ class Notes {
                 processInterval = intervalOne
             }
             processLoop[beat] += 1
-            if voiceMode == self.mono{
+            if voiceMode == self.mono {
                 //delete any lower notes in the event of a collision
                 trackHandle.clearBeat(beat)
             }
@@ -89,7 +89,7 @@ class Notes {
     }
     
     //This function provides notesEngine with the next note in the sequence.
-    func scalesGenerator(currentPitch: Int) -> Int{
+    func scalesGenerator(currentPitch: Int) -> Int {
         
         var nextPitch = currentPitch
         //in the case of melody and harmony
