@@ -8,8 +8,30 @@ three modes of composition are possible via notesEngine:
 - 'melody': monophonic
 - 'drums': reduced note range and 'fractal hihats'
 */
+
 import UIKit
 import AudioToolbox
+
+class TrackHandle {
+    
+    func newPart(partLength: Int) {
+        
+    }
+    
+    func addNote(trackIndex: Int, trackChannel: Int, pitch: Int, beat: Int, duration: Int, volume: Int ) {
+        
+    }
+    
+    
+    func writeToFile(fileName: String) {
+        
+    }
+    
+    func clearBeat(beat: Int) {
+        
+    }
+    
+}
 
 class Notes {
     
@@ -19,9 +41,7 @@ class Notes {
     var baseScale = ""
     var tempoBPM = 120
     var tonicNote = 0
-    var addDrums = true
-    
-    OSStaus newMusicSequence
+    var trackHandle = TrackHandle()
     
     //Class Constants
     let majorScaleTones = [0, 2, 5, 7, 9, 12, 14, 17, 21, 24]
@@ -30,34 +50,46 @@ class Notes {
     let minorScaleSemis = [2, 7, 14, 19]
     let major = "major"
     let minor = "minor"
-    let musicOctave = 12
-    let drumOctave = 2
-    let harmony = "harmony"
-    let melody = "melody"
     let rhythm = "rhythm"
+    let mono = "mono"
+    let poly = "poly"
+    let drumPitchOne = 1
+    let drumPitchTwo = 2
+    let musicOctave = 12
     
     //This function performs the procedural loop generation method
-    func notesEngine(compositionType: String) {
-        
-        if compositionType == self.harmony || compositionType == self.melody {
-            var octave = self.musicOctave
-            if compositionType == self.melody {
-                //delete any lower notes in the event of a collision
+    func notesEngine(voiceMode: String, intervalOne: Int, intervalTwo: Int, iterations: Int, sequenceLength: Int) {
+        var iterations = iterations
+        var processLoop = [Int]()
+        var beat = 0
+        var processInterval = intervalOne
+        var currentPitch = self.tonicNote
+        while iterations > 0 {
+            if processInterval == intervalOne {
+                processInterval = intervalTwo
+            } else {
+                processInterval = intervalOne
             }
-        } else if compositionType == self.rhythm {
-            var octave = self.drumOctave
-            
-        } else {
-            println("[NotesAndScales - notesEngine]: compositionType must be 'harmony', 'melody' or 'rhythm'")
-            exit(-1)
+            processLoop[beat] += 1
+            if voiceMode == self.mono{
+                //delete any lower notes in the event of a collision
+                trackHandle.clearBeat(beat)
+            }
+            trackHandle.addNote(0, trackChannel: 0, pitch: currentPitch, beat: beat, duration: 1, volume: 1)    //Need to add methods to populate (and control) all this shit...
+            currentPitch = self.scalesGenerator(currentPitch)
+            beat += processInterval
+            iterations -= 1
+            if beat > sequenceLength {
+                beat -= sequenceLength + 1
+            }
         }
     }
     
     //This function provides notesEngine with the next note in the sequence.
-    func scalesGenerator(currentPitch: Int) {
+    func scalesGenerator(currentPitch: Int) -> Int{
         
         var nextPitch = currentPitch
-        
+        //in the case of melody and harmony
         if self.baseScale == self.major || self.baseScale == self.minor {
             var currentInterval = currentPitch - self.tonicNote
             while currentInterval > self.musicOctave {
@@ -73,10 +105,20 @@ class Notes {
                     nextPitch += 2
                 }
             }
-            
-            
+            if nextPitch > self.tonicNote + 24 {
+                nextPitch -= 24
+            }
+            //creation of a drum track
+        } else if self.baseScale == self.rhythm {
+            nextPitch = self.drumPitchOne
+            if currentPitch == self.drumPitchOne {
+                nextPitch = self.drumPitchTwo
+            }
+        } else {
+            println("[NotesAndScales - nextPitch]: baseScale must be 'major', 'minor' or 'rhythm'")
+            exit(-1)
         }
-        
+        return nextPitch
     }
     
     //Initialisation Function
@@ -91,8 +133,10 @@ class Notes {
         } else if baseScale == self.minor {
             self.tones = self.minorScaleTones
             self.semis = self.minorScaleSemis
+        } else if baseScale == self.rhythm{
+            //pass
         } else {
-            println("[NotesAndScales - init]: baseScale must be 'major' or 'minor'")
+            println("[NotesAndScales - init]: baseScale must be 'major', 'minor' or 'rhythm'")
             exit(-1)
         }
     }
