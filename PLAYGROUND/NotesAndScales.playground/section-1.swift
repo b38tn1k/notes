@@ -3,10 +3,13 @@ NOTES AND SCALES - WORK IN PROGRESS
 jamescarthew
 Notes and Scales procedurally generates midi compositions.
 After initilising Notes and selecting a tempo and key,
-three modes of composition are possible via notesEngine:
-- 'harmony': polyponic
-- 'melody': monophonic
-- 'drums': reduced note range and 'fractal hihats'
+two modes of composition are possible via notesEngine:
+- 'poly': polyponic
+- 'mono': monophonic
+These modes can be applied over three baseScales
+- 'major': the major scale (uplifting, triumphant, positive)
+- 'minor': the minor scale (sober, morose, sad)
+- 'rhythm': a reduced note range intended for drum patches
 */
 
 import UIKit
