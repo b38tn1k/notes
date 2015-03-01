@@ -15,7 +15,6 @@ Demonstration Tracks are listed below:
 <li><a href="https://soundcloud.com/b38tn1k/femvox-the-realm-a-procedurally-generated-music-experiment">FemVox</a> was made with an early version of Notes that generated melody only.
 
 <li><a href="https://soundcloud.com/b38tn1k/machine-drum">Machine Drum</a> demonstrates the drum patterns achievable, in addition to further melodic examples.
-</ul>
 
 <li> <a href="https://soundcloud.com/b38tn1k/digital-ballet">Digital Ballet</a> is meant to provide a less 'Aphex Twin'-y use of notes... the piano line uses an arpeggiator to add complexity and stuff
-
+</ul>
