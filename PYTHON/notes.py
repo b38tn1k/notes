@@ -50,6 +50,7 @@ parser.add_argument('-k', '--key', help='the key of the song (also the root star
 
 args = vars(parser.parse_args())
 
+
 def main():
 
     if args['tonality']:
