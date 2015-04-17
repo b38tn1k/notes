@@ -44,7 +44,7 @@ parser.add_argument('-i', '--iterations',
 parser.add_argument('-o', '--output',
                     help='set the name of the outputted MIDI file (no extension required)', required=False)
 parser.add_argument('-v', '--verbose', help='toggle verbose mode', dest='verbose',  action='store_true', required=False)
-parser.add_argument('-f', '--first_note', help='''a number between 0-7 that determines the first note in the sequence,
+parser.add_argument('-f', '--first_note', help='''a number between 1-8 that determines the first note in the sequence,
                                                   within the major or minor scale''', required=False)
 parser.add_argument('-k', '--key', help='the key of the song (also the root start note - the first_note interval)', required=False)
 
