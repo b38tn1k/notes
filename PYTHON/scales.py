@@ -56,6 +56,3 @@ class NoteMap(object):
             else:
                 current_pitch = 38
             return current_pitch
-
-
-
