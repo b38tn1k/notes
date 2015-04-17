@@ -1,1 +1,1 @@
--e svn+http://midiutil.googlecode.com/svn/trunk/  
+-e svn+http://midiutil.googlecode.com/svn/trunk/
