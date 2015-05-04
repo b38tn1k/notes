@@ -101,7 +101,15 @@ def main():
         beat_reset_string = "Beat reset to: {!s}"
     else:
         verbose = False
+    notes(tonality, track_interval_one, track_interval_two, loop_length, meter, melody_iteration, first_note, root_note, track_name, verbose)
 
+def zeroes(num):
+    list = []
+    for i in range(num):
+        list.append(0)
+    return list
+
+def notes(tonality, track_interval_one, track_interval_two, loop_length, meter, melody_iteration, first_note, root_note, track_name, verbose):
     beats_in_loop = meter*loop_length - 1
     inverse_melody_iteration = melody_iteration
 
@@ -161,14 +169,5 @@ def main():
     with open(track_name, 'wb') as bin_file:
         track_handle.writeFile(bin_file)
 
-def zeroes(num):
-    list = []
-    for i in range(num):
-        list.append(0)
-    return list
-
 if __name__ == "__main__":
     main()
-
-
-
