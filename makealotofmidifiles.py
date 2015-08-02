@@ -35,12 +35,11 @@
 
 from os import system
 
-for int_1 in range(1, 16):  # variable
-    for int_2 in range(1, 16):  # variable
-        for iteration in range(2, 16):  # variable
+for int_1 in range(3, 16):  # variable
+    for int_2 in range(4, 16):  # variable
+        for iteration in range(3, 16):  # variable
             for first_note in range(1, 8): # fixed
-                for loop_length in range(4, 16):
-                    system("python notes.py {!s} {!s} -i {!s} -t 'major' -l {!s} -f {!s}". format(int_1, int_2, iteration, loop_length, first_note))
-                    system("python notes.py {!s} {!s} -i {!s} -t 'minor' -l {!s} -f {!s}". format(int_1, int_2, iteration, loop_length, first_note))
-                    system("python notes.py {!s} {!s} -i {!s} -t 'drums' -l {!s}". format(int_1, int_2, iteration, loop_length))
-            # key isn't so important really
+                # for loop_length in range(4, 16):
+                system("python notes.py {!s} {!s} -i {!s} -t 'major' -l {!s} -f {!s}". format(int_1, int_2, iteration, 4, first_note))
+                system("python notes.py {!s} {!s} -i {!s} -t 'minor' -l {!s} -f {!s}". format(int_1, int_2, iteration, 4, first_note))
+                system("python notes.py {!s} {!s} -i {!s} -t 'drums' -l {!s}". format(int_1, int_2, iteration, 4))
