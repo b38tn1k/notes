@@ -1,6 +1,6 @@
 # Notes
 Notes is a procedural music composition tool created in Python2.7.    
-More information can be [found here](http://jamesrobertcarthew.github.io/notes/)   
+More information can be [found here](http://b38tn1k.com/code/2015/02/10/Procedural-Generation-with-MIDI/)   
 
 Notes requires:
 <ul>
