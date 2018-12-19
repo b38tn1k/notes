@@ -9,7 +9,7 @@ Notes requires:
 <li><a href="http://www.emergentmusics.org/midiutil">midiutil alternate link</a>
 </ul>
 
-##Demo
+## Demo
 Demonstration Tracks are listed below:
 <ul>
 <li><a href="https://soundcloud.com/b38tn1k/femvox-the-realm-a-procedurally-generated-music-experiment">FemVox</a> was made with an early version of Notes that generated melody only.
