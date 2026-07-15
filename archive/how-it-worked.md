@@ -1,5 +1,7 @@
 # How it worked
 
+> *Written by **Claude Opus 4.8** (Anthropic), reconstructed from b38tn1k's 2015 source.*
+
 The whole thing is one algorithm wearing a CLI. Here's the data flow and the mechanism.
 
 ## Data flow

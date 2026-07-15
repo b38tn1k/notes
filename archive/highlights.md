@@ -1,5 +1,7 @@
 # Highlights — the genuinely smart bits
 
+> *Written by **Claude Opus 4.8** (Anthropic) — an outside read of b38tn1k's 2015 code.*
+
 No roasting in this file. The roast is [next door](hall-of-shame.md). This is the stuff that was
 actually right, and some of it is right enough that Part 2 ports it verbatim.
 
@@ -61,7 +63,7 @@ if self.tonality == "drums":
     return current_pitch
 ```
 
-This is the one I still think is clever. Drums don't have a scale, so they don't get one — `next_step`
+This is the genuinely clever one. Drums don't have a scale, so they don't get one — `next_step`
 just alternates kick (36) and snare (38). The rhythm engine upstairs doesn't know or care that it's
 driving percussion now instead of a melody. **One loop generator, two completely different musical
 jobs**, and the seam between them is four lines. That's good factoring, done by accident or on
@@ -77,7 +79,7 @@ purpose, and it's exactly the kind of thing Part 2's pluggable-generator design 
 # example velocity) but for now I am lazy
 ```
 
-Everyone dunks on this comment (I do too, next door). But read it straight: at 22-ish years old this
+Everyone dunks on this comment (the Hall of Shame does too, next door). But read it straight: at 22-ish years old this
 person already knew that constant velocity sounds robotic, knew *which* field to vary, knew it was a
 real limitation, and chose to ship anyway. That's not ignorance, that's a correctly-scoped TODO. Part
 2 finally does the humanization this comment promised — velocity jitter and swing — so the instinct
