@@ -135,14 +135,6 @@ export function renderChannelStrip(container, voice, state, dispatch, opts = {})
   add({ label: 'Octave', type: 'range', min: -3, max: 3, step: 1, fmt: (v) => (v > 0 ? `+${v}` : `${v}`), get: () => voice.octave, set: (v) => (voice.octave = v) }, regen);
   add({ label: 'Mono (bass / lead)', type: 'toggle', get: () => voice.mono, set: (v) => (voice.mono = v) }, regen);
 
-  // external MIDI program — this voice sends on its OWN stable channel (= colorIdx)
-  const gm = opts.gm || [];
-  add({
-    label: `MIDI prog (→ ch ${voice.colorIdx + 1})`, type: 'select', options: gm.map(([name]) => name),
-    get: () => (gm.find(([, p]) => p === voice.gm) || gm[0] || ['', 0])[0],
-    set: (name) => { const hit = gm.find(([n]) => n === name); voice.gm = hit ? hit[1] : 0; },
-  }, () => dispatch('voice-gm'));
-
   // generator select + its params
   const genRow = el('div', { className: 'gen-select-row' });
   const genSel = el('select', { className: 'gen-select' });

@@ -51,11 +51,9 @@ body { display: flex; flex-direction: column; }
 .more-toggle { align-self: flex-end; padding: 6px 10px; }
 #top-output { margin-left: auto; }        /* push output cluster to the right edge */
 .outlabel { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; }
-.chip { border: 2px solid var(--fg); padding: 6px 8px; font-weight: bold; font-size: 12px; align-self: center; }
-
-/* --- MORE tray: GLOBAL (neutral). floor · ceiling · grid · swing · strum · vel --- */
-#more-tray[hidden] { display: none; }
-#more-tray { display: flex; flex-wrap: wrap; gap: 16px; margin: 10px 10px 0; }
+/* --- disclosure trays: GLOBAL (neutral). MORE = range/grid + feel; MIDI = web-midi device --- */
+#more-tray[hidden], #midi-tray[hidden] { display: none; }
+#more-tray, #midi-tray { display: flex; flex-wrap: wrap; gap: 16px; margin: 10px 10px 0; }
 #more-tray .ctl { margin: 0; width: 180px; }
 
 #controls { overflow-y: auto; min-height: 0; }
@@ -85,6 +83,7 @@ label { display: block; font-size: 11px; margin: 8px 0 2px; }
 
 input[type=range] {
   width: 100%;
+  margin: 0;                     /* kill the browser default margin so sliders never overflow their box */
   accent-color: var(--fg);
   background: #000;
 }

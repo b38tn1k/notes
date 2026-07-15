@@ -14,9 +14,6 @@ import { shuffleColors } from './sprites.js';
 const $ = (id) => document.getElementById(id);
 let seedCounter = 1;
 
-// General MIDI instruments for per-voice program-change on the external path
-const GM = [['grand piano', 0], ['rhodes', 4], ['music box', 10], ['vibraphone', 11], ['nylon guitar', 24], ['fingered bass', 33], ['synth bass', 38], ['strings', 48], ['brass', 61], ['square lead', 80], ['saw lead', 81], ['warm pad', 88]];
-
 // audible voices → the audio scheduling plan (one Part per voice)
 const audioPlan = () => audibleVoices().map((v) => ({ id: v.id, name: v.instrument, notes: v.notes, loopBeats: voiceLoopBeats(v) }));
 // audible voices → the MIDI-out plan: each voice on its OWN channel + its own GM program.
@@ -39,9 +36,8 @@ function midiResched() {
   midiReschedTimer = setTimeout(() => midiout.reschedule(midiPlan(), { bpm: state.bpm }), 120);
 }
 
-// derived status: loop-length chip + export button count + per-chip note badges
+// derived status: export button count + per-chip note badges
 function refreshStatus() {
-  $('loopchip').textContent = `${totalBeats()}BT`;
   $('export').textContent = `⭳ .MID ×${state.voices.length}`;
   const chips = document.querySelectorAll('#voicestrip .voicechip');
   state.voices.forEach((v, i) => { const b = chips[i] && chips[i].querySelector('.vbadge'); if (b) b.textContent = `${v.notes.length}n`; });
@@ -76,7 +72,7 @@ function applyVoice({ shuffle = false } = {}) {   // regen only the focused voic
 }
 
 const renderStrip = () => renderVoiceStrip($('voicestrip'), state, dispatch);
-const renderChannel = () => renderChannelStrip($('channel-strip'), focusedVoice(), state, dispatch, { instruments: audio.INSTRUMENTS, gm: GM });
+const renderChannel = () => renderChannelStrip($('channel-strip'), focusedVoice(), state, dispatch, { instruments: audio.INSTRUMENTS });
 function syncFocusUI() {
   renderStrip();
   renderChannel();
@@ -84,11 +80,13 @@ function syncFocusUI() {
   $('edit-label').textContent = `EDIT V${state.focused + 1}`;
 }
 
-function onMore(btn) {
-  const tray = $('more-tray');
+// generic disclosure toggle: flip a tray + swap the arrow glyph in its button label
+function toggleTray(btn, trayId, label) {
+  const tray = $(trayId);
   tray.hidden = !tray.hidden;
-  btn.textContent = tray.hidden ? 'MORE ▸' : 'MORE ▾';
+  btn.textContent = `${label} ${tray.hidden ? '▸' : '▾'}`;
 }
+const onMore = (btn) => toggleTray(btn, 'more-tray', 'MORE');
 
 function addVoice() {
   if (state.voices.length >= MAX_VOICES) return;
@@ -122,7 +120,6 @@ function dispatch(kind) {
     case 'voice-add': addVoice(); return;
     case 'voice-remove': removeVoice(); return;
     case 'instrument': audio.setInstrument(focusedVoice().id, focusedVoice().instrument); return;
-    case 'voice-gm': { const v = focusedVoice(); if (midiout.isEnabled()) midiout.programChange(v.gm, v.colorIdx); return; }
     case 'export-voice': exportVoice(focusedVoice(), state.shared, state.bpm, state.human, state.voices); return;
     default: applyAll();
   }
@@ -160,6 +157,7 @@ function init() {
   syncFocusUI();
 
   setupMidiOut();
+  $('midi-toggle').addEventListener('click', () => toggleTray($('midi-toggle'), 'midi-tray', 'MIDI'));
 
   const aboutModal = $('about-modal');
   $('about-tab').addEventListener('click', () => { aboutModal.hidden = false; });

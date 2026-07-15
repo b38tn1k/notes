@@ -38,7 +38,7 @@ function buildMidi(trackVoices, S, bpm, human, patchVoices = trackVoices) {
   trackVoices.forEach((v, i) => {
     const t = midi.addTrack();
     t.name = voiceTag(v);
-    t.channel = i;                                   // one channel per track
+    // no forced channel — keep exported files channel-agnostic so they drag cleanly into any DAW/sequencer
     const loop = voiceLoopBeats(v);
     for (const n of v.notes) if (n.startBeat < loop) {   // each voice's own loop window
       t.addNote({ midi: n.pitch, time: n.startBeat * spb, duration: n.durationBeats * spb, velocity: n.velocity / 127 });

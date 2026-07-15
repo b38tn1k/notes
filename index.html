@@ -17,14 +17,16 @@
         <button id="regen">⟳ REGEN</button>
       </div>
       <div id="tempo"></div>                                   <!-- BPM (rendered) -->
-      <span id="loopchip" class="chip" title="total loop length">—</span>
     </div>
     <div class="topcluster" id="top-output">
       <button id="export">⭳ .MID</button>
-      <label class="outlabel">MIDI OUT <select id="midiout"><option value="">— none —</option></select></label>
+      <button id="midi-toggle" class="more-toggle">MIDI ▸</button>
     </div>
   </header>
   <div id="more-tray" class="panel" hidden></div>              <!-- Floor · Ceiling · Grid · Swing · Strum · Vel -->
+  <div id="midi-tray" class="panel" hidden>                    <!-- Web MIDI out device (tucked away) -->
+    <label class="outlabel">MIDI OUT <select id="midiout"><option value="">— none —</option></select></label>
+  </div>
 
   <main id="app">
     <!-- LEFT RAIL = PER-VOICE (tinted the focused voice's colour) -->
