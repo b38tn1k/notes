@@ -1,10 +1,8 @@
 // The loop visualization: a chunky pixel grid of the notes + a playhead.
-// Critters are drawn by an injected renderer (critters.js) so viz stays decoupled.
 // Hard blocks only — no shadowBlur, no smoothing.
 import { colors } from './sprites.js';
 
 let canvas, ctx;
-let critterRenderer = null;   // (ctx, geom, playBeat, state) => void
 
 export function initViz(cv) {
   canvas = cv;
@@ -13,13 +11,14 @@ export function initViz(cv) {
   resize();
 }
 
-export function setCritterRenderer(fn) { critterRenderer = fn; }
-
 export function resize() {
   if (!canvas) return;
   // integer pixels, NO devicePixelRatio upscaling — let it look blocky
-  canvas.width = Math.max(64, Math.floor(canvas.clientWidth));
-  canvas.height = Math.max(64, Math.floor(canvas.clientHeight));
+  const w = Math.max(64, Math.floor(canvas.clientWidth));
+  const h = Math.max(64, Math.floor(canvas.clientHeight));
+  if (w === canvas.width && h === canvas.height) return;   // guard the ResizeObserver feedback loop
+  canvas.width = w;
+  canvas.height = h;
   ctx.imageSmoothingEnabled = false;
 }
 
@@ -74,6 +73,4 @@ export function draw(state, playBeat = -1) {
     ctx.fillStyle = colors.accents[1] || '#f0f';
     ctx.fillRect(x, 0, Math.max(2, Math.floor(cellW * 0.15)), H);
   }
-
-  if (critterRenderer) critterRenderer(ctx, g, playBeat, state);
 }

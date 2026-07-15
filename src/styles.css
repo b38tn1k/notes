@@ -23,21 +23,11 @@ html, body {
 
 body { display: flex; flex-direction: column; }
 
-#topbar {
-  border-bottom: 2px solid var(--fg);
-  padding: 8px 12px;
-  display: flex;
-  align-items: baseline;
-  gap: 12px;
-  flex-wrap: wrap;
-}
-#topbar h1 { margin: 0; font-size: 18px; letter-spacing: 2px; }
-#tagline { font-size: 11px; }
-
 #app {
   flex: 1;
   display: grid;
   grid-template-columns: 300px 1fr;
+  grid-template-rows: minmax(0, 1fr);      /* bound the row so children don't grow to content */
   gap: 10px;
   padding: 10px;
   min-height: 0;
@@ -45,13 +35,13 @@ body { display: flex; flex-direction: column; }
 
 .panel { border: 2px solid var(--fg); padding: 10px; }
 
-#controls { overflow-y: auto; }
-#stage { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+#controls { overflow-y: auto; min-height: 0; }
+#stage { display: flex; flex-direction: column; gap: 10px; min-width: 0; min-height: 0; }
 
 #viz {
   width: 100%;
   flex: 1;
-  min-height: 200px;
+  min-height: 0;                 /* let flex control height; canvas intrinsic size must not act as a floor */
   border: 2px solid var(--fg);
   background: #000;
   display: block;

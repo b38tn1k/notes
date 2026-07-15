@@ -1,8 +1,7 @@
 # 🎛️ MIDI LOOP LAB
 
 Make little MIDI loops in the browser. A pile of ways to generate them, sound to hear them, Web MIDI
-to send them to real gear, `.mid` export to keep them — and a herd of pixel animals that both
-*perform* the loop and, if you want, *generate* it.
+to send them to real gear, and `.mid` export to keep them.
 
 This is **part 2**. [Part 1](archive/) was a Python CLI I wrote in 2015 that did the same thing from a
 terminal. It's preserved, documented, and roasted in [`archive/`](archive/) — start with
@@ -23,9 +22,9 @@ terminal. It's preserved, documented, and roasted in [`archive/`](archive/) — 
 
 ## Aesthetic
 
-Punk-rock 8-bit. Generated pixel sprites, maxed-RGB neon on black, chunky blocks, choppy
-low-framerate motion. **No glow, no blur, no transparency, no gradients, no smooth easing.** It's
-supposed to look like the animals control the notes, not like it was styled afterward. Modeled on
+Punk-rock 8-bit. Maxed-RGB neon on black, chunky blocks, a fresh high-contrast palette every
+regen, choppy low-framerate playhead. **No glow, no blur, no transparency, no gradients, no smooth
+easing** — raw, not styled-afterward. Modeled on
 [`b38tn1k.github.io/lumpy`](https://b38tn1k.github.io/lumpy).
 
 ## Run it

@@ -6,8 +6,7 @@ import { renderShared, renderGenSelect, renderGenParams } from './ui.js';
 import * as audio from './audio.js';
 import * as midiout from './midiout.js';
 import { downloadMidi } from './export.js';
-import { initViz, resize, draw, setCritterRenderer } from './viz.js';
-import { makeCritters, renderCritters } from './critters.js';
+import { initViz, resize, draw } from './viz.js';
 import { shuffleColors } from './sprites.js';
 import { getGenerator } from './generators/index.js';
 import { pitchName } from './music.js';
@@ -38,7 +37,6 @@ function transportCfg() { return { bpm: state.bpm, totalBeats: totalBeats() }; }
 function apply({ shuffle = false } = {}) {
   if (shuffle) { seedCounter++; shuffleColors(seedCounter); }
   regenerate();
-  makeCritters(state, seedCounter);          // one critter per voice/layer
   audio.reschedule(state.notes, totalBeats());
   if (audio.isPlaying() && midiout.isEnabled()) midiout.reschedule(state.notes, transportCfg());
   refreshReadout();
@@ -70,7 +68,6 @@ function onStop() { audio.stop(); midiout.stopLoop(); redraw(); }
 function init() {
   const canvas = $('viz');
   initViz(canvas);
-  setCritterRenderer(renderCritters);
 
   renderShared($('shared-controls'), state, dispatch);
   renderGenSelect($('gen-select'), state, dispatch);
@@ -91,7 +88,6 @@ function init() {
   // initial loop
   shuffleColors(1);
   regenerate();
-  makeCritters(state, 1);
   refreshReadout();
   redraw();
 

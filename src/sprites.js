@@ -1,5 +1,5 @@
-// Pixel-art engine, ported from lumpy's genSprite + shuffleColors.
-// Everything here is hard-edged blocks. No smoothing, ever.
+// Canvas palette, ported from lumpy's shuffleColors. Pure maxed RGB, re-rolled
+// each regen (forced-different bg/fg) so every generation is a new pairing.
 import { rng } from './music.js';
 
 // lumpy's exact palette — pure maxed RGB.
@@ -28,40 +28,4 @@ export function shuffleColors(seed) {
   const a3 = pick(rand, [colors.bg]);
   colors.accents = [colors.fg, a1, a2, a3];
   return colors;
-}
-
-// Generate a symmetric 8-bit critter. Returns a small offscreen canvas
-// (1px per cell) to be blitted scaled with imageSmoothingEnabled=false.
-// Half is generated, the other half mirrored — same trick as lumpy.
-export function genSprite(w, h, color, seed) {
-  const rand = rng(seed || 1);
-  const grid = [];
-  let max = 0;
-  for (let i = 0; i < w; i++) {
-    grid[i] = [];
-    for (let j = 0; j < h; j++) {
-      let v = rand() * 2;
-      v += Math.sin((Math.PI / 180) * (90 * i / w));       // denser toward the mirror seam
-      v += Math.sin((Math.PI / 180) * (180 * (j / h)));    // denser toward vertical center
-      grid[i][j] = v;
-      if (v > max) max = v;
-    }
-  }
-  let sum = 0, cnt = 0;
-  for (let i = 0; i < w; i++) for (let j = 0; j < h; j++) { grid[i][j] /= max; sum += grid[i][j]; cnt++; }
-  const thresh = sum / cnt;
-
-  const cv = document.createElement('canvas');
-  cv.width = w * 2; cv.height = h;
-  const g = cv.getContext('2d');
-  g.fillStyle = color;
-  for (let i = 0; i < w; i++) {
-    for (let j = 0; j < h; j++) {
-      if (grid[i][j] > thresh) {
-        g.fillRect(i, j, 1, 1);                 // left half
-        g.fillRect(w * 2 - 1 - i, j, 1, 1);     // mirrored right half
-      }
-    }
-  }
-  return cv;
 }
