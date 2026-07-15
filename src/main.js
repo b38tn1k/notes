@@ -89,7 +89,8 @@ function init() {
     document.querySelectorAll('#edit-tools .tool').forEach((b) => b.classList.toggle('active', b.dataset.tool === t));
     canvas.style.cursor = t === 'off' ? 'default' : t === 'erase' ? 'not-allowed' : 'crosshair';
   };
-  document.querySelectorAll('#edit-tools .tool').forEach((b) => b.addEventListener('click', () => setTool(b.dataset.tool)));
+  // draw/erase toggle: clicking the active tool turns editing off (normal operation)
+  document.querySelectorAll('#edit-tools .tool').forEach((b) => b.addEventListener('click', () => setTool(state.tool === b.dataset.tool ? 'off' : b.dataset.tool)));
   $('snap').addEventListener('change', (e) => { state.editSnap = parseFloat(e.target.value); });
   $('clear').addEventListener('click', () => { state.notes = []; refreshEdited(); });
 

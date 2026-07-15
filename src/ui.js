@@ -5,6 +5,12 @@ import { registry, getGenerator } from './generators/index.js';
 
 function el(tag, props = {}) { return Object.assign(document.createElement(tag), props); }
 
+function nearestIdx(values, v) {
+  let best = 0, bd = Infinity;
+  for (let i = 0; i < values.length; i++) { const d = Math.abs(values[i] - v); if (d < bd) { bd = d; best = i; } }
+  return best;
+}
+
 // spec: { label, type:'range'|'select'|'toggle', min,max,step,options,fmt, get(), set(v) }
 function makeControl(spec, onChange) {
   const wrap = el('div', { className: 'ctl' });
@@ -19,6 +25,20 @@ function makeControl(spec, onChange) {
     input.addEventListener('input', () => {
       const v = parseFloat(input.value);
       spec.set(v); val.textContent = fmt(v); onChange();
+    });
+    wrap.append(lab, input);
+  } else if (spec.type === 'steps') {
+    // slider that snaps to a curated list of values, showing each value's label
+    const val = el('span', { className: 'val' });
+    const values = spec.values;
+    const labels = spec.labels || values.map(String);
+    let idx = nearestIdx(values, spec.get());
+    val.textContent = labels[idx];
+    lab.append(val);
+    const input = el('input', { type: 'range', min: 0, max: values.length - 1, step: 1, value: idx });
+    input.addEventListener('input', () => {
+      idx = parseInt(input.value, 10);
+      spec.set(values[idx]); val.textContent = labels[idx]; onChange();
     });
     wrap.append(lab, input);
   } else if (spec.type === 'select') {
