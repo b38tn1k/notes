@@ -111,13 +111,28 @@ function randomizeParams(P, gen) {
     else if (s.type === 'toggle') P[s.key] = Math.random() < 0.5;
   }
 }
-function randomizeVoice(v) {
-  v.genId = pick(registry.filter((g) => g.id !== 'mixed')).id;   // keep the dice simple + musical
+function randomizeVoice(v, genId) {
+  v.genId = genId;
   v.length = pick([1, 2, 4, 8]);
   v.octave = randInt(-2, 2);
   v.mono = Math.random() < 0.4;
   randomizeParams(v.genParams[v.genId], getGenerator(v.genId));
 }
+
+// engine picker: every non-arp engine appears at most once per roll (no euclid×euclid);
+// arp may repeat (two arps in different registers is musical).
+const REPEATABLE = new Set(['arp']);
+function makeEnginePicker() {
+  const engines = registry.filter((g) => g.id !== 'mixed').map((g) => g.id);
+  const usedOnce = new Set();
+  return () => {
+    const avail = engines.filter((id) => REPEATABLE.has(id) || !usedOnce.has(id));
+    const id = pick(avail.length ? avail : engines);
+    if (!REPEATABLE.has(id)) usedOnce.add(id);
+    return id;
+  };
+}
+
 function randomizeAll() {
   const S = state.shared;
   S.root = randInt(45, 57);
@@ -129,9 +144,10 @@ function randomizeAll() {
   state.voices = [];
   const n = randInt(1, MAX_VOICES);
   const insts = shuffle(audio.INSTRUMENTS);                       // distinct instrument per voice (6 available, ≤4 voices)
+  const nextEngine = makeEnginePicker();
   for (let i = 0; i < n; i++) {
     const v = makeVoice('molecular', { colorIdx: i });
-    randomizeVoice(v);
+    randomizeVoice(v, nextEngine());
     v.instrument = insts[i % insts.length];
     state.voices.push(v);
   }
