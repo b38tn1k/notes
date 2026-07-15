@@ -56,7 +56,8 @@ function makeControl(spec, onChange) {
   return wrap;
 }
 
-export function renderShared(container, state, dispatch) {
+// THEORY tab: key, scale, timing, tempo.
+export function renderTheory(container, state, dispatch) {
   container.innerHTML = '';
   const S = state.shared;
   const add = (spec, onChange) => container.append(makeControl(spec, onChange));
@@ -68,12 +69,20 @@ export function renderShared(container, state, dispatch) {
 
   // Loop length drives playback/export; when locked, the sequence follows it.
   add({ label: 'Loop length (bars)', type: 'range', min: 1, max: 8, step: 1, get: () => S.loopLength, set: (v) => { S.loopLength = v; if (S.lockLength) S.seqLength = v; } }, regen);
-  add({ label: 'Lock sequence to loop', type: 'toggle', get: () => S.lockLength, set: (v) => { S.lockLength = v; if (v) S.seqLength = S.loopLength; } }, () => { renderShared(container, state, dispatch); regen(); });
+  add({ label: 'Lock sequence to loop', type: 'toggle', get: () => S.lockLength, set: (v) => { S.lockLength = v; if (v) S.seqLength = S.loopLength; } }, () => { renderTheory(container, state, dispatch); regen(); });
   if (!S.lockLength) {
     add({ label: 'Sequence length (bars)', type: 'range', min: 1, max: 16, step: 1, get: () => S.seqLength, set: (v) => (S.seqLength = v) }, regen);
   }
 
   add({ label: 'BPM', type: 'range', min: 40, max: 200, step: 1, get: () => state.bpm, set: (v) => (state.bpm = v) }, () => dispatch('bpm'));
+}
+
+// FEEL tab: humanize.
+export function renderFeel(container, state, dispatch) {
+  container.innerHTML = '';
+  const add = (spec, onChange) => container.append(makeControl(spec, onChange));
+  const regen = () => dispatch('regen');
+
   add({ label: 'Swing', type: 'range', min: 0, max: 0.6, step: 0.05, get: () => state.human.swing, set: (v) => (state.human.swing = v) }, regen);
   add({ label: 'Strum (− down / + up)', type: 'range', min: -0.15, max: 0.15, step: 0.01, get: () => state.human.strum, set: (v) => (state.human.strum = v) }, regen);
   add({ label: 'Vel jitter', type: 'range', min: 0, max: 40, step: 5, get: () => state.human.velVar, set: (v) => (state.human.velVar = v) }, regen);

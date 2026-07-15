@@ -9,13 +9,19 @@
 <body>
   <main id="app">
     <section id="controls" class="panel">
-      <div id="shared-controls"></div>
-      <hr />
-      <div id="gen-select-row">
-        <label for="gen-select">ENGINE</label>
-        <select id="gen-select"></select>
+      <div id="tabbar" class="btnrow">
+        <button data-tab="theory" class="tab active">THEORY</button>
+        <button data-tab="engine" class="tab">ENGINE</button>
+        <button data-tab="feel" class="tab">FEEL</button>
       </div>
-      <div id="gen-controls"></div>
+      <div id="tab-theory" class="tabpane"></div>
+      <div id="tab-engine" class="tabpane" hidden>
+        <div id="gen-select-row">
+          <select id="gen-select"></select>
+        </div>
+        <div id="gen-controls"></div>
+      </div>
+      <div id="tab-feel" class="tabpane" hidden></div>
     </section>
 
     <section id="stage">

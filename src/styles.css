@@ -88,6 +88,11 @@ button:disabled { opacity: 1; border-style: dashed; cursor: not-allowed; }
 .btnrow { display: flex; gap: 6px; flex-wrap: wrap; }
 .selrow { display: flex; gap: 16px; flex-wrap: wrap; margin-top: 10px; }
 
+/* control tabs */
+#tabbar { gap: 4px; margin-bottom: 12px; }
+#tabbar .tab { flex: 1; padding: 6px 4px; }
+#tabbar .tab.active { background: var(--fg); color: #000; }
+
 /* editor toolbar */
 #edit-tools { align-items: center; margin-top: 8px; }
 #edit-tools button { padding: 4px 8px; font-size: 11px; border-width: 1px; }

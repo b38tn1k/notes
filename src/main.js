@@ -2,7 +2,7 @@
 // dispatch() into regenerate -> reschedule -> redraw.
 import './styles.css';
 import { state, regenerate, totalBeats } from './state.js';
-import { renderShared, renderGenSelect, renderGenParams } from './ui.js';
+import { renderTheory, renderFeel, renderGenSelect, renderGenParams } from './ui.js';
 import * as audio from './audio.js';
 import * as midiout from './midiout.js';
 import { downloadMidi } from './export.js';
@@ -96,9 +96,17 @@ function init() {
   $('snap').addEventListener('change', (e) => { state.editSnap = parseFloat(e.target.value); });
   $('clear').addEventListener('click', () => { state.notes = []; refreshEdited(); });
 
-  renderShared($('shared-controls'), state, dispatch);
+  renderTheory($('tab-theory'), state, dispatch);
+  renderFeel($('tab-feel'), state, dispatch);
   renderGenSelect($('gen-select'), state, dispatch);
   renderGenParams($('gen-controls'), state, dispatch);
+
+  // tab switching
+  const panes = { theory: $('tab-theory'), engine: $('tab-engine'), feel: $('tab-feel') };
+  document.querySelectorAll('#tabbar .tab').forEach((b) => b.addEventListener('click', () => {
+    document.querySelectorAll('#tabbar .tab').forEach((x) => x.classList.toggle('active', x === b));
+    for (const [name, el] of Object.entries(panes)) el.hidden = name !== b.dataset.tab;
+  }));
 
   const inst = $('inst');
   for (const name of audio.INSTRUMENTS) inst.append(Object.assign(document.createElement('option'), { value: name, textContent: name }));
