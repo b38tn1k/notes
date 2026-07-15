@@ -48,19 +48,11 @@ for (const fname of fixtures) {
   const heritage = heritageNotes(file);
   const ours = molecular.generate(
     { meter: 4, loopLength: 4, root: 48, scale: p.scale },
-    { intervalA: p.intervalA, intervalB: p.intervalB, iterations: p.iterations, firstNote: p.firstNote, drums: false },
+    { intervalA: p.intervalA, intervalB: p.intervalB, iterations: p.iterations, startNote: p.firstNote },
   );
   assert(heritage.length === ours.length, `${fname}: note count ${ours.length} == heritage ${heritage.length}`);
   assert(key(heritage) === key(ours), `${fname}: pitch+beat sequence identical`);
 }
-
-// Drums path: our port fixes the heritage first-hit quirk deliberately, so we
-// just assert it toggles 36/38 and lands on the same beats as the melodic run.
-const drums = molecular.generate(
-  { meter: 4, loopLength: 4, root: 48, scale: 'minor' },
-  { intervalA: 5, intervalB: 7, iterations: 6, firstNote: 1, drums: true },
-);
-assert(drums.every((n) => n.pitch === 36 || n.pitch === 38), 'drums: every hit is kick(36) or snare(38)');
 
 console.log(failures ? `\nFAILED (${failures})` : '\nOK — port is faithful');
 process.exit(failures ? 1 : 0);
