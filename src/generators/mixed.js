@@ -10,12 +10,17 @@ import { snapToScale } from '../music.js';
 const SOURCES = { molecular, euclidean, drunkwalk, noise, arp };
 const IDS = Object.keys(SOURCES);
 
-function runSource(id, shared) {
+function defaults(g) { const p = {}; for (const s of g.params) p[s.key] = s.default; return p; }
+
+// Use the source's live, shared params (same object the standalone engine edits)
+// so tuning Molecular here == tuning it there. Fall back to defaults if absent.
+function runSource(id, shared, ctx) {
   const g = SOURCES[id] || molecular;
-  const p = {};
-  for (const s of g.params) p[s.key] = s.default;
-  return g.generate(shared, p) || [];
+  const p = (ctx && ctx.genParams && ctx.genParams[id]) || defaults(g);
+  return g.generate(shared, p, ctx) || [];
 }
+
+export const MIXED_SOURCES = IDS;
 
 export default {
   id: 'mixed',
@@ -28,9 +33,9 @@ export default {
     { key: 'quantize', label: 'Quantize', type: 'toggle', default: false },
     { key: 'keyLock', label: 'Key lock', type: 'toggle', default: true },
   ],
-  generate(shared, p) {
-    const a = runSource(p.sourceA, shared);
-    const b = runSource(p.sourceB, shared);
+  generate(shared, p, ctx) {
+    const a = runSource(p.sourceA, shared, ctx);
+    const b = runSource(p.sourceB, shared, ctx);
     let out;
 
     if (p.mode === 'rhythm+pitch') {

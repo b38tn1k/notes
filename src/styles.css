@@ -54,6 +54,11 @@ hr { border: none; border-top: 2px dashed var(--fg); margin: 12px 0; }
 label { display: block; font-size: 11px; margin: 8px 0 2px; }
 .ctl { margin-bottom: 4px; }
 .ctl .val { float: right; }
+.blurb { font-size: 10px; margin: 4px 0 8px; }
+
+/* nested source controls inside Mixed Media */
+.subparams { border-left: 2px solid var(--fg); padding-left: 8px; margin: 2px 0 10px; }
+.subtitle { font-size: 10px; margin: 4px 0; }
 
 input[type=range] {
   width: 100%;

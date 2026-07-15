@@ -26,7 +26,8 @@ export function regenerate() {
   const gen = getGenerator(state.genId);
   let notes = [];
   try {
-    notes = gen.generate(state.shared, state.genParams[state.genId]) || [];
+    // 3rd arg: full context so a meta-generator (Mixed Media) can read its sources' params
+    notes = gen.generate(state.shared, state.genParams[state.genId], { genParams: state.genParams }) || [];
   } catch (e) {
     console.error('generator error', state.genId, e);
     notes = [];

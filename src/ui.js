@@ -62,12 +62,30 @@ export function renderGenParams(container, state, dispatch) {
   container.innerHTML = '';
   const gen = getGenerator(state.genId);
   const P = state.genParams[state.genId];
-  if (gen.blurb) container.append(el('p', { className: 'blurb', textContent: gen.blurb, style: 'font-size:10px;opacity:1;margin:4px 0 8px' }));
+  if (gen.blurb) container.append(el('p', { className: 'blurb', textContent: gen.blurb }));
+
+  const isMixed = state.genId === 'mixed';
   for (const spec of gen.params) {
-    container.append(makeControl({
-      ...spec,
-      get: () => P[spec.key],
-      set: (v) => (P[spec.key] = v),
-    }, () => dispatch('regen')));
+    const isSource = isMixed && (spec.key === 'sourceA' || spec.key === 'sourceB');
+    // changing a source swaps which sub-controls show, so re-render the whole panel
+    const onChange = isSource
+      ? () => { renderGenParams(container, state, dispatch); dispatch('regen'); }
+      : () => dispatch('regen');
+    container.append(makeControl({ ...spec, get: () => P[spec.key], set: (v) => (P[spec.key] = v) }, onChange));
+    if (isSource) appendSubParams(container, state, dispatch, P[spec.key]);
   }
+}
+
+// Render a source generator's own controls inside Mixed Media, editing the same
+// shared params object the standalone engine uses.
+function appendSubParams(container, state, dispatch, subId) {
+  const sub = getGenerator(subId);
+  const SP = state.genParams[subId];
+  if (!sub || !SP) return;
+  const box = el('div', { className: 'subparams' });
+  box.append(el('div', { className: 'subtitle', textContent: `↳ ${sub.label}` }));
+  for (const spec of sub.params) {
+    box.append(makeControl({ ...spec, get: () => SP[spec.key], set: (v) => (SP[spec.key] = v) }, () => dispatch('regen')));
+  }
+  container.append(box);
 }
