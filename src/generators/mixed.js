@@ -30,7 +30,7 @@ export default {
   blurb: 'Mutate two engines together — layer them, take rhythm from one and pitch from the other, or interleave.',
   params: [
     { key: 'sourceA', label: 'Source A', type: 'select', options: IDS, default: 'molecular' },
-    { key: 'sourceB', label: 'Source B', type: 'select', options: IDS, default: 'euclidean' },
+    { key: 'sourceB', label: 'Source B', type: 'select', options: IDS, default: 'arp' },
     { key: 'mode', label: 'Blend', type: 'select', options: ['layer', 'rhythm+pitch', 'interleave'], default: 'rhythm+pitch' },
     { key: 'quantize', label: 'Quantize', type: 'toggle', default: false },
     { key: 'keyLock', label: 'Key lock', type: 'toggle', default: true },
