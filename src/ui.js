@@ -151,10 +151,14 @@ function appendSlotParams(container, state, dispatch, slotKey, subId) {
   if (!sub) return;
   const P = state.genParams.mixed;
   if (!P[slotKey] || P[slotKey]._gen !== subId) {
+    const keepBase = P[slotKey] ? P[slotKey]._base : 'inherit';   // keep base override across source change
     P[slotKey] = defaultParams(sub);
     P[slotKey]._gen = subId;
+    P[slotKey]._base = keepBase || 'inherit';
   }
   const SP = P[slotKey];
+  // per-slot base override (independent of the global THEORY base)
+  container.append(makeControl({ label: 'Base override', type: 'select', options: ['inherit', ...BASE_NAMES], get: () => SP._base, set: (v) => (SP._base = v) }, () => dispatch('regen')));
   for (const spec of sub.params) {
     container.append(makeControl({ ...spec, get: () => SP[spec.key], set: (v) => (SP[spec.key] = v) }, () => dispatch('regen')));
   }

@@ -12,11 +12,14 @@ const IDS = Object.keys(SOURCES);
 function defaults(g) { const p = {}; for (const s of g.params) p[s.key] = s.default; return p; }
 
 // Each Mixer slot keeps its OWN copy of the source's params (slot._gen marks which
-// source it's for) so two of the same source can be tuned independently.
+// source it's for) so two of the same source can be tuned independently, plus an
+// optional per-slot base override (slot._base; 'inherit' = use the global base).
 function runSource(id, slot, shared, ctx) {
   const g = SOURCES[id] || molecular;
   const params = slot && slot._gen === id ? slot : defaults(g);
-  return g.generate(shared, params, ctx) || [];
+  const base = slot && slot._base && slot._base !== 'inherit' ? slot._base : shared.base;
+  const sh = base === shared.base ? shared : { ...shared, base };
+  return g.generate(sh, params, ctx) || [];
 }
 
 export const MIXED_SOURCES = IDS;
