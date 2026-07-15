@@ -34,10 +34,11 @@ function encodePNG(w, h, rgba) {
   return Buffer.concat([sig, chunk('IHDR', ihdr), chunk('IDAT', zlib.deflateSync(raw, { level: 9 })), chunk('IEND', Buffer.alloc(0))]);
 }
 
-// paint the critter (scaled + centered) on a black RGBA buffer
-function renderPNG(size, cells, [r, g, b]) {
-  const buf = Buffer.alloc(size * size * 4);
-  for (let i = 0; i < size * size; i++) buf[i * 4 + 3] = 255;           // black, opaque
+// paint the critter (scaled + centered). opaque=true → black bg (touch icons);
+// opaque=false → transparent bg (favicon floats on the tab, no square).
+function renderPNG(size, cells, [r, g, b], opaque = true) {
+  const buf = Buffer.alloc(size * size * 4);                            // zeroed = transparent
+  if (opaque) for (let i = 0; i < size * size; i++) buf[i * 4 + 3] = 255;   // black, opaque
   const gw = 14, gh = 9;                                                // critter grid is 14 wide, 9 tall
   const scale = Math.floor(Math.min(size * 0.86 / gw, size * 0.86 / gh));
   const offX = Math.round((size - gw * scale) / 2), offY = Math.round((size - gh * scale) / 2);
@@ -45,7 +46,7 @@ function renderPNG(size, cells, [r, g, b]) {
     for (let y = 0; y < scale; y++) for (let x = 0; x < scale; x++) {
       const px = offX + cx * scale + x, py = offY + cy * scale + y;
       if (px < 0 || py < 0 || px >= size || py >= size) continue;
-      const i = (py * size + px) * 4; buf[i] = r; buf[i + 1] = g; buf[i + 2] = b;
+      const i = (py * size + px) * 4; buf[i] = r; buf[i + 1] = g; buf[i + 2] = b; buf[i + 3] = 255;
     }
   return encodePNG(size, size, buf);
 }
@@ -54,12 +55,13 @@ function renderPNG(size, cells, [r, g, b]) {
 const cells = critterCells(7, 9, 101);
 const GREEN = [0, 255, 0];
 
-// crisp SVG favicon: 16x16 black square, critter centered (xoff 1, yoff 4)
-const rects = cells.map(([cx, cy]) => `<rect x="${1 + cx}" y="${4 + cy}" width="1" height="1"/>`).join('');
-const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" shape-rendering="crispEdges"><rect width="16" height="16" fill="#000"/><g fill="#0f0">${rects}</g></svg>\n`;
+// crisp SVG favicon: TRANSPARENT bg, critter centered in an 18×18 box with margin
+// (so it floats on the tab instead of a black square, and won't clip when rounded)
+const rects = cells.map(([cx, cy]) => `<rect x="${2 + cx}" y="${4 + cy}" width="1" height="1"/>`).join('');
+const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 18 18" shape-rendering="crispEdges"><g fill="#0f0">${rects}</g></svg>\n`;
 
 writeFileSync('public/icon.svg', svg);
-writeFileSync('public/favicon-32.png', renderPNG(32, cells, GREEN));
-writeFileSync('public/apple-touch-icon.png', renderPNG(180, cells, GREEN));
-writeFileSync('public/icon-512.png', renderPNG(512, cells, GREEN));
+writeFileSync('public/favicon-32.png', renderPNG(32, cells, GREEN, false));   // transparent, matches the SVG
+writeFileSync('public/apple-touch-icon.png', renderPNG(180, cells, GREEN, true));   // opaque black (iOS renders transparency as black anyway)
+writeFileSync('public/icon-512.png', renderPNG(512, cells, GREEN, true));
 console.log('icons written:', cells.length, 'cells → icon.svg, favicon-32.png, apple-touch-icon.png, icon-512.png');
