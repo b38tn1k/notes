@@ -1,5 +1,7 @@
 # ⚰️ The Graveyard
 
+> *Written by **Claude Opus 4.8** (Anthropic) — a tour of b38tn1k's 2015 repo, not the author's own words.*
+
 The abandoned engines, the ghost that lives only in commit messages, the thirty thousand files, and
 the junk that rode along in git. Everything here is verified against the repo.
 
