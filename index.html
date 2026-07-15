@@ -7,52 +7,42 @@
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><rect width='16' height='16' fill='%23000'/><rect x='2' y='6' width='3' height='3' fill='%230f0'/><rect x='11' y='6' width='3' height='3' fill='%230f0'/><rect x='6' y='9' width='4' height='2' fill='%23f0f'/></svg>" />
 </head>
 <body>
+  <!-- TOP RAIL = GLOBAL (neutral): affects every voice -->
   <header id="topbar" class="panel">
-    <div id="top-globals" class="topcluster"></div>
-    <div class="topcluster btnrow" id="top-transport">
-      <button id="play">▶ PLAY</button>
-      <button id="stop">■ STOP</button>
-      <button id="regen">⟳ REGEN</button>
-      <button id="export">⭳ .MID</button>
+    <div id="top-globals" class="topcluster"></div>            <!-- Key · Scale · Beats · MORE -->
+    <div class="topcluster" id="top-transport">
+      <div class="btnrow">
+        <button id="play">▶ PLAY</button>
+        <button id="stop">■ STOP</button>
+        <button id="regen">⟳ REGEN</button>
+      </div>
+      <div id="tempo"></div>                                   <!-- BPM (rendered) -->
+      <span id="loopchip" class="chip" title="total loop length">—</span>
     </div>
-    <div id="tabbar" class="topcluster btnrow">
-      <button data-tab="theory" class="tab active">THEORY</button>
-      <button data-tab="engine" class="tab">ENGINE</button>
-      <button data-tab="feel" class="tab">FEEL</button>
+    <div class="topcluster" id="top-output">
+      <button id="export">⭳ .MID</button>
+      <label class="outlabel">MIDI OUT <select id="midiout"><option value="">— none —</option></select></label>
     </div>
   </header>
+  <div id="more-tray" class="panel" hidden></div>              <!-- Floor · Ceiling · Grid · Swing · Strum · Vel -->
 
   <main id="app">
+    <!-- LEFT RAIL = PER-VOICE (tinted the focused voice's colour) -->
     <section id="controls" class="panel">
       <div id="voicestrip"></div>
-      <div id="tab-theory" class="tabpane"></div>
-      <div id="tab-engine" class="tabpane" hidden>
-        <div id="voice-controls"></div>
-        <div id="gen-select-row">
-          <select id="gen-select"></select>
-        </div>
-        <div id="gen-controls"></div>
-      </div>
-      <div id="tab-feel" class="tabpane" hidden></div>
+      <div id="channel-strip"></div>
     </section>
 
     <section id="stage">
       <canvas id="viz"></canvas>
-      <div id="transport" class="panel">
-        <div class="btnrow" id="edit-tools">
-          <span class="tool-label">EDIT</span>
-          <button data-tool="draw" class="tool">✎ draw</button>
-          <button data-tool="erase" class="tool">⌫ erase</button>
-          <label class="snap-label">snap
-            <select id="snap"><option value="1">1</option><option value="0.5">½</option><option value="0.25">¼</option></select>
-          </label>
-          <button id="clear">clear</button>
-        </div>
-        <div class="selrow">
-          <label>INST <select id="inst"></select></label>
-          <label>MIDI OUT <select id="midiout"><option value="">— none —</option></select></label>
-        </div>
-        <pre id="readout"></pre>
+      <div id="edit-dock" class="panel">
+        <span class="dock-label" id="edit-label">EDIT</span>
+        <button data-tool="draw" class="tool">✎ DRAW</button>
+        <button data-tool="erase" class="tool">⌫ ERASE</button>
+        <label class="snap-label">SNAP
+          <select id="snap"><option value="1">1</option><option value="0.5">½</option><option value="0.25">¼</option></select>
+        </label>
+        <button id="clear">CLEAR</button>
       </div>
     </section>
   </main>

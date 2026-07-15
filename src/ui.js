@@ -6,23 +6,27 @@ import { MAX_VOICES, PALETTE } from './state.js';
 
 function el(tag, props = {}) { return Object.assign(document.createElement(tag), props); }
 
-// Voice strip: V1..V4 chips (click = focus) with mute/solo, plus add/remove.
+// Voice strip: colour-coded V1..V4 chips — a big focus button with M/S stacked
+// beside it — plus add/remove. Each chip carries its own colour via --vc.
 export function renderVoiceStrip(container, state, dispatch) {
   container.innerHTML = '';
   state.voices.forEach((v, i) => {
     const chip = el('div', { className: 'voicechip' + (i === state.focused ? ' focused' : '') });
-    const lab = el('button', { className: 'vlabel', textContent: `V${i + 1}` });
-    lab.style.borderColor = PALETTE[v.colorIdx % PALETTE.length];
+    chip.style.setProperty('--vc', PALETTE[v.colorIdx % PALETTE.length]);
+    const lab = el('button', { className: 'vlabel', title: 'focus voice' });
+    lab.append(el('span', { className: 'vname', textContent: `V${i + 1}` }), el('span', { className: 'vbadge', textContent: `${v.notes.length}n` }));
     lab.addEventListener('click', () => { state.focused = i; dispatch('focus'); });
-    const m = el('button', { className: 'vtog' + (v.mute ? ' on' : ''), textContent: 'M', title: 'mute' });
+    const togs = el('div', { className: 'vtogs' });
+    const m = el('button', { className: 'vtog vmute' + (v.mute ? ' on' : ''), textContent: 'M', title: 'mute' });
     m.addEventListener('click', () => { v.mute = !v.mute; dispatch('voice-mix'); });
-    const s = el('button', { className: 'vtog' + (v.solo ? ' on' : ''), textContent: 'S', title: 'solo' });
+    const s = el('button', { className: 'vtog vsolo' + (v.solo ? ' on' : ''), textContent: 'S', title: 'solo' });
     s.addEventListener('click', () => { v.solo = !v.solo; dispatch('voice-mix'); });
-    chip.append(lab, m, s);
+    togs.append(m, s);
+    chip.append(lab, togs);
     container.append(chip);
   });
-  if (state.voices.length < MAX_VOICES) { const b = el('button', { className: 'vadd', textContent: '+' }); b.addEventListener('click', () => dispatch('voice-add')); container.append(b); }
-  if (state.voices.length > 1) { const b = el('button', { className: 'vadd', textContent: '−' }); b.addEventListener('click', () => dispatch('voice-remove')); container.append(b); }
+  if (state.voices.length < MAX_VOICES) { const b = el('button', { className: 'vadd', textContent: '+', title: 'add voice' }); b.addEventListener('click', () => dispatch('voice-add')); container.append(b); }
+  if (state.voices.length > 1) { const b = el('button', { className: 'vadd', textContent: '−', title: 'remove focused voice' }); b.addEventListener('click', () => dispatch('voice-remove')); container.append(b); }
 }
 
 function nearestIdx(values, v) {
@@ -76,8 +80,8 @@ function makeControl(spec, onChange) {
   return wrap;
 }
 
-// Top bar: the four headline globals (key · scale · BPM · beats). Compact inline.
-export function renderTopGlobals(container, state, dispatch) {
+// Top rail — GLOBAL, neutral: the headline globals (key · scale · beats) + the MORE toggle.
+export function renderTopGlobals(container, state, dispatch, onMore) {
   container.innerHTML = '';
   const S = state.shared;
   const add = (spec, onChange) => container.append(makeControl(spec, onChange));
@@ -85,12 +89,20 @@ export function renderTopGlobals(container, state, dispatch) {
 
   add({ label: 'Key', type: 'range', min: 36, max: 72, step: 1, fmt: pitchName, get: () => S.root, set: (v) => (S.root = v) }, regen);
   add({ label: 'Scale', type: 'select', options: SCALE_NAMES, get: () => S.scale, set: (v) => (S.scale = v) }, regen);
-  add({ label: 'BPM', type: 'range', min: 40, max: 200, step: 1, get: () => state.bpm, set: (v) => (state.bpm = v) }, () => dispatch('bpm'));
   add({ label: 'Beats/bar', type: 'range', min: 2, max: 8, step: 1, get: () => S.meter, set: (v) => (S.meter = v) }, regen);
+  const more = el('button', { className: 'more-toggle', textContent: 'MORE ▸', title: 'floor / ceiling / grid / feel' });
+  more.addEventListener('click', () => onMore(more));
+  container.append(more);
 }
 
-// THEORY tab: the deeper globals (register window + grid). Headliners are in the top bar.
-export function renderTheory(container, state, dispatch) {
+// Top rail — tempo, sits with the transport (playback speed).
+export function renderTempo(container, state, dispatch) {
+  container.innerHTML = '';
+  container.append(makeControl({ label: 'BPM', type: 'range', min: 40, max: 200, step: 1, get: () => state.bpm, set: (v) => (state.bpm = v) }, () => dispatch('bpm')));
+}
+
+// MORE tray — GLOBAL, neutral: the set-and-forget globals (register window + grid + humanize).
+export function renderMoreTray(container, state, dispatch) {
   container.innerHTML = '';
   const S = state.shared;
   const add = (spec, onChange) => container.append(makeControl(spec, onChange));
@@ -98,31 +110,53 @@ export function renderTheory(container, state, dispatch) {
 
   add({ label: 'Floor (semitones below root)', type: 'range', min: 0, max: 48, step: 1, fmt: (v) => `-${v}`, get: () => S.floorDown, set: (v) => (S.floorDown = v) }, regen);
   add({ label: 'Ceiling (semitones above root)', type: 'range', min: 0, max: 48, step: 1, fmt: (v) => `+${v}`, get: () => S.ceilingUp, set: (v) => (S.ceilingUp = v) }, regen);
-  add({ label: 'Base step (grid)', type: 'select', options: BASE_NAMES, get: () => S.base, set: (v) => (S.base = v) }, regen);
-}
-
-// per-voice controls (in the ENGINE panel): register + character + length
-export function renderVoiceControls(container, voice, dispatch) {
-  container.innerHTML = '';
-  const add = (spec, onChange) => container.append(makeControl(spec, onChange));
-  const regen = () => dispatch('regen-voice');
-  add({ label: 'Length (bars)', type: 'range', min: 1, max: 8, step: 1, get: () => voice.length, set: (v) => (voice.length = v) }, regen);
-  add({ label: 'Octave', type: 'range', min: -3, max: 3, step: 1, fmt: (v) => (v > 0 ? `+${v}` : `${v}`), get: () => voice.octave, set: (v) => (voice.octave = v) }, regen);
-  add({ label: 'Mono (bass / lead)', type: 'toggle', get: () => voice.mono, set: (v) => (voice.mono = v) }, regen);
-  const exp = el('button', { className: 'voiceexport', textContent: '⭳ export this voice' });
-  exp.addEventListener('click', () => dispatch('export-voice'));
-  container.append(exp);
-}
-
-// FEEL tab: humanize (global).
-export function renderFeel(container, state, dispatch) {
-  container.innerHTML = '';
-  const add = (spec, onChange) => container.append(makeControl(spec, onChange));
-  const regen = () => dispatch('regen-all');
-
+  add({ label: 'Gen grid', type: 'select', options: BASE_NAMES, get: () => S.base, set: (v) => (S.base = v) }, regen);
   add({ label: 'Swing', type: 'range', min: 0, max: 0.6, step: 0.05, get: () => state.human.swing, set: (v) => (state.human.swing = v) }, regen);
   add({ label: 'Strum (− down / + up)', type: 'range', min: -0.15, max: 0.15, step: 0.01, get: () => state.human.strum, set: (v) => (state.human.strum = v) }, regen);
   add({ label: 'Vel jitter', type: 'range', min: 0, max: 40, step: 5, get: () => state.human.velVar, set: (v) => (state.human.velVar = v) }, regen);
+}
+
+// Channel strip — PER-VOICE, tinted: the focused voice's whole kit in one place.
+// instrument + register/character/length + external MIDI program + generator + export.
+// opts: { instruments: string[], gm: [name, prog][] }
+export function renderChannelStrip(container, voice, state, dispatch, opts = {}) {
+  container.innerHTML = '';
+  const idx = state.voices.indexOf(voice);
+  const add = (spec, onChange) => container.append(makeControl(spec, onChange));
+  const regen = () => dispatch('regen-voice');
+
+  container.append(el('div', { className: 'cs-head', textContent: `▸ V${idx + 1}` }));
+
+  // local Tone.js instrument (per voice)
+  add({ label: 'Instrument', type: 'select', options: opts.instruments || [], get: () => voice.instrument, set: (v) => (voice.instrument = v) }, () => dispatch('instrument'));
+
+  // register + character + loop length
+  add({ label: 'Length (bars)', type: 'range', min: 1, max: 8, step: 1, get: () => voice.length, set: (v) => (voice.length = v) }, regen);
+  add({ label: 'Octave', type: 'range', min: -3, max: 3, step: 1, fmt: (v) => (v > 0 ? `+${v}` : `${v}`), get: () => voice.octave, set: (v) => (voice.octave = v) }, regen);
+  add({ label: 'Mono (bass / lead)', type: 'toggle', get: () => voice.mono, set: (v) => (voice.mono = v) }, regen);
+
+  // external MIDI program — this voice sends on its OWN stable channel (= colorIdx)
+  const gm = opts.gm || [];
+  add({
+    label: `MIDI prog (→ ch ${voice.colorIdx + 1})`, type: 'select', options: gm.map(([name]) => name),
+    get: () => (gm.find(([, p]) => p === voice.gm) || gm[0] || ['', 0])[0],
+    set: (name) => { const hit = gm.find(([n]) => n === name); voice.gm = hit ? hit[1] : 0; },
+  }, () => dispatch('voice-gm'));
+
+  // generator select + its params
+  const genRow = el('div', { className: 'gen-select-row' });
+  const genSel = el('select', { className: 'gen-select' });
+  genRow.append(genSel);
+  container.append(genRow);
+  renderGenSelect(genSel, state, dispatch);
+  const genCtrls = el('div', { className: 'gen-controls' });
+  container.append(genCtrls);
+  renderGenParams(genCtrls, state, dispatch);
+
+  // per-voice export
+  const exp = el('button', { className: 'voiceexport', textContent: `⭳ EXPORT V${idx + 1}` });
+  exp.addEventListener('click', () => dispatch('export-voice'));
+  container.append(exp);
 }
 
 export function renderGenSelect(select, state, dispatch) {

@@ -5,6 +5,7 @@
 :root {
   --bg: #000;
   --fg: #0f0;                 /* replaced live by shuffleColors() via --fg/--bg on :root */
+  --vcf: #0f0;                /* focused-voice colour — tints the per-voice rails (set by syncFocusUI) */
   --font: 'Courier New', Courier, monospace;
 }
 
@@ -35,16 +36,27 @@ body { display: flex; flex-direction: column; }
 
 .panel { border: 2px solid var(--fg); padding: 10px; }
 
-/* --- top bar: headline globals · transport · view tabs --- */
+/* --- top rail: GLOBAL (neutral). globals · transport · output --- */
 #topbar { display: flex; align-items: flex-end; gap: 14px; flex-wrap: wrap; margin: 10px 10px 0; padding: 8px 10px; }
-.topcluster { display: flex; gap: 6px; }
-#top-globals { flex: 1 1 auto; align-items: flex-end; flex-wrap: wrap; }
+.topcluster { display: flex; gap: 8px; align-items: flex-end; }
+#top-globals { flex: 1 1 auto; flex-wrap: wrap; }
 #top-globals .ctl { margin: 0; width: 128px; }
-#top-globals .ctl label { margin: 0 0 2px; }
+#tempo .ctl { margin: 0; width: 100%; }        /* fill #tempo — never overflow into the loop chip */
+#top-globals .ctl label, #tempo .ctl label { margin: 0 0 2px; }
 #top-globals select { width: 100%; }
-#top-transport, #topbar #tabbar { align-self: center; margin-bottom: 0; }
-#top-transport button { padding: 6px 10px; }
-#topbar #tabbar .tab { flex: 0 0 auto; padding: 6px 12px; }
+#top-transport, #top-output { align-self: center; }
+#top-transport button, #top-output button { padding: 6px 10px; }
+#top-transport .btnrow { gap: 6px; }
+#tempo { width: 150px; }
+.more-toggle { align-self: flex-end; padding: 6px 10px; }
+#top-output { margin-left: auto; }        /* push output cluster to the right edge */
+.outlabel { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; }
+.chip { border: 2px solid var(--fg); padding: 6px 8px; font-weight: bold; font-size: 12px; align-self: center; }
+
+/* --- MORE tray: GLOBAL (neutral). floor · ceiling · grid · swing · strum · vel --- */
+#more-tray[hidden] { display: none; }
+#more-tray { display: flex; flex-wrap: wrap; gap: 16px; margin: 10px 10px 0; }
+#more-tray .ctl { margin: 0; width: 180px; }
 
 #controls { overflow-y: auto; min-height: 0; }
 #stage { display: flex; flex-direction: column; gap: 10px; min-width: 0; min-height: 0; }
@@ -83,56 +95,63 @@ select {
 }
 input[type=checkbox] { accent-color: var(--fg); transform: scale(1.3); }
 
-#gen-select-row label, .selrow label { display: inline; }
-#gen-select { width: 100%; margin-top: 4px; }
+.gen-select { width: 100%; margin-top: 4px; }
 
 /* --- buttons: instant hard invert, NO transition --- */
 button {
   background: #000; color: var(--fg);
   border: 2px solid var(--fg); border-radius: 0;
-  font: inherit; text-transform: uppercase;
+  font: inherit; font-weight: bold; text-transform: uppercase;   /* bold reads on the inverted fill (thin monospace washed out) */
   padding: 8px 12px; cursor: pointer;
 }
 button:hover, button:active { background: var(--fg); color: #000; }
 button:disabled { opacity: 1; border-style: dashed; cursor: not-allowed; }
 
 .btnrow { display: flex; gap: 6px; flex-wrap: wrap; }
-.selrow { display: flex; gap: 16px; flex-wrap: wrap; margin-top: 10px; }
-
-/* control tabs */
-#tabbar { gap: 4px; margin-bottom: 12px; }
-#tabbar .tab { flex: 1; padding: 6px 4px; }
-#tabbar .tab.active { background: var(--fg); color: #000; }
 
 /* mixer sub-tabs */
 .subtabs { gap: 4px; margin-bottom: 10px; }
 .subtabs .tab { flex: 1; padding: 5px 2px; font-size: 10px; }
 .subtabs .tab.active { background: var(--fg); color: #000; }
 
-/* voice strip */
-#voicestrip { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px; align-items: center; }
-.voicechip { display: flex; border: 1px solid var(--fg); }
-.voicechip.focused { outline: 2px solid var(--fg); }
-.voicechip button { border: none; background: #000; color: var(--fg); padding: 4px 7px; font: inherit; font-size: 10px; cursor: pointer; }
-.voicechip .vlabel { border-left: 3px solid var(--fg); }
-.voicechip button + button { border-left: 1px solid var(--fg); }
-.voicechip .vtog.on { background: var(--fg); color: #000; }
-.vadd { border: 1px solid var(--fg); background: #000; color: var(--fg); padding: 4px 9px; font: inherit; cursor: pointer; }
+/* voice strip — color-coded chips (--vc set per voice): big VN focus button + stacked M/S */
+#voicestrip { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; align-items: stretch; }
+.voicechip { display: flex; border: 2px solid var(--vc); }
+.voicechip.focused { outline: 2px solid var(--vc); outline-offset: 1px; }   /* focused = colour ring + filled label */
+.voicechip .vlabel {
+  border: none; background: #000; color: var(--vc);
+  padding: 5px 12px; font: inherit; cursor: pointer; line-height: 1;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+}
+.voicechip .vname { font-weight: bold; font-size: 18px; letter-spacing: 1px; }
+.voicechip .vbadge { font-weight: bold; font-size: 8px; margin-top: 3px; }   /* live note count */
+.voicechip.focused .vlabel, .voicechip .vlabel:hover { background: var(--vc); color: #000; }   /* active = solid fill */
+.vtogs { display: flex; flex-direction: column; border-left: 2px solid var(--vc); }
+.vtog {
+  border: none; background: #000; color: var(--fg);
+  padding: 0 9px; font: inherit; font-size: 11px; font-weight: bold;
+  flex: 1; cursor: pointer; display: flex; align-items: center;
+}
+.vtog + .vtog { border-top: 2px solid var(--vc); }
+.vmute:hover, .vmute.on { background: #f00; color: #000; }   /* mute = red (hover previews) */
+.vsolo:hover, .vsolo.on { background: #fff; color: #000; }   /* solo = white (yellow would collide with V4's chip colour) */
+.vadd { border: 2px solid var(--fg); background: #000; color: var(--fg); padding: 4px 13px; font: inherit; font-size: 16px; font-weight: bold; cursor: pointer; }
 .vadd:hover { background: var(--fg); color: #000; }
 
-/* editor toolbar */
-#edit-tools { align-items: center; margin-top: 8px; }
-#edit-tools button { padding: 4px 8px; font-size: 11px; border-width: 1px; }
-#edit-tools .tool.active { background: var(--fg); color: #000; }
-.tool-label, .snap-label { font-size: 11px; }
-.snap-label select { padding: 2px; }
+/* --- channel strip: PER-VOICE (tinted --vcf). the focused voice's whole kit --- */
+#channel-strip { border-top: 3px solid var(--vcf); margin-top: 12px; padding-top: 8px; }
+.cs-head { color: var(--vcf); font-weight: bold; font-size: 14px; margin-bottom: 6px; letter-spacing: 1px; }
+.voiceexport { width: 100%; margin-top: 10px; border-color: var(--vcf); color: var(--vcf); }
+.voiceexport:hover { background: var(--vcf); color: #000; }
 
-#readout {
-  margin: 10px 0 0; padding: 6px;
-  border: 1px solid var(--fg);
-  font-size: 11px; white-space: pre-wrap; word-break: break-word;
-  min-height: 2em;
-}
+/* --- edit dock: PER-VOICE (tinted --vcf). draw/erase/snap/clear, docked under the canvas --- */
+#edit-dock { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; border-color: var(--vcf); }
+.dock-label { color: var(--vcf); font-weight: bold; font-size: 12px; letter-spacing: 1px; }
+#edit-dock button { padding: 4px 10px; font-size: 11px; border-width: 2px; }
+#edit-dock button:hover { background: var(--vcf); color: #000; }
+#edit-dock .tool.active { background: var(--vcf); color: #000; border-color: var(--vcf); }
+.snap-label { font-size: 11px; }
+.snap-label select { padding: 2px; }
 
 /* --- about / wiki corner --- */
 #about-tab {
@@ -176,8 +195,13 @@ button:disabled { opacity: 1; border-style: dashed; cursor: not-allowed; }
   #app { flex: initial; display: block; padding: 8px; }
   .panel { margin-bottom: 10px; }
   #topbar { margin: 8px 8px 0; }
-  #top-globals .ctl { width: 46%; flex: 1 1 46%; }
+  #top-globals .ctl, #tempo, #more-tray .ctl { width: 46%; flex: 1 1 46%; }
+  #top-output { margin-left: 0; }
+  #app { padding-bottom: 44px; }   /* clearance so the fixed NOTES button floats over empty space, not the edit dock */
+  #more-tray { margin: 0 8px 10px; }
   #controls { max-height: none; overflow: visible; }
   #stage { display: block; }
   #viz { height: 44vh; min-height: 240px; }
+  #voicestrip .vtog { padding: 9px 13px; font-size: 13px; }   /* bigger M/S touch targets */
+  #voicestrip .vname { font-size: 20px; }
 }

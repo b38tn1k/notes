@@ -29,21 +29,23 @@ function patchMeta(voices, S, bpm, human) {
   });
 }
 
-function buildMidi(voices, S, bpm, human) {
+// trackVoices → the tracks written; patchVoices → the patch embedded (default = the
+// tracks). Per-voice files pass the FULL set as patchVoices so any one file restores all.
+function buildMidi(trackVoices, S, bpm, human, patchVoices = trackVoices) {
   const midi = new Midi();
   midi.header.setTempo(bpm);
   const spb = 60 / bpm;
-  voices.forEach((v, i) => {
+  trackVoices.forEach((v, i) => {
     const t = midi.addTrack();
     t.name = voiceTag(v);
-    t.channel = i;                                   // one channel per voice
+    t.channel = i;                                   // one channel per track
     const loop = voiceLoopBeats(v);
     for (const n of v.notes) if (n.startBeat < loop) {   // each voice's own loop window
       t.addNote({ midi: n.pitch, time: n.startBeat * spb, duration: n.durationBeats * spb, velocity: n.velocity / 127 });
     }
   });
   if (!midi.header.meta) midi.header.meta = [];
-  midi.header.meta.push({ ticks: 0, type: 'text', text: patchMeta(voices, S, bpm, human) });   // embedded patch
+  midi.header.meta.push({ ticks: 0, type: 'text', text: patchMeta(patchVoices, S, bpm, human) });   // embedded patch
   return midi;
 }
 
@@ -54,16 +56,20 @@ function download(midi, name) {
   document.body.appendChild(a);
   a.click();
   a.remove();
-  URL.revokeObjectURL(url);
+  setTimeout(() => URL.revokeObjectURL(url), 1000);   // defer revoke so downloads commit (matters for multi-file)
 }
 
-// one voice, one track
-export function exportVoice(v, S, bpm, human) {
-  download(buildMidi([v], S, bpm, human), `${baseName(S, bpm)}_${voiceTag(v)}.mid`);
+// one voice, one file. `all` (if given) is embedded so the single file still restores the whole set.
+export function exportVoice(v, S, bpm, human, all) {
+  download(buildMidi([v], S, bpm, human, all || [v]), `${baseName(S, bpm)}_${voiceTag(v)}.mid`);
 }
-// all voices as a linked multitrack file (one channel/track each)
-export function exportSet(voices, S, bpm, human) {
-  download(buildMidi(voices, S, bpm, human), `${baseName(S, bpm)}_set-${voices.length}v.mid`);
+// one file PER voice (multiple downloads) — separate but linked (shared base name + full-set patch in each)
+export function exportEach(voices, S, bpm, human) {
+  const base = baseName(S, bpm);
+  voices.forEach((v, i) => {
+    const midi = buildMidi([v], S, bpm, human, voices);
+    setTimeout(() => download(midi, `${base}_v${i + 1}-${voiceTag(v)}.mid`), i * 200);   // stagger; browsers drop rapid back-to-back downloads
+  });
 }
 
 export { buildMidi, patchMeta };   // for tests / future import-patch

@@ -1,37 +1,50 @@
 // Orchestrator: wires UI + state + audio + viz. State changes flow through
 // dispatch() → regenerate → reschedule (per voice) → redraw.
 import './styles.css';
-import { state, regenerateAll, regenerateVoice, focusedVoice, makeVoice, MAX_VOICES,
+import { state, regenerateAll, regenerateVoice, focusedVoice, makeVoice, MAX_VOICES, PALETTE,
          audibleVoices, voiceLoopBeats, totalBeats } from './state.js';
-import { renderTopGlobals, renderTheory, renderFeel, renderGenSelect, renderGenParams, renderVoiceStrip, renderVoiceControls } from './ui.js';
+import { renderTopGlobals, renderTempo, renderMoreTray, renderVoiceStrip, renderChannelStrip } from './ui.js';
 import * as audio from './audio.js';
 import * as midiout from './midiout.js';
-import { exportVoice, exportSet } from './export.js';
+import { exportVoice, exportEach } from './export.js';
 import { initViz, resize, draw } from './viz.js';
 import { initEditor } from './editor.js';
 import { shuffleColors } from './sprites.js';
-import { getGenerator } from './generators/index.js';
-import { pitchName } from './music.js';
 
 const $ = (id) => document.getElementById(id);
 let seedCounter = 1;
 
+// General MIDI instruments for per-voice program-change on the external path
+const GM = [['grand piano', 0], ['rhodes', 4], ['music box', 10], ['vibraphone', 11], ['nylon guitar', 24], ['fingered bass', 33], ['synth bass', 38], ['strings', 48], ['brass', 61], ['square lead', 80], ['saw lead', 81], ['warm pad', 88]];
+
 // audible voices → the audio scheduling plan (one Part per voice)
 const audioPlan = () => audibleVoices().map((v) => ({ id: v.id, name: v.instrument, notes: v.notes, loopBeats: voiceLoopBeats(v) }));
-// P1 MIDI-out: merge audible voices onto one channel (P4 = per-channel)
-const midiNotes = () => audibleVoices().flatMap((v) => v.notes.filter((n) => n.startBeat < totalBeats()));
-const transportCfg = () => ({ bpm: state.bpm, totalBeats: totalBeats() });
+// audible voices → the MIDI-out plan: each voice on its OWN channel + its own GM program.
+// channel = colorIdx (a stable per-voice slot) so removing a voice never reshuffles the
+// survivors onto channels a different voice just vacated.
+const midiPlan = () => audibleVoices().map((v) => ({
+  id: v.id,
+  notes: v.notes.filter((n) => n.startBeat < voiceLoopBeats(v)),
+  loopBeats: voiceLoopBeats(v),
+  channel: v.colorIdx & 0x0f,
+  program: v.gm | 0,
+}));
 
-function refreshReadout() {
-  const S = state.shared;
-  const lines = state.voices.map((v, i) => {
-    const g = getGenerator(v.genId);
-    const cur = i === state.focused ? '▸' : ' ';
-    const flags = `${v.mute ? 'M' : '-'}${v.solo ? 'S' : '-'}`;
-    return `${cur} V${i + 1} ${flags} ${g.label.padEnd(16)} ${v.notes.length}n`;
-  });
-  $('readout').textContent =
-`KEY ${pitchName(S.root)} ${S.scale}  ${S.meter}/4  ${totalBeats()}bt @ ${state.bpm}bpm\n${lines.join('\n')}`;
+// MIDI reschedule is a full stop-and-refire; coalesce rapid edits (slider/note drags fire
+// ~60/s) so we don't machine-gun the external device. Audio (Tone) reschedule stays immediate.
+let midiReschedTimer = null;
+function midiResched() {
+  if (!(audio.isPlaying() && midiout.isEnabled())) return;
+  clearTimeout(midiReschedTimer);
+  midiReschedTimer = setTimeout(() => midiout.reschedule(midiPlan(), { bpm: state.bpm }), 120);
+}
+
+// derived status: loop-length chip + export button count + per-chip note badges
+function refreshStatus() {
+  $('loopchip').textContent = `${totalBeats()}BT`;
+  $('export').textContent = `⭳ .MID ×${state.voices.length}`;
+  const chips = document.querySelectorAll('#voicestrip .voicechip');
+  state.voices.forEach((v, i) => { const b = chips[i] && chips[i].querySelector('.vbadge'); if (b) b.textContent = `${v.notes.length}n`; });
 }
 
 function playBeat() {
@@ -46,8 +59,8 @@ function redraw() { draw(state, playBeat()); }
 // reschedule audio + midi from current notes; no regen (used after edits + mix toggles)
 function refresh() {
   audio.reschedule(audioPlan());
-  if (audio.isPlaying() && midiout.isEnabled()) midiout.reschedule(midiNotes(), transportCfg());
-  refreshReadout();
+  midiResched();
+  refreshStatus();
   redraw();
 }
 
@@ -63,16 +76,25 @@ function applyVoice({ shuffle = false } = {}) {   // regen only the focused voic
 }
 
 const renderStrip = () => renderVoiceStrip($('voicestrip'), state, dispatch);
-function renderEnginePanel() {
-  renderVoiceControls($('voice-controls'), focusedVoice(), dispatch);
-  renderGenSelect($('gen-select'), state, dispatch);
-  renderGenParams($('gen-controls'), state, dispatch);
+const renderChannel = () => renderChannelStrip($('channel-strip'), focusedVoice(), state, dispatch, { instruments: audio.INSTRUMENTS, gm: GM });
+function syncFocusUI() {
+  renderStrip();
+  renderChannel();
+  document.documentElement.style.setProperty('--vcf', PALETTE[focusedVoice().colorIdx % PALETTE.length]);   // tint the per-voice rails
+  $('edit-label').textContent = `EDIT V${state.focused + 1}`;
 }
-function syncFocusUI() { renderStrip(); renderEnginePanel(); $('inst').value = focusedVoice().instrument; }
+
+function onMore(btn) {
+  const tray = $('more-tray');
+  tray.hidden = !tray.hidden;
+  btn.textContent = tray.hidden ? 'MORE ▸' : 'MORE ▾';
+}
 
 function addVoice() {
   if (state.voices.length >= MAX_VOICES) return;
-  const v = makeVoice(focusedVoice().genId, { colorIdx: state.voices.length });
+  const used = new Set(state.voices.map((v) => v.colorIdx));   // smallest free palette slot (MAX_VOICES === PALETTE.length → one always free)
+  let ci = 0; while (used.has(ci)) ci++;
+  const v = makeVoice(focusedVoice().genId, { colorIdx: ci });
   state.voices.push(v);
   state.focused = state.voices.length - 1;
   regenerateVoice(v);
@@ -90,17 +112,18 @@ function dispatch(kind) {
   switch (kind) {
     case 'bpm':
       audio.setBpm(state.bpm);
-      if (audio.isPlaying() && midiout.isEnabled()) midiout.reschedule(midiNotes(), transportCfg());
-      refreshReadout(); return;
-    case 'switch': renderEnginePanel(); applyVoice({ shuffle: true }); return;
+      midiResched();
+      refreshStatus(); return;
+    case 'switch': renderChannel(); applyVoice({ shuffle: true }); return;   // generator changed → re-render its params
     case 'regen-all': applyAll(); return;                        // global theory / feel
     case 'regen-voice': applyVoice(); return;                    // focused voice param / voice control
-    case 'focus': syncFocusUI(); refreshReadout(); redraw(); return;   // no regen
+    case 'focus': syncFocusUI(); refreshStatus(); redraw(); return;   // no regen
     case 'voice-mix': renderStrip(); refresh(); return;          // mute/solo → reschedule, no regen
     case 'voice-add': addVoice(); return;
     case 'voice-remove': removeVoice(); return;
     case 'instrument': audio.setInstrument(focusedVoice().id, focusedVoice().instrument); return;
-    case 'export-voice': exportVoice(focusedVoice(), state.shared, state.bpm, state.human); return;
+    case 'voice-gm': { const v = focusedVoice(); if (midiout.isEnabled()) midiout.programChange(v.gm, v.colorIdx); return; }
+    case 'export-voice': exportVoice(focusedVoice(), state.shared, state.bpm, state.human, state.voices); return;
     default: applyAll();
   }
 }
@@ -109,7 +132,7 @@ async function onPlay() {
   await audio.unlock();
   if (!audio.isPlaying()) {
     audio.play(audioPlan(), state.bpm);
-    if (midiout.isEnabled()) midiout.startLoop(midiNotes(), transportCfg());
+    if (midiout.isEnabled()) midiout.startLoop(midiPlan(), { bpm: state.bpm });
   }
 }
 function onStop() { audio.stop(); midiout.stopLoop(); redraw(); }
@@ -120,33 +143,21 @@ function init() {
   initViz(canvas);
   initEditor(canvas, state, refresh);
 
-  // editor toolbar
+  // editor toolbar (in its own dock under the canvas)
   const setTool = (t) => {
     state.tool = t;
-    document.querySelectorAll('#edit-tools .tool').forEach((b) => b.classList.toggle('active', b.dataset.tool === t));
+    document.querySelectorAll('#edit-dock .tool').forEach((b) => b.classList.toggle('active', b.dataset.tool === t));
     canvas.style.cursor = t === 'off' ? 'default' : t === 'erase' ? 'not-allowed' : 'crosshair';
   };
-  document.querySelectorAll('#edit-tools .tool').forEach((b) => b.addEventListener('click', () => setTool(state.tool === b.dataset.tool ? 'off' : b.dataset.tool)));
+  document.querySelectorAll('#edit-dock .tool').forEach((b) => b.addEventListener('click', () => setTool(state.tool === b.dataset.tool ? 'off' : b.dataset.tool)));
   $('snap').addEventListener('change', (e) => { state.editSnap = parseFloat(e.target.value); });
   $('clear').addEventListener('click', () => { focusedVoice().notes = []; refresh(); });
 
-  renderTopGlobals($('top-globals'), state, dispatch);
-  renderTheory($('tab-theory'), state, dispatch);
-  renderFeel($('tab-feel'), state, dispatch);
+  renderTopGlobals($('top-globals'), state, dispatch, onMore);
+  renderTempo($('tempo'), state, dispatch);
+  renderMoreTray($('more-tray'), state, dispatch);
   renderStrip();
-  renderEnginePanel();
-
-  // tab switching
-  const panes = { theory: $('tab-theory'), engine: $('tab-engine'), feel: $('tab-feel') };
-  document.querySelectorAll('#tabbar .tab').forEach((b) => b.addEventListener('click', () => {
-    document.querySelectorAll('#tabbar .tab').forEach((x) => x.classList.toggle('active', x === b));
-    for (const [name, el] of Object.entries(panes)) el.hidden = name !== b.dataset.tab;
-  }));
-
-  const inst = $('inst');
-  for (const name of audio.INSTRUMENTS) inst.append(Object.assign(document.createElement('option'), { value: name, textContent: name }));
-  inst.value = state.instrument;
-  inst.addEventListener('change', () => { focusedVoice().instrument = inst.value; dispatch('instrument'); });
+  syncFocusUI();
 
   setupMidiOut();
 
@@ -164,11 +175,11 @@ function init() {
     e.preventDefault(); togglePlay();
   });
   $('regen').addEventListener('click', () => applyAll({ shuffle: true }));
-  $('export').addEventListener('click', () => exportSet(state.voices, state.shared, state.bpm, state.human));
+  $('export').addEventListener('click', () => exportEach(state.voices, state.shared, state.bpm, state.human));
 
   shuffleColors(1);
   regenerateAll();
-  refreshReadout();
+  refreshStatus();
   redraw();
 
   setInterval(() => { if (audio.isPlaying()) redraw(); }, 110);
@@ -176,19 +187,9 @@ function init() {
   window.addEventListener('resize', () => { resize(); redraw(); });
 }
 
-// General MIDI instruments for program-change on the external path
-const GM = [['grand piano', 0], ['rhodes', 4], ['music box', 10], ['vibraphone', 11], ['nylon guitar', 24], ['fingered bass', 33], ['synth bass', 38], ['strings', 48], ['brass', 61], ['square lead', 80], ['saw lead', 81], ['warm pad', 88]];
-
 async function setupMidiOut() {
   const sel = $('midiout');
   if (!midiout.SUPPORTED) { sel.innerHTML = '<option>— web midi unsupported —</option>'; sel.disabled = true; return; }
-  const gm = Object.assign(document.createElement('select'), { id: 'gmprog', title: 'GM program (external instrument)' });
-  for (const [name, prog] of GM) gm.append(Object.assign(document.createElement('option'), { value: prog, textContent: name }));
-  gm.addEventListener('change', () => { if (midiout.isEnabled()) midiout.programChange(parseInt(gm.value, 10)); });
-  const gmLabel = Object.assign(document.createElement('label'), { textContent: 'GM ' });
-  gmLabel.append(gm);
-  sel.closest('.selrow').append(gmLabel);
-
   const fill = (devices) => {
     const cur = sel.value;
     sel.innerHTML = '<option value="">— none —</option>';
@@ -199,11 +200,8 @@ async function setupMidiOut() {
     const devices = await midiout.init();
     fill(devices || []);
     sel.addEventListener('change', () => {
-      midiout.selectOutput(sel.value);
-      if (midiout.isEnabled()) {
-        midiout.programChange(parseInt(gm.value, 10));
-        if (audio.isPlaying()) midiout.startLoop(midiNotes(), transportCfg());
-      }
+      midiout.selectOutput(sel.value);   // one global device; per-voice channel + GM come from midiPlan()
+      if (midiout.isEnabled() && audio.isPlaying()) midiout.startLoop(midiPlan(), { bpm: state.bpm });
     });
   } catch (e) {
     sel.innerHTML = '<option>— midi access denied —</option>'; sel.disabled = true;

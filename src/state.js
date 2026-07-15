@@ -20,7 +20,8 @@ export function makeVoice(genId = 'molecular', over = {}) {
     id: vid(),
     genId,
     genParams,
-    instrument: 'synth',
+    instrument: 'synth',     // local Tone.js voice
+    gm: 0,                    // external MIDI GM program (grand piano) — used on the Web MIDI path
     mono: false,
     octave: 0,               // register shift (window-fold), in octaves
     length: 4,               // per-voice loop length in bars (voices phase against each other)
