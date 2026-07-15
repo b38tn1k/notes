@@ -6,7 +6,7 @@ import { state, regenerateAll, regenerateVoice, focusedVoice, makeVoice, MAX_VOI
 import { renderTheory, renderFeel, renderGenSelect, renderGenParams, renderVoiceStrip, renderVoiceControls } from './ui.js';
 import * as audio from './audio.js';
 import * as midiout from './midiout.js';
-import { downloadMidi } from './export.js';
+import { exportVoice, exportSet } from './export.js';
 import { initViz, resize, draw } from './viz.js';
 import { initEditor } from './editor.js';
 import { shuffleColors } from './sprites.js';
@@ -100,6 +100,7 @@ function dispatch(kind) {
     case 'voice-add': addVoice(); return;
     case 'voice-remove': removeVoice(); return;
     case 'instrument': audio.setInstrument(focusedVoice().id, focusedVoice().instrument); return;
+    case 'export-voice': exportVoice(focusedVoice(), state.shared, state.bpm, state.human); return;
     default: applyAll();
   }
 }
@@ -162,10 +163,7 @@ function init() {
     e.preventDefault(); togglePlay();
   });
   $('regen').addEventListener('click', () => applyAll({ shuffle: true }));
-  $('export').addEventListener('click', () => {
-    const v = focusedVoice();
-    downloadMidi(v.notes.filter((n) => n.startBeat < totalBeats()), { bpm: state.bpm, name: `notes-${v.genId}` });
-  });
+  $('export').addEventListener('click', () => exportSet(state.voices, state.shared, state.bpm, state.human));
 
   shuffleColors(1);
   regenerateAll();

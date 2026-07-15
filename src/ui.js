@@ -100,6 +100,9 @@ export function renderVoiceControls(container, voice, dispatch) {
   add({ label: 'Length (bars)', type: 'range', min: 1, max: 8, step: 1, get: () => voice.length, set: (v) => (voice.length = v) }, regen);
   add({ label: 'Octave', type: 'range', min: -3, max: 3, step: 1, fmt: (v) => (v > 0 ? `+${v}` : `${v}`), get: () => voice.octave, set: (v) => (voice.octave = v) }, regen);
   add({ label: 'Mono (bass / lead)', type: 'toggle', get: () => voice.mono, set: (v) => (voice.mono = v) }, regen);
+  const exp = el('button', { className: 'voiceexport', textContent: '⭳ export this voice' });
+  exp.addEventListener('click', () => dispatch('export-voice'));
+  container.append(exp);
 }
 
 // FEEL tab: humanize (global).
