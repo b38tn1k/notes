@@ -1,22 +1,35 @@
 // The heritage engine. Faithful port of notes.py's notes() loop — the
-// Molecular Music Box. The two jump intervals are integer counts of a selectable
-// "base" step (default a 16th note), so in 4/4 a bar is 16 steps and the interval
-// numbers line up with the bar. Occupancy is tracked on a 1/96-beat grid so every
-// base (incl. triplets) lands cleanly. Integer beats reproduce the 2015 output
-// exactly when base = 1/4 (see test/molecular.test.mjs).
+// Molecular Music Box. Each jump = (interval × base step). The base sets the
+// unit (1/16 → a bar is 16 in 4/4; T = triplet); the interval is a *fractional*
+// count of that unit, so 3.5, 3⅓ etc. are all reachable. Occupancy is tracked on
+// a 1/144-beat grid so every interval×base lands cleanly. Integer intervals
+// reproduce the 2015 output when base = 1/4 (see test/molecular.test.mjs).
 import { makeScaleWalker } from '../music.js';
 
-// step size in beats (1 beat = a quarter note). T = triplet.
+// base step size in beats (1 beat = a quarter note). T = triplet.
 const BASES = { '1/4': 1, '1/8': 1 / 2, '1/8T': 1 / 3, '1/16': 1 / 4, '1/16T': 1 / 6 };
+
+// interval values: 1…16 with 1/4, 1/3, 1/2, 2/3, 3/4 sub-steps between the whole
+// numbers, so you can jump 3.5, 3⅓, etc. (counts of the base step).
+const FRACS = [[0, ''], [1 / 4, '1/4'], [1 / 3, '1/3'], [1 / 2, '1/2'], [2 / 3, '2/3'], [3 / 4, '3/4']];
+const IVS = [];
+for (let i = 1; i <= 16; i++) {
+  for (const [f, fl] of FRACS) {
+    if (i + f > 16 + 1e-9) continue;
+    IVS.push([i + f, fl ? `${i} ${fl}` : `${i}`]);
+  }
+}
+export const IV_VALUES = IVS.map((x) => x[0]);
+export const IV_LABELS = IVS.map((x) => x[1]);
 
 export default {
   id: 'molecular',
   label: 'Molecular Music Box',
-  blurb: 'Two intervals; switch whenever paths collide. Intervals count in "base" steps (1/16 → a bar is 16 in 4/4; T = triplet).',
+  blurb: 'Two intervals; switch whenever paths collide. Jump = interval × base step (1/16 → a bar is 16 in 4/4; T = triplet). Intervals can be fractional (3.5).',
   params: [
     { key: 'base', label: 'Base step', type: 'select', options: Object.keys(BASES), default: '1/16' },
-    { key: 'intervalA', label: 'Interval A', type: 'range', min: 1, max: 16, step: 1, default: 5 },
-    { key: 'intervalB', label: 'Interval B', type: 'range', min: 1, max: 16, step: 1, default: 7 },
+    { key: 'intervalA', label: 'Interval A', type: 'steps', values: IV_VALUES, labels: IV_LABELS, default: 5 },
+    { key: 'intervalB', label: 'Interval B', type: 'steps', values: IV_VALUES, labels: IV_LABELS, default: 7 },
     { key: 'iterations', label: 'Iterations', type: 'range', min: 1, max: 24, step: 1, default: 6 },
     { key: 'firstNote', label: 'Start degree', type: 'range', min: 1, max: 8, step: 1, default: 1 },
     { key: 'drums', label: 'Drums mode', type: 'toggle', default: false },
@@ -28,7 +41,7 @@ export default {
     const a = p.intervalA * baseBeats;            // jump sizes in beats
     const b = p.intervalB * baseBeats;
 
-    const Q = 96;                                 // occupancy grid: cells per beat (÷ 8,6,4,3,2)
+    const Q = 144;                                // occupancy grid: cells per beat (÷ 16,18,24)
     const cellOf = (bt) => Math.round(bt * Q);
     const visited = new Map();
     const notes = [];
