@@ -1,7 +1,7 @@
 // Renders controls from declarative specs. Generators declare their params,
 // so there is no per-generator UI code. Native inputs only.
 import { SCALE_NAMES, pitchName } from './music.js';
-import { registry, getGenerator } from './generators/index.js';
+import { registry, getGenerator, defaultParams } from './generators/index.js';
 
 function el(tag, props = {}) { return Object.assign(document.createElement(tag), props); }
 
@@ -109,16 +109,21 @@ export function renderGenParams(container, state, dispatch) {
       ? () => { renderGenParams(container, state, dispatch); dispatch('regen'); }
       : () => dispatch('regen');
     container.append(makeControl({ ...spec, get: () => P[spec.key], set: (v) => (P[spec.key] = v) }, onChange));
-    if (isSource) appendSubParams(container, state, dispatch, P[spec.key]);
+    if (isSource) appendSubParams(container, state, dispatch, spec.key === 'sourceA' ? 'slotA' : 'slotB', P[spec.key]);
   }
 }
 
-// Render a source generator's own controls inside Mixed Media, editing the same
-// shared params object the standalone engine uses.
-function appendSubParams(container, state, dispatch, subId) {
+// Render a Mixer source's controls, editing that slot's OWN params (so two of the
+// same source are independent). Re-inits the slot when its source changes.
+function appendSubParams(container, state, dispatch, slotKey, subId) {
   const sub = getGenerator(subId);
-  const SP = state.genParams[subId];
-  if (!sub || !SP) return;
+  if (!sub) return;
+  const P = state.genParams.mixed;
+  if (!P[slotKey] || P[slotKey]._gen !== subId) {
+    P[slotKey] = defaultParams(sub);
+    P[slotKey]._gen = subId;
+  }
+  const SP = P[slotKey];
   const box = el('div', { className: 'subparams' });
   box.append(el('div', { className: 'subtitle', textContent: `↳ ${sub.label}` }));
   for (const spec of sub.params) {

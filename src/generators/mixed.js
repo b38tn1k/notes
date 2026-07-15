@@ -11,12 +11,12 @@ const IDS = Object.keys(SOURCES);
 
 function defaults(g) { const p = {}; for (const s of g.params) p[s.key] = s.default; return p; }
 
-// Use the source's live, shared params (same object the standalone engine edits)
-// so tuning Molecular here == tuning it there. Fall back to defaults if absent.
-function runSource(id, shared, ctx) {
+// Each Mixer slot keeps its OWN copy of the source's params (slot._gen marks which
+// source it's for) so two of the same source can be tuned independently.
+function runSource(id, slot, shared, ctx) {
   const g = SOURCES[id] || molecular;
-  const p = (ctx && ctx.genParams && ctx.genParams[id]) || defaults(g);
-  return g.generate(shared, p, ctx) || [];
+  const params = slot && slot._gen === id ? slot : defaults(g);
+  return g.generate(shared, params, ctx) || [];
 }
 
 export const MIXED_SOURCES = IDS;
@@ -33,8 +33,8 @@ export default {
     { key: 'keyLock', label: 'Key lock', type: 'toggle', default: true },
   ],
   generate(shared, p, ctx) {
-    const a = runSource(p.sourceA, shared, ctx);
-    const b = runSource(p.sourceB, shared, ctx);
+    const a = runSource(p.sourceA, p.slotA, shared, ctx);
+    const b = runSource(p.sourceB, p.slotB, shared, ctx);
     let out;
 
     if (p.mode === 'rhythm+pitch') {
