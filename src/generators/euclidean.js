@@ -23,7 +23,7 @@ export default {
   label: 'Euclidean Rhythm',
   blurb: 'Evenly-spread pulses over the base-step grid. Rotate to taste. Great for drums.',
   params: [
-    { key: 'pulses', label: 'Pulses', type: 'range', min: 1, max: 32, step: 1, default: 5 },
+    { key: 'pulses', label: 'Pulses', type: 'range', min: 1, max: 32, step: 1, default: 30 },
     { key: 'rotation', label: 'Rotate', type: 'range', min: 0, max: 32, step: 1, default: 0 },
     { key: 'pitch', label: 'Pitch', type: 'select', options: ['root', 'octaveUp', 'climb', 'kick+snare'], default: 'root' },
     { key: 'gate', label: 'Gate', type: 'range', min: 0.1, max: 1, step: 0.05, default: 0.5 },
