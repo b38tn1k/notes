@@ -9,7 +9,16 @@ thing but better, and lets little pixel animals control the notes — lives in t
 This folder is its origin story, its wiki, and its roast.
 
 > Blog writeup (2015): http://b38tn1k.com/code/2015/02/10/Procedural-Generation-with-MIDI/
-> Demos went up on SoundCloud under `b38tn1k`.
+
+## Demos — what actually came out of it
+
+Three tracks made with this engine, still up on SoundCloud:
+
+- **[FemVox](https://soundcloud.com/b38tn1k/femvox-the-realm-a-procedurally-generated-music-experiment)** — made with an early version of Notes that generated melody only.
+- **[Machine Drum](https://soundcloud.com/b38tn1k/machine-drum)** — demonstrates the drum patterns achievable, in addition to further melodic examples.
+- **[Digital Ballet](https://soundcloud.com/b38tn1k/digital-ballet)** — a less "Aphex Twin"-y use of notes; the piano line uses an arpeggiator to add complexity and stuff.
+
+(The raw renders are also in [`part1-python/demos/`](part1-python/demos/).)
 
 ## The one clever idea
 
