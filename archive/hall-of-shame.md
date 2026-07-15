@@ -137,4 +137,4 @@ was the last word. This very folder is, in some sense, commit #29.
 
 *Verdict: 515 lines that implement a legitimately clever algorithm, shipped, made real music, and
 then celebrated by generating thirty thousand near-identical files named after a flag that never
-ran. Ten out of ten. Young, fearless, and wrong in exactly the right ways.*
+ran. Ten out of ten. Would be young and fearless again.*
