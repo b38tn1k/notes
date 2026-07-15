@@ -2,8 +2,28 @@
 // so there is no per-generator UI code. Native inputs only.
 import { SCALE_NAMES, BASE_NAMES, pitchName } from './music.js';
 import { registry, getGenerator, defaultParams } from './generators/index.js';
+import { MAX_VOICES, PALETTE } from './state.js';
 
 function el(tag, props = {}) { return Object.assign(document.createElement(tag), props); }
+
+// Voice strip: V1..V4 chips (click = focus) with mute/solo, plus add/remove.
+export function renderVoiceStrip(container, state, dispatch) {
+  container.innerHTML = '';
+  state.voices.forEach((v, i) => {
+    const chip = el('div', { className: 'voicechip' + (i === state.focused ? ' focused' : '') });
+    const lab = el('button', { className: 'vlabel', textContent: `V${i + 1}` });
+    lab.style.borderColor = PALETTE[v.colorIdx % PALETTE.length];
+    lab.addEventListener('click', () => { state.focused = i; dispatch('focus'); });
+    const m = el('button', { className: 'vtog' + (v.mute ? ' on' : ''), textContent: 'M', title: 'mute' });
+    m.addEventListener('click', () => { v.mute = !v.mute; dispatch('voice-mix'); });
+    const s = el('button', { className: 'vtog' + (v.solo ? ' on' : ''), textContent: 'S', title: 'solo' });
+    s.addEventListener('click', () => { v.solo = !v.solo; dispatch('voice-mix'); });
+    chip.append(lab, m, s);
+    container.append(chip);
+  });
+  if (state.voices.length < MAX_VOICES) { const b = el('button', { className: 'vadd', textContent: '+' }); b.addEventListener('click', () => dispatch('voice-add')); container.append(b); }
+  if (state.voices.length > 1) { const b = el('button', { className: 'vadd', textContent: '−' }); b.addEventListener('click', () => dispatch('voice-remove')); container.append(b); }
+}
 
 function nearestIdx(values, v) {
   let best = 0, bd = Infinity;

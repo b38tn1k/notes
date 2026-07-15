@@ -98,6 +98,17 @@ button:disabled { opacity: 1; border-style: dashed; cursor: not-allowed; }
 .subtabs .tab { flex: 1; padding: 5px 2px; font-size: 10px; }
 .subtabs .tab.active { background: var(--fg); color: #000; }
 
+/* voice strip */
+#voicestrip { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px; align-items: center; }
+.voicechip { display: flex; border: 1px solid var(--fg); }
+.voicechip.focused { outline: 2px solid var(--fg); }
+.voicechip button { border: none; background: #000; color: var(--fg); padding: 4px 7px; font: inherit; font-size: 10px; cursor: pointer; }
+.voicechip .vlabel { border-left: 3px solid var(--fg); }
+.voicechip button + button { border-left: 1px solid var(--fg); }
+.voicechip .vtog.on { background: var(--fg); color: #000; }
+.vadd { border: 1px solid var(--fg); background: #000; color: var(--fg); padding: 4px 9px; font: inherit; cursor: pointer; }
+.vadd:hover { background: var(--fg); color: #000; }
+
 /* editor toolbar */
 #edit-tools { align-items: center; margin-top: 8px; }
 #edit-tools button { padding: 4px 8px; font-size: 11px; border-width: 1px; }

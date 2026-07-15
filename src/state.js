@@ -58,6 +58,17 @@ export function seqBeats() { return state.shared.meter * seqLen(); }
 export function loopBeats() { return state.shared.meter * state.shared.loopLength; }
 export function totalBeats() { return loopBeats(); }   // "total" == the loop, for playback/export
 
+// per-voice length (P3 makes these per-voice; for now they mirror the global length)
+export const voiceLoopBeats = (_v) => loopBeats();
+export const voiceSeqBeats = (_v) => seqBeats();
+export const masterBeats = (_shownOnly) => totalBeats();
+
+// solo overrides the pool (only soloed voices), else all; then mute silences within it
+export function audibleVoices() {
+  const solos = state.voices.filter((v) => v.solo);
+  return (solos.length ? solos : state.voices).filter((v) => !v.mute);
+}
+
 // keep one note per onset (lowest pitch = bass-friendly), then clip so nothing overlaps
 function collapseMono(notes) {
   if (notes.length < 2) return notes;
