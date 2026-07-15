@@ -3,9 +3,10 @@
 import molecular from './molecular.js';
 import euclidean from './euclidean.js';
 import herd from './herd.js';
+import arp from './arp.js';
 import { snapToScale } from '../music.js';
 
-const SOURCES = { molecular, euclidean, herd };
+const SOURCES = { molecular, euclidean, herd, arp };
 const IDS = Object.keys(SOURCES);
 
 function defaults(g) { const p = {}; for (const s of g.params) p[s.key] = s.default; return p; }

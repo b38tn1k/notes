@@ -27,6 +27,16 @@
           <button id="regen">⟳ REGEN</button>
           <button id="export">⭳ .MID</button>
         </div>
+        <div class="btnrow" id="edit-tools">
+          <span class="tool-label">EDIT</span>
+          <button data-tool="off" class="tool active">✋ off</button>
+          <button data-tool="draw" class="tool">✎ draw</button>
+          <button data-tool="erase" class="tool">⌫ erase</button>
+          <label class="snap-label">snap
+            <select id="snap"><option value="1">1</option><option value="0.5">½</option><option value="0.25">¼</option></select>
+          </label>
+          <button id="clear">clear</button>
+        </div>
         <div class="selrow">
           <label>INST <select id="inst"></select></label>
           <label>MIDI OUT <select id="midiout"><option value="">— none —</option></select></label>

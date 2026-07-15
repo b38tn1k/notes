@@ -88,6 +88,13 @@ button:disabled { opacity: 1; border-style: dashed; cursor: not-allowed; }
 .btnrow { display: flex; gap: 6px; flex-wrap: wrap; }
 .selrow { display: flex; gap: 16px; flex-wrap: wrap; margin-top: 10px; }
 
+/* editor toolbar */
+#edit-tools { align-items: center; margin-top: 8px; }
+#edit-tools button { padding: 4px 8px; font-size: 11px; border-width: 1px; }
+#edit-tools .tool.active { background: var(--fg); color: #000; }
+.tool-label, .snap-label { font-size: 11px; }
+.snap-label select { padding: 2px; }
+
 #readout {
   margin: 10px 0 0; padding: 6px;
   border: 1px solid var(--fg);

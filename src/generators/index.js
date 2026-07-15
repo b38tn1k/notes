@@ -3,11 +3,12 @@
 import molecular from './molecular.js';
 import euclidean from './euclidean.js';
 import herd from './herd.js';
+import arp from './arp.js';
 import mixed from './mixed.js';
 
-// Visible menu. Drunk Walk, Noise, Arp are folded into Herd; Markov is hidden
-// for now — their files remain in the repo, just off the menu.
-export const registry = [molecular, euclidean, herd, mixed];
+// Visible menu. Drunk Walk and Noise are folded into Herd; Markov is hidden for
+// now — their files remain in the repo, just off the menu.
+export const registry = [molecular, euclidean, herd, arp, mixed];
 
 export function getGenerator(id) {
   return registry.find((g) => g.id === id) || registry[0];

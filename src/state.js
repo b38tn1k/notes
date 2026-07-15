@@ -9,11 +9,13 @@ export const state = {
   // lockLength keeps them equal (the default, and all it was before).
   shared: { root: 48, scale: 'minor', meter: 4, loopLength: 4, seqLength: 4, lockLength: true },
   bpm: 120,
-  human: { swing: 0, velVar: 0 },
+  human: { swing: 0, velVar: 0, strum: 0 },
   instrument: 'fm',
   genParams: {},          // { [genId]: {...params} }
   notes: [],
   playing: false,
+  tool: 'off',            // piano-roll editor: 'off' | 'draw' | 'erase'
+  editSnap: 1,            // beat snap for editing
 };
 
 // seed per-generator params from their declared defaults

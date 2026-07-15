@@ -7,6 +7,7 @@ import * as audio from './audio.js';
 import * as midiout from './midiout.js';
 import { downloadMidi } from './export.js';
 import { initViz, resize, draw } from './viz.js';
+import { initEditor } from './editor.js';
 import { shuffleColors } from './sprites.js';
 import { getGenerator } from './generators/index.js';
 import { pitchName } from './music.js';
@@ -18,12 +19,12 @@ function refreshReadout() {
   const g = getGenerator(state.genId);
   const S = state.shared;
   const lenLine = S.lockLength
-    ? `${S.meter}/4 x ${S.loopLength}bars`
-    : `${S.meter}/4  loop ${S.loopLength}b / seq ${S.seqLength}b`;
+    ? `${S.loopLength} bars x ${S.meter} bpb = ${totalBeats()} beats`
+    : `loop ${S.loopLength}bars / seq ${S.seqLength}bars @ ${S.meter}bpb`;
   $('readout').textContent =
 `> ENGINE  ${g.label}
 > KEY     ${pitchName(S.root)} ${S.scale}
-> TIME    ${lenLine} @ ${state.bpm}bpm
+> LENGTH  ${lenLine} @ ${state.bpm}bpm
 > NOTES   ${state.notes.length}   LOOP ${totalBeats()} beats`;
 }
 
@@ -35,6 +36,14 @@ function playBeat() {
 }
 
 function redraw() { draw(state, playBeat()); }
+
+// refresh after a manual edit — like apply() but WITHOUT regenerating (keeps edits)
+function refreshEdited() {
+  audio.reschedule(state.notes, totalBeats());
+  if (audio.isPlaying() && midiout.isEnabled()) midiout.reschedule(state.notes, transportCfg());
+  refreshReadout();
+  redraw();
+}
 
 function transportCfg() { return { bpm: state.bpm, totalBeats: totalBeats() }; }
 
@@ -72,6 +81,17 @@ function onStop() { audio.stop(); midiout.stopLoop(); redraw(); }
 function init() {
   const canvas = $('viz');
   initViz(canvas);
+  initEditor(canvas, state, refreshEdited);
+
+  // editor toolbar
+  const setTool = (t) => {
+    state.tool = t;
+    document.querySelectorAll('#edit-tools .tool').forEach((b) => b.classList.toggle('active', b.dataset.tool === t));
+    canvas.style.cursor = t === 'off' ? 'default' : t === 'erase' ? 'not-allowed' : 'crosshair';
+  };
+  document.querySelectorAll('#edit-tools .tool').forEach((b) => b.addEventListener('click', () => setTool(b.dataset.tool)));
+  $('snap').addEventListener('change', (e) => { state.editSnap = parseFloat(e.target.value); });
+  $('clear').addEventListener('click', () => { state.notes = []; refreshEdited(); });
 
   renderShared($('shared-controls'), state, dispatch);
   renderGenSelect($('gen-select'), state, dispatch);

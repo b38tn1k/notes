@@ -44,7 +44,7 @@ export function renderShared(container, state, dispatch) {
 
   add({ label: 'Key (root)', type: 'range', min: 36, max: 72, step: 1, fmt: pitchName, get: () => S.root, set: (v) => (S.root = v) }, regen);
   add({ label: 'Scale', type: 'select', options: SCALE_NAMES, get: () => S.scale, set: (v) => (S.scale = v) }, regen);
-  add({ label: 'Meter (beats/bar)', type: 'range', min: 2, max: 8, step: 1, get: () => S.meter, set: (v) => (S.meter = v) }, regen);
+  add({ label: 'Beats per bar', type: 'range', min: 2, max: 8, step: 1, get: () => S.meter, set: (v) => (S.meter = v) }, regen);
 
   // Loop length drives playback/export; when locked, the sequence follows it.
   add({ label: 'Loop length (bars)', type: 'range', min: 1, max: 8, step: 1, get: () => S.loopLength, set: (v) => { S.loopLength = v; if (S.lockLength) S.seqLength = v; } }, regen);
@@ -55,6 +55,7 @@ export function renderShared(container, state, dispatch) {
 
   add({ label: 'BPM', type: 'range', min: 40, max: 200, step: 1, get: () => state.bpm, set: (v) => (state.bpm = v) }, () => dispatch('bpm'));
   add({ label: 'Swing', type: 'range', min: 0, max: 0.6, step: 0.05, get: () => state.human.swing, set: (v) => (state.human.swing = v) }, regen);
+  add({ label: 'Strum (− down / + up)', type: 'range', min: -0.15, max: 0.15, step: 0.01, get: () => state.human.strum, set: (v) => (state.human.strum = v) }, regen);
   add({ label: 'Vel jitter', type: 'range', min: 0, max: 40, step: 5, get: () => state.human.velVar, set: (v) => (state.human.velVar = v) }, regen);
 }
 

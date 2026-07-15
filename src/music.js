@@ -1,12 +1,12 @@
 // Music theory core. Faithful port of scales.py's next_step, plus the
 // humanization the 2015 code was "too lazy" to write.
 
+// The modes (dorian/phrygian/…) are just the major scale started on a different
+// degree — you already get them via root + major. Kept the list to the ones
+// worth a dedicated button.
 export const SCALES = {
   minor:     [0, 2, 3, 5, 7, 8, 10],   // natural minor (heritage default)
   major:     [0, 2, 4, 5, 7, 9, 11],
-  dorian:    [0, 2, 3, 5, 7, 9, 10],
-  phrygian:  [0, 1, 3, 5, 7, 8, 10],
-  mixolydian:[0, 2, 4, 5, 7, 9, 10],
   pentMinor: [0, 3, 5, 7, 10],
   pentMajor: [0, 2, 4, 7, 9],
   chromatic: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
@@ -48,15 +48,35 @@ export function degreeToPitch(root, scaleName, degreeIndex) {
 
 // The headline upgrade over 2015: velocity jitter + swing, applied AFTER
 // generation so every generator's core stays pure.
-export function humanize(notes, { swing = 0, velVar = 0 } = {}) {
-  if (!swing && !velVar) return notes;
-  return notes.map((n) => {
+export function humanize(notes, { swing = 0, velVar = 0, strum = 0 } = {}) {
+  if (!swing && !velVar && !strum) return notes;
+  const out = notes.map((n) => ({ ...n }));
+  if (strum) applyStrum(out, strum);
+  return out.map((n) => {
     // push notes that land on an off-eighth later, up to swing/2 of a beat
     const eighth = Math.round(n.startBeat * 2);
-    const onOff = eighth % 2 === 1 ? swing * 0.5 : 0;
-    const jitter = velVar ? Math.round((seededSign(n.startBeat + n.pitch)) * Math.random() * velVar) : 0;
-    return { ...n, startBeat: n.startBeat + onOff, velocity: clampVel(n.velocity + jitter) };
+    const onOff = swing && eighth % 2 === 1 ? swing * 0.5 : 0;
+    const jitter = velVar ? Math.round(seededSign(n.startBeat + n.pitch) * Math.random() * velVar) : 0;
+    return { ...n, startBeat: Math.max(0, n.startBeat + onOff), velocity: clampVel(n.velocity + jitter) };
   });
+}
+
+// Strum: spread notes that land on the same beat across a short window, ordered
+// by pitch. Positive = up-strum (low note leads); negative = down-strum (high leads).
+function applyStrum(notes, amount) {
+  const groups = new Map();
+  for (const n of notes) {
+    const k = Math.round(n.startBeat * 8) / 8;
+    if (!groups.has(k)) groups.set(k, []);
+    groups.get(k).push(n);
+  }
+  const step = Math.abs(amount);
+  const up = amount >= 0;
+  for (const g of groups.values()) {
+    if (g.length < 2) continue;
+    g.sort((a, b) => a.pitch - b.pitch);
+    g.forEach((n, i) => { n.startBeat += (up ? i : g.length - 1 - i) * step; });
+  }
 }
 
 function clampVel(v) { return Math.max(1, Math.min(127, Math.round(v))); }
