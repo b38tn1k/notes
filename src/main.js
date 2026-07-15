@@ -3,7 +3,7 @@
 import './styles.css';
 import { state, regenerateAll, regenerateVoice, focusedVoice, makeVoice, MAX_VOICES,
          audibleVoices, voiceLoopBeats, totalBeats } from './state.js';
-import { renderTheory, renderFeel, renderGenSelect, renderGenParams, renderVoiceStrip, renderVoiceControls } from './ui.js';
+import { renderTopGlobals, renderTheory, renderFeel, renderGenSelect, renderGenParams, renderVoiceStrip, renderVoiceControls } from './ui.js';
 import * as audio from './audio.js';
 import * as midiout from './midiout.js';
 import { exportVoice, exportSet } from './export.js';
@@ -130,6 +130,7 @@ function init() {
   $('snap').addEventListener('change', (e) => { state.editSnap = parseFloat(e.target.value); });
   $('clear').addEventListener('click', () => { focusedVoice().notes = []; refresh(); });
 
+  renderTopGlobals($('top-globals'), state, dispatch);
   renderTheory($('tab-theory'), state, dispatch);
   renderFeel($('tab-feel'), state, dispatch);
   renderStrip();

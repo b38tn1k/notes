@@ -7,16 +7,26 @@
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><rect width='16' height='16' fill='%23000'/><rect x='2' y='6' width='3' height='3' fill='%230f0'/><rect x='11' y='6' width='3' height='3' fill='%230f0'/><rect x='6' y='9' width='4' height='2' fill='%23f0f'/></svg>" />
 </head>
 <body>
+  <header id="topbar" class="panel">
+    <div id="top-globals" class="topcluster"></div>
+    <div class="topcluster btnrow" id="top-transport">
+      <button id="play">▶ PLAY</button>
+      <button id="stop">■ STOP</button>
+      <button id="regen">⟳ REGEN</button>
+      <button id="export">⭳ .MID</button>
+    </div>
+    <div id="tabbar" class="topcluster btnrow">
+      <button data-tab="theory" class="tab active">THEORY</button>
+      <button data-tab="engine" class="tab">ENGINE</button>
+      <button data-tab="feel" class="tab">FEEL</button>
+    </div>
+  </header>
+
   <main id="app">
     <section id="controls" class="panel">
-      <div id="tabbar" class="btnrow">
-        <button data-tab="theory" class="tab active">THEORY</button>
-        <button data-tab="engine" class="tab">ENGINE</button>
-        <button data-tab="feel" class="tab">FEEL</button>
-      </div>
+      <div id="voicestrip"></div>
       <div id="tab-theory" class="tabpane"></div>
       <div id="tab-engine" class="tabpane" hidden>
-        <div id="voicestrip"></div>
         <div id="voice-controls"></div>
         <div id="gen-select-row">
           <select id="gen-select"></select>
@@ -29,12 +39,6 @@
     <section id="stage">
       <canvas id="viz"></canvas>
       <div id="transport" class="panel">
-        <div class="btnrow">
-          <button id="play">▶ PLAY</button>
-          <button id="stop">■ STOP</button>
-          <button id="regen">⟳ REGEN</button>
-          <button id="export">⭳ .MID</button>
-        </div>
         <div class="btnrow" id="edit-tools">
           <span class="tool-label">EDIT</span>
           <button data-tool="draw" class="tool">✎ draw</button>

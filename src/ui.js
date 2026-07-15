@@ -76,20 +76,29 @@ function makeControl(spec, onChange) {
   return wrap;
 }
 
-// THEORY tab: global key, scale, register, grid, tempo. (Loop length is per-voice.)
+// Top bar: the four headline globals (key · scale · BPM · beats). Compact inline.
+export function renderTopGlobals(container, state, dispatch) {
+  container.innerHTML = '';
+  const S = state.shared;
+  const add = (spec, onChange) => container.append(makeControl(spec, onChange));
+  const regen = () => dispatch('regen-all');
+
+  add({ label: 'Key', type: 'range', min: 36, max: 72, step: 1, fmt: pitchName, get: () => S.root, set: (v) => (S.root = v) }, regen);
+  add({ label: 'Scale', type: 'select', options: SCALE_NAMES, get: () => S.scale, set: (v) => (S.scale = v) }, regen);
+  add({ label: 'BPM', type: 'range', min: 40, max: 200, step: 1, get: () => state.bpm, set: (v) => (state.bpm = v) }, () => dispatch('bpm'));
+  add({ label: 'Beats/bar', type: 'range', min: 2, max: 8, step: 1, get: () => S.meter, set: (v) => (S.meter = v) }, regen);
+}
+
+// THEORY tab: the deeper globals (register window + grid). Headliners are in the top bar.
 export function renderTheory(container, state, dispatch) {
   container.innerHTML = '';
   const S = state.shared;
   const add = (spec, onChange) => container.append(makeControl(spec, onChange));
   const regen = () => dispatch('regen-all');
 
-  add({ label: 'Key (root)', type: 'range', min: 36, max: 72, step: 1, fmt: pitchName, get: () => S.root, set: (v) => (S.root = v) }, regen);
-  add({ label: 'Scale', type: 'select', options: SCALE_NAMES, get: () => S.scale, set: (v) => (S.scale = v) }, regen);
   add({ label: 'Floor (semitones below root)', type: 'range', min: 0, max: 48, step: 1, fmt: (v) => `-${v}`, get: () => S.floorDown, set: (v) => (S.floorDown = v) }, regen);
   add({ label: 'Ceiling (semitones above root)', type: 'range', min: 0, max: 48, step: 1, fmt: (v) => `+${v}`, get: () => S.ceilingUp, set: (v) => (S.ceilingUp = v) }, regen);
-  add({ label: 'Beats per bar', type: 'range', min: 2, max: 8, step: 1, get: () => S.meter, set: (v) => (S.meter = v) }, regen);
   add({ label: 'Base step (grid)', type: 'select', options: BASE_NAMES, get: () => S.base, set: (v) => (S.base = v) }, regen);
-  add({ label: 'BPM', type: 'range', min: 40, max: 200, step: 1, get: () => state.bpm, set: (v) => (state.bpm = v) }, () => dispatch('bpm'));
 }
 
 // per-voice controls (in the ENGINE panel): register + character + length
