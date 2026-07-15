@@ -93,6 +93,11 @@ button:disabled { opacity: 1; border-style: dashed; cursor: not-allowed; }
 #tabbar .tab { flex: 1; padding: 6px 4px; }
 #tabbar .tab.active { background: var(--fg); color: #000; }
 
+/* mixer sub-tabs */
+.subtabs { gap: 4px; margin-bottom: 10px; }
+.subtabs .tab { flex: 1; padding: 5px 2px; font-size: 10px; }
+.subtabs .tab.active { background: var(--fg); color: #000; }
+
 /* editor toolbar */
 #edit-tools { align-items: center; margin-top: 8px; }
 #edit-tools button { padding: 4px 8px; font-size: 11px; border-width: 1px; }

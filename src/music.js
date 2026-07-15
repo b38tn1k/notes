@@ -79,6 +79,18 @@ function applyStrum(notes, amount) {
   }
 }
 
+// Fold a pitch by octaves into [floor, ceiling] — above the ceiling drops an
+// octave, below the floor rises one. Applied globally after generation.
+export function foldPitch(p, floor, ceiling) {
+  let x = Math.round(p);
+  if (ceiling > floor) {
+    while (x > ceiling) x -= 12;
+    while (x < floor) x += 12;
+    if (x > ceiling) x = ceiling;   // range narrower than an octave: clamp
+  }
+  return Math.max(0, Math.min(127, x));
+}
+
 function clampVel(v) { return Math.max(1, Math.min(127, Math.round(v))); }
 function seededSign(x) { return (Math.sin(x * 99.7) > 0 ? 1 : -1); }
 

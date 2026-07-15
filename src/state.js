@@ -1,13 +1,13 @@
 // Central app state + the regenerate pipeline. This module owns data only —
 // main.js is the orchestrator that turns state changes into audio/viz/midi.
 import { registry, getGenerator, defaultParams } from './generators/index.js';
-import { humanize } from './music.js';
+import { humanize, foldPitch } from './music.js';
 
 export const state = {
   genId: 'molecular',
   // loopLength = playback repeat window; seqLength = how much the generator fills.
   // lockLength keeps them equal (the default, and all it was before).
-  shared: { root: 48, scale: 'minor', meter: 4, loopLength: 4, seqLength: 4, lockLength: true },
+  shared: { root: 48, scale: 'minor', meter: 4, loopLength: 4, seqLength: 4, lockLength: true, floor: 24, ceiling: 96 },
   bpm: 120,
   human: { swing: 0, velVar: 0, strum: 0 },
   instrument: 'fm',
@@ -46,10 +46,11 @@ export function regenerate() {
   notes = humanize(notes, state.human);
   // clamp into MIDI range and drop anything past the generated sequence
   const sb = seqBeats();
+  const { floor, ceiling } = state.shared;
   state.notes = notes
     .filter((n) => n.startBeat < sb)
     .map((n) => ({
-      pitch: Math.max(0, Math.min(127, Math.round(n.pitch))),
+      pitch: foldPitch(n.pitch, floor, ceiling),   // octave-fold into the THEORY range
       startBeat: Math.max(0, n.startBeat),
       durationBeats: Math.max(0.05, n.durationBeats),
       velocity: Math.max(1, Math.min(127, Math.round(n.velocity))),

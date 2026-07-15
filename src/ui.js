@@ -65,6 +65,8 @@ export function renderTheory(container, state, dispatch) {
 
   add({ label: 'Key (root)', type: 'range', min: 36, max: 72, step: 1, fmt: pitchName, get: () => S.root, set: (v) => (S.root = v) }, regen);
   add({ label: 'Scale', type: 'select', options: SCALE_NAMES, get: () => S.scale, set: (v) => (S.scale = v) }, regen);
+  add({ label: 'Floor (fold up)', type: 'range', min: 12, max: 84, step: 1, fmt: pitchName, get: () => S.floor, set: (v) => (S.floor = v) }, regen);
+  add({ label: 'Ceiling (fold down)', type: 'range', min: 36, max: 108, step: 1, fmt: pitchName, get: () => S.ceiling, set: (v) => (S.ceiling = v) }, regen);
   add({ label: 'Beats per bar', type: 'range', min: 2, max: 8, step: 1, get: () => S.meter, set: (v) => (S.meter = v) }, regen);
 
   // Loop length drives playback/export; when locked, the sequence follows it.
@@ -96,26 +98,54 @@ export function renderGenSelect(select, state, dispatch) {
 }
 
 export function renderGenParams(container, state, dispatch) {
+  if (state.genId === 'mixed') { renderMixer(container, state, dispatch); return; }
   container.innerHTML = '';
   const gen = getGenerator(state.genId);
   const P = state.genParams[state.genId];
   if (gen.blurb) container.append(el('p', { className: 'blurb', textContent: gen.blurb }));
-
-  const isMixed = state.genId === 'mixed';
   for (const spec of gen.params) {
-    const isSource = isMixed && (spec.key === 'sourceA' || spec.key === 'sourceB');
-    // changing a source swaps which sub-controls show, so re-render the whole panel
-    const onChange = isSource
-      ? () => { renderGenParams(container, state, dispatch); dispatch('regen'); }
-      : () => dispatch('regen');
-    container.append(makeControl({ ...spec, get: () => P[spec.key], set: (v) => (P[spec.key] = v) }, onChange));
-    if (isSource) appendSubParams(container, state, dispatch, spec.key === 'sourceA' ? 'slotA' : 'slotB', P[spec.key]);
+    container.append(makeControl({ ...spec, get: () => P[spec.key], set: (v) => (P[spec.key] = v) }, () => dispatch('regen')));
   }
 }
 
-// Render a Mixer source's controls, editing that slot's OWN params (so two of the
-// same source are independent). Re-inits the slot when its source changes.
-function appendSubParams(container, state, dispatch, slotKey, subId) {
+let mixerSubTab = 'a';   // 'a' | 'b' | 'mix' — persists across re-renders
+
+// Mixer gets its own sub-tabbed panel: SOURCE A / SOURCE B / MIXING.
+function renderMixer(container, state, dispatch) {
+  container.innerHTML = '';
+  const gen = getGenerator('mixed');
+  const P = state.genParams.mixed;
+  const regen = () => dispatch('regen');
+
+  const bar = el('div', { className: 'btnrow subtabs' });
+  for (const [key, label] of [['a', 'SOURCE A'], ['b', 'SOURCE B'], ['mix', 'MIXING']]) {
+    const btn = el('button', { className: 'tab' + (mixerSubTab === key ? ' active' : ''), textContent: label });
+    btn.addEventListener('click', () => { mixerSubTab = key; renderMixer(container, state, dispatch); });
+    bar.append(btn);
+  }
+  container.append(bar);
+
+  const pane = el('div');
+  container.append(pane);
+
+  if (mixerSubTab === 'a' || mixerSubTab === 'b') {
+    const srcKey = mixerSubTab === 'a' ? 'sourceA' : 'sourceB';
+    const slotKey = mixerSubTab === 'a' ? 'slotA' : 'slotB';
+    const spec = gen.params.find((s) => s.key === srcKey);
+    // changing the source re-renders (to swap the slot's controls)
+    pane.append(makeControl({ ...spec, label: 'Source', get: () => P[srcKey], set: (v) => (P[srcKey] = v) }, () => { renderMixer(container, state, dispatch); regen(); }));
+    appendSlotParams(pane, state, dispatch, slotKey, P[srcKey]);
+  } else {
+    for (const spec of gen.params) {
+      if (spec.key === 'sourceA' || spec.key === 'sourceB') continue;
+      pane.append(makeControl({ ...spec, get: () => P[spec.key], set: (v) => (P[spec.key] = v) }, regen));
+    }
+  }
+}
+
+// A Mixer slot's controls, editing that slot's OWN params (so two of the same
+// source are independent). Re-inits the slot when its source changes.
+function appendSlotParams(container, state, dispatch, slotKey, subId) {
   const sub = getGenerator(subId);
   if (!sub) return;
   const P = state.genParams.mixed;
@@ -124,10 +154,7 @@ function appendSubParams(container, state, dispatch, slotKey, subId) {
     P[slotKey]._gen = subId;
   }
   const SP = P[slotKey];
-  const box = el('div', { className: 'subparams' });
-  box.append(el('div', { className: 'subtitle', textContent: `↳ ${sub.label}` }));
   for (const spec of sub.params) {
-    box.append(makeControl({ ...spec, get: () => SP[spec.key], set: (v) => (SP[spec.key] = v) }, () => dispatch('regen')));
+    container.append(makeControl({ ...spec, get: () => SP[spec.key], set: (v) => (SP[spec.key] = v) }, () => dispatch('regen')));
   }
-  container.append(box);
 }
