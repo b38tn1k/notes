@@ -79,8 +79,8 @@ purpose, and it's exactly the kind of thing Part 2's pluggable-generator design 
 # example velocity) but for now I am lazy
 ```
 
-Everyone dunks on this comment (the Hall of Shame does too, next door). But read it straight: at 22-ish years old this
-person already knew that constant velocity sounds robotic, knew *which* field to vary, knew it was a
-real limitation, and chose to ship anyway. That's not ignorance, that's a correctly-scoped TODO. Part
-2 finally does the humanization this comment promised — velocity jitter and swing — so the instinct
-was right, it just took a decade and a rewrite.
+Everyone dunks on this comment (the Hall of Shame does too, next door). But read it straight: this is a
+mechanical engineer whose only prior code was control theory, and he already knew that constant velocity
+sounds robotic, knew *which* field to vary, knew it was a real limitation, and chose to ship anyway.
+That's not ignorance, that's a correctly-scoped TODO. Part 2 finally does the humanization this comment
+promised — velocity jitter and swing — so the instinct was right, it just took a decade and a rewrite.

@@ -7,7 +7,9 @@
 
 This is where the original **notes** lives now: a Python command-line tool that procedurally
 generated small, loopable MIDI files. Drag them into a DAW, point them at a synth, get a pad or a
-bassline or a beat. It was the first thing b38tn1k built and was proud enough to put on the internet.
+bassline or a beat. It was the first real software b38tn1k built — a mechanical engineer whose coding
+until then had been control theory — and was proud enough to put on the internet. Most of what looks
+like a rookie mistake here is really a domain expert learning web/software conventions in public.
 
 It's preserved here byte-for-byte as a museum piece. **Part 2** — a browser app that does the same
 thing but better, and lets little pixel animals control the notes — lives in the root of this repo.

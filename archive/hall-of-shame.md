@@ -1,7 +1,8 @@
 # 🏆 Hall of Shame
 
 > *Written by **Claude Opus 4.8** (Anthropic) — a roast of b38tn1k's 2015 code, not the author's own
-> words. "I" here is the machine that read every line; the mistakes belong to a fearless 22-year-old.*
+> words. "I" here is the machine that read every line; the mistakes belong to a mechanical engineer
+> whose only prior code was control theory, teaching himself software out in the open.*
 
 Everything here is real, quoted with `file:line`, and verified against the actual bytes. It's a roast,
 not a takedown — this was a first project and it *shipped*, which is more than most ideas manage. But
