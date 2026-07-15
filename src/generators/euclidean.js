@@ -25,7 +25,7 @@ export default {
   params: [
     { key: 'pulses', label: 'Pulses', type: 'range', min: 1, max: 16, step: 1, default: 5 },
     { key: 'rotation', label: 'Rotate', type: 'range', min: 0, max: 15, step: 1, default: 0 },
-    { key: 'pitch', label: 'Pitch', type: 'select', options: ['root', 'octaveUp', 'climb', 'kick+snare'], default: 'climb' },
+    { key: 'pitch', label: 'Pitch', type: 'select', options: ['root', 'octaveUp', 'climb', 'kick+snare'], default: 'root' },
     { key: 'gate', label: 'Gate', type: 'range', min: 0.1, max: 1, step: 0.05, default: 0.5 },
   ],
   generate(shared, p) {

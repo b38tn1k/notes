@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
-  <title>MIDI LOOP LAB</title>
+  <title>notes</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><rect width='16' height='16' fill='%23000'/><rect x='2' y='6' width='3' height='3' fill='%230f0'/><rect x='11' y='6' width='3' height='3' fill='%230f0'/><rect x='6' y='9' width='4' height='2' fill='%23f0f'/></svg>" />
 </head>
 <body>
@@ -35,6 +35,23 @@
       </div>
     </section>
   </main>
+
+  <button id="about-tab" title="about notes">▚ notes</button>
+  <div id="about-modal" hidden>
+    <div class="modal-box">
+      <button id="about-close">✕</button>
+      <h2>▚ NOTES</h2>
+      <p>Make little MIDI loops in the browser. This is <b>part 2</b>.</p>
+      <p><b>Part 1</b> (2015–2018) was a Python CLI that generated loopable MIDI files with the
+      <b>Molecular Music Box</b>: place a note, jump forward by one of two intervals, and flip to the
+      other interval every time you land on a beat you've already used — the rhythm falls out of the
+      collisions instead of being typed in.</p>
+      <p>The old code is preserved, documented, and affectionately roasted — including a
+      <code>--first_note</code> flag that <b>never once ran</b> across all 30,420 files it generated,
+      and a function that reinvented <code>[0]*n</code> in six lines.</p>
+      <p><a id="about-link" href="https://github.com/b38tn1k/notes/tree/master/archive" target="_blank" rel="noopener">read the full archive + roast on github →</a></p>
+    </div>
+  </div>
 
   <script type="module" src="/src/main.js"></script>
 </body>

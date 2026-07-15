@@ -32,11 +32,15 @@ function pitchRange(notes) {
 }
 
 export function geometry(state) {
-  const tb = state.shared.meter * state.shared.loopLength;
+  const meter = state.shared.meter;
+  const loopL = state.shared.loopLength;
+  const seqL = state.shared.lockLength ? loopL : state.shared.seqLength;
+  const tb = meter * Math.max(loopL, seqL);      // grid shows the longer of the two
+  const loopBeats = meter * loopL;
   const { lo, hi } = pitchRange(state.notes);
   const rows = hi - lo + 1;
   const W = canvas.width, H = canvas.height;
-  return { tb, lo, hi, rows, W, H, cellW: W / tb, rowH: H / rows, meter: state.shared.meter };
+  return { tb, loopBeats, lo, hi, rows, W, H, cellW: W / tb, rowH: H / rows, meter };
 }
 
 export function draw(state, playBeat = -1) {
@@ -65,6 +69,13 @@ export function draw(state, playBeat = -1) {
     ctx.fillRect(x, y, w, h);
     // a brighter 2px cap so louder notes read a touch stronger (no alpha, just a mark)
     if (n.velocity > 90) { ctx.fillStyle = '#fff'; ctx.fillRect(x, y, w, 2); }
+  }
+
+  // loop-end marker (only when the sequence is longer than the loop)
+  if (g.loopBeats < tb) {
+    const x = Math.floor(g.loopBeats * cellW);
+    ctx.fillStyle = '#fff';
+    ctx.fillRect(x - 1, 0, 3, H);
   }
 
   // playhead

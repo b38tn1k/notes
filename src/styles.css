@@ -95,6 +95,41 @@ button:disabled { opacity: 1; border-style: dashed; cursor: not-allowed; }
   min-height: 2em;
 }
 
+/* --- about / wiki corner --- */
+#about-tab {
+  position: fixed;
+  left: 8px; bottom: 8px;
+  z-index: 10;
+  padding: 4px 8px;
+  font-size: 11px;
+}
+#about-modal[hidden] { display: none; }
+#about-modal {                          /* solid fill, no transparency (ban) */
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  background: var(--bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  overflow-y: auto;
+}
+.modal-box {
+  position: relative;
+  border: 2px solid var(--fg);
+  background: #000;
+  padding: 20px 24px;
+  max-width: 560px;
+  text-transform: none;                 /* prose reads better mixed-case */
+  line-height: 1.5;
+}
+.modal-box h2 { margin: 0 0 12px; text-transform: uppercase; letter-spacing: 2px; }
+.modal-box p { margin: 0 0 12px; font-size: 13px; }
+.modal-box a { color: var(--fg); }
+.modal-box code { border: 1px solid var(--fg); padding: 0 3px; }
+#about-close { position: absolute; top: 8px; right: 8px; padding: 4px 8px; }
+
 /* --- mobile: stack and let the page scroll --- */
 @media (max-width: 720px) {
   html, body { height: auto; }

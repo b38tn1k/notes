@@ -1,11 +1,12 @@
-# 🎛️ MIDI LOOP LAB
+# ▚ notes
 
-Make little MIDI loops in the browser. A pile of ways to generate them, sound to hear them, Web MIDI
+Make little MIDI loops in the browser. A few ways to generate them, sound to hear them, Web MIDI
 to send them to real gear, and `.mid` export to keep them.
 
 This is **part 2**. [Part 1](archive/) was a Python CLI I wrote in 2015 that did the same thing from a
 terminal. It's preserved, documented, and roasted in [`archive/`](archive/) — start with
-[the archive readme](archive/README.md), then the [Hall of Shame](archive/hall-of-shame.md).
+[the archive readme](archive/README.md), then the [Hall of Shame](archive/hall-of-shame.md). (There's
+an "about" corner in the app that links here too.)
 
 ## The generators
 
@@ -13,12 +14,18 @@ terminal. It's preserved, documented, and roasted in [`archive/`](archive/) — 
 |---|---|
 | **Molecular Music Box** | The heritage algorithm, ported faithfully from `notes.py`. Two intervals, collision-driven switching, emergent loops. |
 | **Euclidean** | Evenly-spread pulses (Bjorklund). Great for drums. |
-| **Drunk Walk** | Random walk up/down the scale with a stability bias. |
-| **Noise** | Value-noise curve quantized to scale — the idea `noise.py` never shipped. |
-| **Arpeggiator** | Cycle a chord up/down/updown over N octaves. |
-| **Markov** | An order-k chain trained offline on real MIDI, frozen to JSON, sampled with a temperature knob. |
-| **Mixed Media** | Blend several generators — layer them, or take rhythm from one and pitch from another. |
-| **Critter Herd** | A herd of pixel creatures wanders a grid and their movement *is* the music. |
+| **Herd** | A herd wanders the scale and its movement is the music — size 1 is a lone drunk walk, breed for density, mutate for surprise. |
+| **Mixer** | Blend two engines — layer them, take rhythm from one and pitch from the other, or interleave. Each source keeps its own controls. |
+
+Drunk Walk, Noise, Arpeggiator and Markov live in `src/generators/` but are off the menu for now
+(Herd covers the first three; Markov is parked). Re-add any by putting it back in
+`src/generators/index.js`.
+
+## Loop vs sequence length
+
+By default the **sequence** (how much the generator fills) is locked to the **loop** (the playback
+repeat). Unlock it to make a longer phrase than the loop, or a short motif in a longer loop — a white
+marker on the grid shows where the loop repeats.
 
 ## Aesthetic
 

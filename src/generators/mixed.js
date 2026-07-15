@@ -2,12 +2,10 @@
 // pitch from the other, or interleave across the bar. Optional grid + key align.
 import molecular from './molecular.js';
 import euclidean from './euclidean.js';
-import drunkwalk from './drunkwalk.js';
-import noise from './noise.js';
-import arp from './arp.js';
+import herd from './herd.js';
 import { snapToScale } from '../music.js';
 
-const SOURCES = { molecular, euclidean, drunkwalk, noise, arp };
+const SOURCES = { molecular, euclidean, herd };
 const IDS = Object.keys(SOURCES);
 
 function defaults(g) { const p = {}; for (const s of g.params) p[s.key] = s.default; return p; }
@@ -24,11 +22,11 @@ export const MIXED_SOURCES = IDS;
 
 export default {
   id: 'mixed',
-  label: 'Mixed Media',
-  blurb: 'Mutate two engines together — layer, rhythm+pitch, or interleave.',
+  label: 'Mixer',
+  blurb: 'Mutate two engines together — layer them, take rhythm from one and pitch from the other, or interleave.',
   params: [
-    { key: 'sourceA', label: 'Source A', type: 'select', options: IDS, default: 'euclidean' },
-    { key: 'sourceB', label: 'Source B', type: 'select', options: IDS, default: 'drunkwalk' },
+    { key: 'sourceA', label: 'Source A', type: 'select', options: IDS, default: 'molecular' },
+    { key: 'sourceB', label: 'Source B', type: 'select', options: IDS, default: 'euclidean' },
     { key: 'mode', label: 'Blend', type: 'select', options: ['layer', 'rhythm+pitch', 'interleave'], default: 'rhythm+pitch' },
     { key: 'quantize', label: 'Quantize', type: 'toggle', default: false },
     { key: 'keyLock', label: 'Key lock', type: 'toggle', default: true },

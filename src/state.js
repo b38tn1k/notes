@@ -5,7 +5,9 @@ import { humanize } from './music.js';
 
 export const state = {
   genId: 'molecular',
-  shared: { root: 48, scale: 'minor', meter: 4, loopLength: 4 },
+  // loopLength = playback repeat window; seqLength = how much the generator fills.
+  // lockLength keeps them equal (the default, and all it was before).
+  shared: { root: 48, scale: 'minor', meter: 4, loopLength: 4, seqLength: 4, lockLength: true },
   bpm: 120,
   human: { swing: 0, velVar: 0 },
   instrument: 'fm',
@@ -17,26 +19,33 @@ export const state = {
 // seed per-generator params from their declared defaults
 for (const g of registry) state.genParams[g.id] = defaultParams(g);
 
-export function totalBeats() {
-  return state.shared.meter * state.shared.loopLength;
+// effective sequence length in bars (follows the loop when locked)
+export function seqLen() {
+  return state.shared.lockLength ? state.shared.loopLength : state.shared.seqLength;
 }
+export function seqBeats() { return state.shared.meter * seqLen(); }
+export function loopBeats() { return state.shared.meter * state.shared.loopLength; }
+export function totalBeats() { return loopBeats(); }   // "total" == the loop, for playback/export
 
 // run the active generator -> humanize -> store. Pure w.r.t. side effects.
 export function regenerate() {
   const gen = getGenerator(state.genId);
   let notes = [];
+  // Generators think in "loopLength"; hand them the sequence length so they fill
+  // the sequence, while the app loops/exports over the real loopLength.
+  const genShared = { ...state.shared, loopLength: seqLen() };
   try {
-    // 3rd arg: full context so a meta-generator (Mixed Media) can read its sources' params
-    notes = gen.generate(state.shared, state.genParams[state.genId], { genParams: state.genParams }) || [];
+    // 3rd arg: full context so a meta-generator (Mixer) can read its sources' params
+    notes = gen.generate(genShared, state.genParams[state.genId], { genParams: state.genParams }) || [];
   } catch (e) {
     console.error('generator error', state.genId, e);
     notes = [];
   }
   notes = humanize(notes, state.human);
-  // clamp into MIDI range and drop anything off the loop grid
-  const tb = totalBeats();
+  // clamp into MIDI range and drop anything past the generated sequence
+  const sb = seqBeats();
   state.notes = notes
-    .filter((n) => n.startBeat < tb)
+    .filter((n) => n.startBeat < sb)
     .map((n) => ({
       pitch: Math.max(0, Math.min(127, Math.round(n.pitch))),
       startBeat: Math.max(0, n.startBeat),

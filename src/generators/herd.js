@@ -5,11 +5,12 @@ import { simulateHerd } from '../critters.js';
 
 export default {
   id: 'herd',
-  label: 'Critter Herd',
-  blurb: 'A herd wanders the grid and its movement is the music. Breeds and mutates.',
+  label: 'Herd',
+  blurb: 'A herd wanders the scale; its movement is the music. Size 1 = a lone drunk walk; breed for density, mutation for surprise.',
   params: [
     { key: 'size', label: 'Herd size', type: 'range', min: 1, max: 8, step: 1, default: 3 },
-    { key: 'rows', label: 'Grid rows', type: 'range', min: 4, max: 16, step: 1, default: 8 },
+    { key: 'rows', label: 'Range (rows)', type: 'range', min: 4, max: 16, step: 1, default: 8 },
+    { key: 'density', label: 'Density', type: 'range', min: 0.1, max: 1, step: 0.05, default: 0.85 },
     { key: 'wander', label: 'Wander', type: 'range', min: 0, max: 1, step: 0.1, default: 0.4 },
     { key: 'breed', label: 'Breed rate', type: 'range', min: 0, max: 0.5, step: 0.05, default: 0.1 },
     { key: 'mutation', label: 'Mutation', type: 'range', min: 0, max: 0.5, step: 0.05, default: 0.2 },

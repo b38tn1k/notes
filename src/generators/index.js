@@ -2,14 +2,12 @@
 // markov, mixed and herd are added by their own modules once wired.
 import molecular from './molecular.js';
 import euclidean from './euclidean.js';
-import drunkwalk from './drunkwalk.js';
-import noise from './noise.js';
-import arp from './arp.js';
-import markov from './markov.js';
-import mixed from './mixed.js';
 import herd from './herd.js';
+import mixed from './mixed.js';
 
-export const registry = [molecular, euclidean, drunkwalk, noise, arp, markov, mixed, herd];
+// Visible menu. Drunk Walk, Noise, Arp are folded into Herd; Markov is hidden
+// for now — their files remain in the repo, just off the menu.
+export const registry = [molecular, euclidean, herd, mixed];
 
 export function getGenerator(id) {
   return registry.find((g) => g.id === id) || registry[0];

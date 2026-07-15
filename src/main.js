@@ -16,11 +16,15 @@ let seedCounter = 1;
 
 function refreshReadout() {
   const g = getGenerator(state.genId);
+  const S = state.shared;
+  const lenLine = S.lockLength
+    ? `${S.meter}/4 x ${S.loopLength}bars`
+    : `${S.meter}/4  loop ${S.loopLength}b / seq ${S.seqLength}b`;
   $('readout').textContent =
 `> ENGINE  ${g.label}
-> KEY     ${pitchName(state.shared.root)} ${state.shared.scale}
-> TIME    ${state.shared.meter}/4 x ${state.shared.loopLength}bars @ ${state.bpm}bpm
-> NOTES   ${state.notes.length}   BEATS ${totalBeats()}`;
+> KEY     ${pitchName(S.root)} ${S.scale}
+> TIME    ${lenLine} @ ${state.bpm}bpm
+> NOTES   ${state.notes.length}   LOOP ${totalBeats()} beats`;
 }
 
 function playBeat() {
@@ -80,10 +84,18 @@ function init() {
 
   setupMidiOut();
 
+  const aboutModal = $('about-modal');
+  $('about-tab').addEventListener('click', () => { aboutModal.hidden = false; });
+  $('about-close').addEventListener('click', () => { aboutModal.hidden = true; });
+  aboutModal.addEventListener('click', (e) => { if (e.target === aboutModal) aboutModal.hidden = true; });
+
   $('play').addEventListener('click', onPlay);
   $('stop').addEventListener('click', onStop);
   $('regen').addEventListener('click', () => apply({ shuffle: true }));
-  $('export').addEventListener('click', () => downloadMidi(state.notes, { bpm: state.bpm, name: `${state.genId}-loop` }));
+  $('export').addEventListener('click', () => {
+    const loopNotes = state.notes.filter((n) => n.startBeat < totalBeats());   // export the loop window
+    downloadMidi(loopNotes, { bpm: state.bpm, name: `notes-${state.genId}` });
+  });
 
   // initial loop
   shuffleColors(1);

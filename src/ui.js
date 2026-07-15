@@ -39,16 +39,23 @@ function makeControl(spec, onChange) {
 export function renderShared(container, state, dispatch) {
   container.innerHTML = '';
   const S = state.shared;
-  const specs = [
-    { label: 'Key (root)', type: 'range', min: 36, max: 72, step: 1, fmt: pitchName, get: () => S.root, set: (v) => (S.root = v), kind: 'regen' },
-    { label: 'Scale', type: 'select', options: SCALE_NAMES, get: () => S.scale, set: (v) => (S.scale = v), kind: 'regen' },
-    { label: 'Meter (beats/bar)', type: 'range', min: 2, max: 8, step: 1, get: () => S.meter, set: (v) => (S.meter = v), kind: 'regen' },
-    { label: 'Loop length (bars)', type: 'range', min: 1, max: 8, step: 1, get: () => S.loopLength, set: (v) => (S.loopLength = v), kind: 'regen' },
-    { label: 'BPM', type: 'range', min: 40, max: 200, step: 1, get: () => state.bpm, set: (v) => (state.bpm = v), kind: 'bpm' },
-    { label: 'Swing', type: 'range', min: 0, max: 0.6, step: 0.05, get: () => state.human.swing, set: (v) => (state.human.swing = v), kind: 'regen' },
-    { label: 'Vel jitter', type: 'range', min: 0, max: 40, step: 5, get: () => state.human.velVar, set: (v) => (state.human.velVar = v), kind: 'regen' },
-  ];
-  for (const s of specs) container.append(makeControl(s, () => dispatch(s.kind)));
+  const add = (spec, onChange) => container.append(makeControl(spec, onChange));
+  const regen = () => dispatch('regen');
+
+  add({ label: 'Key (root)', type: 'range', min: 36, max: 72, step: 1, fmt: pitchName, get: () => S.root, set: (v) => (S.root = v) }, regen);
+  add({ label: 'Scale', type: 'select', options: SCALE_NAMES, get: () => S.scale, set: (v) => (S.scale = v) }, regen);
+  add({ label: 'Meter (beats/bar)', type: 'range', min: 2, max: 8, step: 1, get: () => S.meter, set: (v) => (S.meter = v) }, regen);
+
+  // Loop length drives playback/export; when locked, the sequence follows it.
+  add({ label: 'Loop length (bars)', type: 'range', min: 1, max: 8, step: 1, get: () => S.loopLength, set: (v) => { S.loopLength = v; if (S.lockLength) S.seqLength = v; } }, regen);
+  add({ label: 'Lock sequence to loop', type: 'toggle', get: () => S.lockLength, set: (v) => { S.lockLength = v; if (v) S.seqLength = S.loopLength; } }, () => { renderShared(container, state, dispatch); regen(); });
+  if (!S.lockLength) {
+    add({ label: 'Sequence length (bars)', type: 'range', min: 1, max: 16, step: 1, get: () => S.seqLength, set: (v) => (S.seqLength = v) }, regen);
+  }
+
+  add({ label: 'BPM', type: 'range', min: 40, max: 200, step: 1, get: () => state.bpm, set: (v) => (state.bpm = v) }, () => dispatch('bpm'));
+  add({ label: 'Swing', type: 'range', min: 0, max: 0.6, step: 0.05, get: () => state.human.swing, set: (v) => (state.human.swing = v) }, regen);
+  add({ label: 'Vel jitter', type: 'range', min: 0, max: 40, step: 5, get: () => state.human.velVar, set: (v) => (state.human.velVar = v) }, regen);
 }
 
 export function renderGenSelect(select, state, dispatch) {

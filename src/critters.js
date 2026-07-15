@@ -19,10 +19,11 @@ export function simulateHerd(shared, p) {
     vel: 70 + Math.floor(rand() * 50),
   }));
 
+  const density = p.density ?? 1;
   for (let beat = 0; beat < beats; beat++) {
     const next = [];
     for (const c of herd) {
-      if (rand() < c.intent) {                       // it moves -> it plays
+      if (rand() < c.intent * density) {             // it moves -> it plays (density gates note rate)
         c.row += c.dir * (1 + (rand() < c.creativity ? Math.floor(rand() * p.wander * 3) : 0));
         if (c.row < 0) { c.row = 0; c.dir = 1; }
         if (c.row >= rows) { c.row = rows - 1; c.dir = -1; }
