@@ -80,8 +80,8 @@ function makeControl(spec, onChange) {
   return wrap;
 }
 
-// Top rail — GLOBAL, neutral: the headline globals (key · scale · beats) + the MORE toggle.
-export function renderTopGlobals(container, state, dispatch, onMore) {
+// Top rail — HARMONY/MELODY cluster: key · scale + the FEEL disclosure toggle.
+export function renderHarmony(container, state, dispatch, onFeel) {
   container.innerHTML = '';
   const S = state.shared;
   const add = (spec, onChange) => container.append(makeControl(spec, onChange));
@@ -89,20 +89,25 @@ export function renderTopGlobals(container, state, dispatch, onMore) {
 
   add({ label: 'Key', type: 'range', min: 36, max: 72, step: 1, fmt: pitchName, get: () => S.root, set: (v) => (S.root = v) }, regen);
   add({ label: 'Scale', type: 'select', options: SCALE_NAMES, get: () => S.scale, set: (v) => (S.scale = v) }, regen);
-  add({ label: 'Beats/bar', type: 'range', min: 2, max: 8, step: 1, get: () => S.meter, set: (v) => (S.meter = v) }, regen);
-  const more = el('button', { className: 'more-toggle', textContent: 'MORE ▸', title: 'floor / ceiling / grid / feel' });
-  more.addEventListener('click', () => onMore(more));
-  container.append(more);
+  const feel = el('button', { className: 'more-toggle', textContent: 'FEEL ▸', title: 'floor / ceiling / swing / strum / velocity' });
+  feel.addEventListener('click', () => onFeel(feel));
+  container.append(feel);
 }
 
-// Top rail — tempo, sits with the transport (playback speed).
-export function renderTempo(container, state, dispatch) {
+// Top rail — TIME cluster: everything that sets the base clock (bpm · beats/bar · gen grid).
+export function renderTime(container, state, dispatch) {
   container.innerHTML = '';
-  container.append(makeControl({ label: 'BPM', type: 'range', min: 40, max: 200, step: 1, get: () => state.bpm, set: (v) => (state.bpm = v) }, () => dispatch('bpm')));
+  const S = state.shared;
+  const add = (spec, onChange) => container.append(makeControl(spec, onChange));
+  const regen = () => dispatch('regen-all');
+
+  add({ label: 'BPM', type: 'range', min: 40, max: 200, step: 1, get: () => state.bpm, set: (v) => (state.bpm = v) }, () => dispatch('bpm'));
+  add({ label: 'Beats/bar', type: 'range', min: 2, max: 8, step: 1, get: () => S.meter, set: (v) => (S.meter = v) }, regen);
+  add({ label: 'Gen grid', type: 'select', options: BASE_NAMES, get: () => S.base, set: (v) => (S.base = v) }, regen);
 }
 
-// MORE tray — GLOBAL, neutral: the set-and-forget globals (register window + grid + humanize).
-export function renderMoreTray(container, state, dispatch) {
+// FEEL tray — GLOBAL, neutral: register window + humanize (set-and-forget).
+export function renderFeelTray(container, state, dispatch) {
   container.innerHTML = '';
   const S = state.shared;
   const add = (spec, onChange) => container.append(makeControl(spec, onChange));
@@ -110,7 +115,6 @@ export function renderMoreTray(container, state, dispatch) {
 
   add({ label: 'Floor (semitones below root)', type: 'range', min: 0, max: 48, step: 1, fmt: (v) => `-${v}`, get: () => S.floorDown, set: (v) => (S.floorDown = v) }, regen);
   add({ label: 'Ceiling (semitones above root)', type: 'range', min: 0, max: 48, step: 1, fmt: (v) => `+${v}`, get: () => S.ceilingUp, set: (v) => (S.ceilingUp = v) }, regen);
-  add({ label: 'Gen grid', type: 'select', options: BASE_NAMES, get: () => S.base, set: (v) => (S.base = v) }, regen);
   add({ label: 'Swing', type: 'range', min: 0, max: 0.6, step: 0.05, get: () => state.human.swing, set: (v) => (state.human.swing = v) }, regen);
   add({ label: 'Strum (− down / + up)', type: 'range', min: -0.15, max: 0.15, step: 0.01, get: () => state.human.strum, set: (v) => (state.human.strum = v) }, regen);
   add({ label: 'Vel jitter', type: 'range', min: 0, max: 40, step: 5, get: () => state.human.velVar, set: (v) => (state.human.velVar = v) }, regen);

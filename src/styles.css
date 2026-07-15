@@ -36,28 +36,27 @@ body { display: flex; flex-direction: column; }
 
 .panel { border: 2px solid var(--fg); padding: 10px; }
 
-/* --- top rail: GLOBAL (neutral). globals · transport · output --- */
-#topbar { display: flex; align-items: flex-end; gap: 14px; flex-wrap: wrap; margin: 10px 10px 0; padding: 8px 10px; }
-.topcluster { display: flex; gap: 8px; align-items: flex-end; }
-#top-globals { flex: 1 1 auto; flex-wrap: wrap; }
-#top-globals .ctl { margin: 0; width: 128px; }
-#tempo .ctl { margin: 0; width: 100%; }        /* fill #tempo — never overflow into the loop chip */
-#top-globals .ctl label, #tempo .ctl label { margin: 0 0 2px; }
-#top-globals select { width: 100%; }
+/* --- top rail: GLOBAL (neutral). [dice] harmony · time · transport · output --- */
+#topbar { display: flex; align-items: flex-end; gap: 12px; flex-wrap: wrap; margin: 10px 10px 0; padding: 8px 10px; }
+.topcluster { display: flex; gap: 8px; align-items: flex-end; flex-wrap: wrap; }
+#top-globals .ctl, #top-time .ctl { margin: 0; width: 100px; }
+#top-globals .ctl label, #top-time .ctl label { margin: 0 0 2px; }
+#top-globals select, #top-time select { width: 100%; }
 #top-transport, #top-output { align-self: center; }
 #top-transport button, #top-output button { padding: 6px 10px; }
 #top-transport .btnrow { gap: 6px; }
-#tempo { width: 150px; }
 .more-toggle { align-self: flex-end; padding: 6px 10px; }
-#top-output { margin-left: auto; }        /* push output cluster to the right edge */
+#top-output { margin-left: auto; }        /* push the output/MIDI cluster to the right edge */
 .outlabel { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; }
-/* --- disclosure trays: GLOBAL (neutral). MORE = range/grid + feel; MIDI = device + per-voice routing --- */
-#more-tray[hidden], #midi-tray[hidden] { display: none; }
-#more-tray, #midi-tray { display: flex; flex-wrap: wrap; gap: 16px; margin: 10px 10px 0; }
-#more-tray .ctl { margin: 0; width: 180px; }
+#dice { align-self: center; padding: 6px 8px; line-height: 0; }   /* far-LHS: shuffle everything */
+#dice svg { display: block; }
+/* --- disclosure trays: GLOBAL (neutral). FEEL = range + humanize; MIDI = device + per-voice routing --- */
+#feel-tray[hidden], #midi-tray[hidden] { display: none; }
+#feel-tray, #midi-tray { display: flex; flex-wrap: wrap; gap: 16px; margin: 10px 10px 0; }
+#feel-tray .ctl { margin: 0; width: 180px; }
 #midi-voices { display: flex; flex-wrap: wrap; gap: 12px; flex: 1 1 100%; }   /* per-voice program rows, below the device */
 #midi-voices .ctl { margin: 0; width: 160px; }
-.savicon { vertical-align: -2px; }   /* pixel save/download glyph on the export button */
+.savicon { vertical-align: -2px; }   /* download glyph on the export button */
 
 #controls { overflow-y: auto; min-height: 0; }
 #stage { display: flex; flex-direction: column; gap: 10px; min-width: 0; min-height: 0; }
@@ -197,10 +196,10 @@ button:disabled { opacity: 1; border-style: dashed; cursor: not-allowed; }
   #app { flex: initial; display: block; padding: 8px; }
   .panel { margin-bottom: 10px; }
   #topbar { margin: 8px 8px 0; }
-  #top-globals .ctl, #tempo, #more-tray .ctl { width: 46%; flex: 1 1 46%; }
+  #top-globals .ctl, #top-time .ctl, #feel-tray .ctl { width: 46%; flex: 1 1 46%; }
   #top-output { margin-left: 0; }
   #app { padding-bottom: 44px; }   /* clearance so the fixed NOTES button floats over empty space, not the edit dock */
-  #more-tray { margin: 0 8px 10px; }
+  #feel-tray, #midi-tray { margin: 0 8px 10px; }
   #controls { max-height: none; overflow: visible; }
   #stage { display: block; }
   #viz { height: 44vh; min-height: 240px; }

@@ -3,13 +3,15 @@
 import './styles.css';
 import { state, regenerateAll, regenerateVoice, focusedVoice, makeVoice, MAX_VOICES, PALETTE,
          audibleVoices, voiceLoopBeats, totalBeats } from './state.js';
-import { renderTopGlobals, renderTempo, renderMoreTray, renderVoiceStrip, renderChannelStrip, renderMidiVoices } from './ui.js';
+import { renderHarmony, renderTime, renderFeelTray, renderVoiceStrip, renderChannelStrip, renderMidiVoices } from './ui.js';
 import * as audio from './audio.js';
 import * as midiout from './midiout.js';
 import { exportVoice, exportEach } from './export.js';
 import { initViz, resize, draw } from './viz.js';
 import { initEditor } from './editor.js';
 import { shuffleColors } from './sprites.js';
+import { registry, getGenerator } from './generators/index.js';
+import { SCALE_NAMES, BASE_NAMES } from './music.js';
 
 const $ = (id) => document.getElementById(id);
 
@@ -82,7 +84,53 @@ function toggleTray(btn, trayId, label) {
   tray.hidden = !tray.hidden;
   btn.textContent = `${label} ${tray.hidden ? '▸' : '▾'}`;
 }
-const onMore = (btn) => toggleTray(btn, 'more-tray', 'MORE');
+const onFeel = (btn) => toggleTray(btn, 'feel-tray', 'FEEL');
+
+// re-render the global top-rail clusters + trays (used at init and after a dice roll)
+function renderGlobals() {
+  renderHarmony($('top-globals'), state, dispatch, onFeel);
+  renderTime($('top-time'), state, dispatch);
+  renderFeelTray($('feel-tray'), state, dispatch);
+}
+
+// ---- dice: shuffle everything into a fresh idea ----
+const pick = (a) => a[Math.floor(Math.random() * a.length)];
+const randInt = (lo, hi) => lo + Math.floor(Math.random() * (hi - lo + 1));
+
+function randomizeParams(P, gen) {
+  for (const s of gen.params) {
+    if (s.type === 'range') { const n = Math.round((s.max - s.min) / s.step); P[s.key] = +(s.min + s.step * randInt(0, n)).toFixed(4); }
+    else if (s.type === 'steps') P[s.key] = pick(s.values);
+    else if (s.type === 'select') P[s.key] = pick(s.options);
+    else if (s.type === 'toggle') P[s.key] = Math.random() < 0.5;
+  }
+}
+function randomizeVoice(v) {
+  v.genId = pick(registry.filter((g) => g.id !== 'mixed')).id;   // keep the dice simple + musical
+  v.instrument = pick(audio.INSTRUMENTS);
+  v.length = pick([1, 2, 4, 8]);
+  v.octave = randInt(-2, 2);
+  v.mono = Math.random() < 0.4;
+  randomizeParams(v.genParams[v.genId], getGenerator(v.genId));
+}
+function randomizeAll() {
+  const S = state.shared;
+  S.root = randInt(45, 57);
+  S.scale = pick(SCALE_NAMES);
+  S.meter = randInt(3, 5);
+  S.base = pick(BASE_NAMES);
+  state.bpm = randInt(72, 140);
+  for (const v of state.voices) audio.disposeVoice(v.id);        // free old Tone nodes
+  state.voices = [];
+  const n = randInt(1, MAX_VOICES);
+  for (let i = 0; i < n; i++) { const v = makeVoice('molecular', { colorIdx: i }); randomizeVoice(v); state.voices.push(v); }
+  state.focused = 0;
+  audio.setBpm(state.bpm);
+  regenerateAll();
+  renderGlobals();
+  syncFocusUI();
+  refresh();
+}
 
 function addVoice() {
   if (state.voices.length >= MAX_VOICES) return;
@@ -146,9 +194,7 @@ function init() {
   $('snap').addEventListener('change', (e) => { state.editSnap = parseFloat(e.target.value); });
   $('clear').addEventListener('click', () => { focusedVoice().notes = []; refresh(); });
 
-  renderTopGlobals($('top-globals'), state, dispatch, onMore);
-  renderTempo($('tempo'), state, dispatch);
-  renderMoreTray($('more-tray'), state, dispatch);
+  renderGlobals();
   renderStrip();
   syncFocusUI();
 
@@ -169,6 +215,7 @@ function init() {
     e.preventDefault(); togglePlay();
   });
   $('regen').addEventListener('click', () => applyAll());
+  $('dice').addEventListener('click', randomizeAll);
   $('export').addEventListener('click', () => exportEach(state.voices, state.shared, state.bpm, state.human));
 
   shuffleColors(1);

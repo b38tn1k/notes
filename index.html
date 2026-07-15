@@ -7,26 +7,27 @@
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><rect width='16' height='16' fill='%23000'/><rect x='2' y='6' width='3' height='3' fill='%230f0'/><rect x='11' y='6' width='3' height='3' fill='%230f0'/><rect x='6' y='9' width='4' height='2' fill='%23f0f'/></svg>" />
 </head>
 <body>
-  <!-- TOP RAIL = GLOBAL (neutral): affects every voice -->
+  <!-- TOP RAIL = GLOBAL (neutral): [dice] harmony · time · transport · output -->
   <header id="topbar" class="panel">
-    <div id="top-globals" class="topcluster"></div>            <!-- Key · Scale · Beats · MORE -->
-    <div class="topcluster" id="top-transport">
-      <div class="btnrow">
-        <button id="play">▶ PLAY</button>
-        <button id="stop">■ STOP</button>
-        <button id="regen">⟳ REGEN</button>
-      </div>
-      <div id="tempo"></div>                                   <!-- BPM (rendered) -->
+    <button id="dice" title="shuffle EVERYTHING — quick idea generator">
+      <svg viewBox="0 0 16 16" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="2" y="2" width="12" height="12"/><g fill="currentColor" stroke="none"><circle cx="5" cy="5" r="1.1"/><circle cx="11" cy="5" r="1.1"/><circle cx="8" cy="8" r="1.1"/><circle cx="5" cy="11" r="1.1"/><circle cx="11" cy="11" r="1.1"/></g></svg>
+    </button>
+    <div id="top-globals" class="topcluster"></div>            <!-- Key · Scale · FEEL -->
+    <div id="top-time" class="topcluster"></div>               <!-- BPM · Beats/bar · Gen grid -->
+    <div class="topcluster btnrow" id="top-transport">
+      <button id="play">▶ PLAY</button>
+      <button id="stop">■ STOP</button>
+      <button id="regen">⟳ REGEN</button>
     </div>
     <div class="topcluster" id="top-output">
       <button id="export" title="download one .mid per voice">
-        <svg class="savicon" viewBox="0 0 16 16" width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M2 2h9l3 3v9H2z"/><path d="M5 2v4h5V2"/><rect x="4.5" y="9" width="7" height="5"/></svg>
+        <svg class="savicon" viewBox="0 0 16 16" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="square"><path d="M8 2v7"/><path d="M4.5 6 8 9.5 11.5 6"/><path d="M3 13h10"/></svg>
         .MID <span id="export-count"></span>
       </button>
       <button id="midi-toggle" class="more-toggle">MIDI ▸</button>
     </div>
   </header>
-  <div id="more-tray" class="panel" hidden></div>              <!-- Floor · Ceiling · Grid · Swing · Strum · Vel -->
+  <div id="feel-tray" class="panel" hidden></div>              <!-- Floor · Ceiling · Swing · Strum · Vel -->
   <div id="midi-tray" class="panel" hidden>                    <!-- Web MIDI: out device + per-voice program routing -->
     <label class="outlabel">MIDI OUT <select id="midiout"><option value="">— none —</option></select></label>
     <div id="midi-voices"></div>
