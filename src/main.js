@@ -78,6 +78,8 @@ async function onPlay() {
 
 function onStop() { audio.stop(); midiout.stopLoop(); redraw(); }
 
+async function togglePlay() { if (audio.isPlaying()) onStop(); else await onPlay(); }
+
 function init() {
   const canvas = $('viz');
   initViz(canvas);
@@ -112,6 +114,15 @@ function init() {
 
   $('play').addEventListener('click', onPlay);
   $('stop').addEventListener('click', onStop);
+
+  // spacebar toggles play/stop (but not while a form control is focused)
+  window.addEventListener('keydown', (e) => {
+    if (e.code !== 'Space') return;
+    const tag = e.target.tagName;
+    if (tag === 'INPUT' || tag === 'SELECT' || tag === 'TEXTAREA' || e.target.isContentEditable) return;
+    e.preventDefault();
+    togglePlay();
+  });
   $('regen').addEventListener('click', () => apply({ shuffle: true }));
   $('export').addEventListener('click', () => {
     const loopNotes = state.notes.filter((n) => n.startBeat < totalBeats());   // export the loop window
