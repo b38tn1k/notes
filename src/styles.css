@@ -1,0 +1,208 @@
+/* MIDI LOOP LAB — punk-rock 8-bit.
+   HARD BAN (do not add): box-shadow, text-shadow, filter blur, gradients,
+   rgba/opacity blends, transitions, eased animation. Keep the jank. */
+
+:root {
+  --bg: #000;
+  --fg: #0f0;                 /* replaced live by shuffleColors() via --fg/--bg on :root */
+  --vcf: #0f0;                /* focused-voice colour — tints the per-voice rails (set by syncFocusUI) */
+  --font: 'Courier New', Courier, monospace;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  height: 100%;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font);
+  text-transform: uppercase;
+  image-rendering: pixelated;
+  -webkit-font-smoothing: none;          /* no anti-aliased text where we can help it */
+}
+
+body { display: flex; flex-direction: column; }
+
+#app {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  grid-template-rows: minmax(0, 1fr);      /* bound the row so children don't grow to content */
+  gap: 10px;
+  padding: 10px;
+  min-height: 0;
+}
+
+.panel { border: 2px solid var(--fg); padding: 10px; }
+
+/* --- top rail: GLOBAL (neutral). [dice] harmony · time · transport · output --- */
+#topbar { display: flex; align-items: flex-end; gap: 12px; flex-wrap: wrap; margin: 10px 10px 0; padding: 8px 10px; }
+.topcluster { display: flex; gap: 8px; align-items: flex-end; flex-wrap: wrap; }
+#top-globals .ctl, #top-time .ctl { margin: 0; width: 100px; }
+#top-globals .ctl label, #top-time .ctl label { margin: 0 0 2px; }
+#top-globals select, #top-time select { width: 100%; }
+#top-transport, #top-output { align-self: center; }
+#top-transport button, #top-output button { padding: 6px 10px; }
+#top-transport .btnrow { gap: 6px; }
+.more-toggle { align-self: flex-end; padding: 6px 10px; }
+#top-output { margin-left: auto; }        /* push the output/MIDI cluster to the right edge */
+.outlabel { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; }
+#dice { align-self: center; padding: 6px 8px; line-height: 0; }   /* far-LHS: shuffle everything */
+#dice svg { display: block; }
+/* --- disclosure trays: GLOBAL (neutral). FEEL = range + humanize; MIDI = device + per-voice routing --- */
+#feel-tray[hidden], #midi-tray[hidden] { display: none; }
+#feel-tray, #midi-tray { display: flex; flex-wrap: wrap; gap: 16px; margin: 10px 10px 0; }
+#feel-tray .ctl { margin: 0; width: 180px; }
+#midi-voices { display: flex; flex-wrap: wrap; gap: 12px; flex: 1 1 100%; }   /* per-voice program rows, below the device */
+#midi-voices .ctl { margin: 0; width: 160px; }
+.savicon { vertical-align: -2px; }   /* download glyph on the export button */
+
+#controls { overflow-y: auto; min-height: 0; }
+#stage { display: flex; flex-direction: column; gap: 10px; min-width: 0; min-height: 0; }
+
+#viz {
+  width: 100%;
+  flex: 1;
+  min-height: 0;                 /* let flex control height; canvas intrinsic size must not act as a floor */
+  border: 2px solid var(--fg);
+  background: #000;
+  display: block;
+  image-rendering: pixelated;
+}
+
+hr { border: none; border-top: 2px dashed var(--fg); margin: 12px 0; }
+
+/* --- controls --- */
+label { display: block; font-size: 11px; margin: 8px 0 2px; }
+.ctl { margin-bottom: 4px; }
+.ctl .val { float: right; }
+.blurb { font-size: 10px; margin: 4px 0 8px; }
+
+/* nested source controls inside Mixed Media */
+.subparams { border-left: 2px solid var(--fg); padding-left: 8px; margin: 2px 0 10px; }
+.subtitle { font-size: 10px; margin: 4px 0; }
+
+input[type=range] {
+  width: 100%;
+  margin: 0;                     /* kill the browser default margin so sliders never overflow their box */
+  accent-color: var(--fg);
+  background: #000;
+}
+select {
+  background: #000; color: var(--fg);
+  border: 1px solid var(--fg); border-radius: 0;
+  font: inherit; text-transform: uppercase; padding: 4px;
+}
+input[type=checkbox] { accent-color: var(--fg); transform: scale(1.3); }
+
+.gen-select { width: 100%; margin-top: 4px; }
+
+/* --- buttons: instant hard invert, NO transition --- */
+button {
+  background: #000; color: var(--fg);
+  border: 2px solid var(--fg); border-radius: 0;
+  font: inherit; font-weight: bold; text-transform: uppercase;   /* bold reads on the inverted fill (thin monospace washed out) */
+  padding: 8px 12px; cursor: pointer;
+}
+button:hover, button:active { background: var(--fg); color: #000; }
+button:disabled { opacity: 1; border-style: dashed; cursor: not-allowed; }
+
+.btnrow { display: flex; gap: 6px; flex-wrap: wrap; }
+
+/* mixer sub-tabs */
+.subtabs { gap: 4px; margin-bottom: 10px; }
+.subtabs .tab { flex: 1; padding: 5px 2px; font-size: 10px; }
+.subtabs .tab.active { background: var(--fg); color: #000; }
+
+/* voice strip — color-coded chips (--vc set per voice): big VN focus button + stacked M/S */
+#voicestrip { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; align-items: stretch; }
+.voicechip { display: flex; border: 2px solid var(--vc); }
+.voicechip.focused { outline: 2px solid var(--vc); outline-offset: 1px; }   /* focused = colour ring + filled label */
+.voicechip .vlabel {
+  border: none; background: #000; color: var(--vc);
+  padding: 5px 12px; font: inherit; cursor: pointer; line-height: 1;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+}
+.voicechip .vname { font-weight: bold; font-size: 18px; letter-spacing: 1px; }
+.voicechip .vbadge { font-weight: bold; font-size: 8px; margin-top: 3px; }   /* live note count */
+.voicechip.focused .vlabel, .voicechip .vlabel:hover { background: var(--vc); color: #000; }   /* active = solid fill */
+.vtogs { display: flex; flex-direction: column; border-left: 2px solid var(--vc); }
+.vtog {
+  border: none; background: #000; color: var(--fg);
+  padding: 0 9px; font: inherit; font-size: 11px; font-weight: bold;
+  flex: 1; cursor: pointer; display: flex; align-items: center;
+}
+.vtog + .vtog { border-top: 2px solid var(--vc); }
+.vmute:hover, .vmute.on { background: #f00; color: #000; }   /* mute = red (hover previews) */
+.vsolo:hover, .vsolo.on { background: #fff; color: #000; }   /* solo = white (yellow would collide with V4's chip colour) */
+.vadd { border: 2px solid var(--fg); background: #000; color: var(--fg); padding: 4px 13px; font: inherit; font-size: 16px; font-weight: bold; cursor: pointer; }
+.vadd:hover { background: var(--fg); color: #000; }
+
+/* --- channel strip: PER-VOICE (tinted --vcf). the focused voice's whole kit --- */
+#channel-strip { border-top: 3px solid var(--vcf); margin-top: 12px; padding-top: 8px; }
+.cs-head { color: var(--vcf); font-weight: bold; font-size: 14px; margin-bottom: 6px; letter-spacing: 1px; }
+.voiceexport { width: 100%; margin-top: 10px; border-color: var(--vcf); color: var(--vcf); }
+.voiceexport:hover { background: var(--vcf); color: #000; }
+
+/* --- edit dock: PER-VOICE (tinted --vcf). draw/erase/snap/clear, docked under the canvas --- */
+#edit-dock { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; border-color: var(--vcf); }
+.dock-label { color: var(--vcf); font-weight: bold; font-size: 12px; letter-spacing: 1px; }
+#edit-dock button { padding: 4px 10px; font-size: 11px; border-width: 2px; }
+#edit-dock button:hover { background: var(--vcf); color: #000; }
+#edit-dock .tool.active { background: var(--vcf); color: #000; border-color: var(--vcf); }
+.snap-label { font-size: 11px; }
+.snap-label select { padding: 2px; }
+
+/* --- about / wiki corner --- */
+#about-tab {
+  position: fixed;
+  left: 8px; bottom: 8px;
+  z-index: 10;
+  padding: 4px 8px;
+  font-size: 11px;
+}
+#about-modal[hidden] { display: none; }
+#about-modal {                          /* solid fill, no transparency (ban) */
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  background: var(--bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  overflow-y: auto;
+}
+.modal-box {
+  position: relative;
+  border: 2px solid var(--fg);
+  background: #000;
+  padding: 20px 24px;
+  max-width: 560px;
+  text-transform: none;                 /* prose reads better mixed-case */
+  line-height: 1.5;
+}
+.modal-box h2 { margin: 0 0 12px; text-transform: uppercase; letter-spacing: 2px; }
+.modal-box p { margin: 0 0 12px; font-size: 13px; }
+.modal-box a { color: var(--fg); }
+.modal-box code { border: 1px solid var(--fg); padding: 0 3px; }
+#about-close { position: absolute; top: 8px; right: 8px; padding: 4px 8px; }
+
+/* --- mobile: stack and let the page scroll --- */
+@media (max-width: 720px) {
+  html, body { height: auto; }
+  body { min-height: 100%; }
+  #app { flex: initial; display: block; padding: 8px; }
+  .panel { margin-bottom: 10px; }
+  #topbar { margin: 8px 8px 0; }
+  #top-globals .ctl, #top-time .ctl, #feel-tray .ctl { width: 46%; flex: 1 1 46%; }
+  #top-output { margin-left: 0; }
+  #app { padding-bottom: 44px; }   /* clearance so the fixed NOTES button floats over empty space, not the edit dock */
+  #feel-tray, #midi-tray { margin: 0 8px 10px; }
+  #controls { max-height: none; overflow: visible; }
+  #stage { display: block; }
+  #viz { height: 44vh; min-height: 240px; }
+  #voicestrip .vtog { padding: 9px 13px; font-size: 13px; }   /* bigger M/S touch targets */
+  #voicestrip .vname { font-size: 20px; }
+}

@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+  <title>notes</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><rect width='16' height='16' fill='%23000'/><rect x='2' y='6' width='3' height='3' fill='%230f0'/><rect x='11' y='6' width='3' height='3' fill='%230f0'/><rect x='6' y='9' width='4' height='2' fill='%23f0f'/></svg>" />
+</head>
+<body>
+  <!-- TOP RAIL = GLOBAL (neutral): [dice] harmony · time · transport · output -->
+  <header id="topbar" class="panel">
+    <button id="dice" title="shuffle EVERYTHING — quick idea generator">
+      <svg viewBox="0 0 16 16" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="2" y="2" width="12" height="12"/><g fill="currentColor" stroke="none"><circle cx="5" cy="5" r="1.1"/><circle cx="11" cy="5" r="1.1"/><circle cx="8" cy="8" r="1.1"/><circle cx="5" cy="11" r="1.1"/><circle cx="11" cy="11" r="1.1"/></g></svg>
+    </button>
+    <div id="top-globals" class="topcluster"></div>            <!-- Key · Scale · FEEL -->
+    <div id="top-time" class="topcluster"></div>               <!-- BPM · Beats/bar · Gen grid -->
+    <div class="topcluster btnrow" id="top-transport">
+      <button id="play">▶ PLAY</button>
+      <button id="stop">■ STOP</button>
+      <button id="regen">⟳ REGEN</button>
+    </div>
+    <div class="topcluster" id="top-output">
+      <button id="export" title="download one .mid per voice">
+        <svg class="savicon" viewBox="0 0 16 16" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="square"><path d="M8 2v7"/><path d="M4.5 6 8 9.5 11.5 6"/><path d="M3 13h10"/></svg>
+        .MID <span id="export-count"></span>
+      </button>
+      <button id="midi-toggle" class="more-toggle">MIDI ▸</button>
+    </div>
+  </header>
+  <div id="feel-tray" class="panel" hidden></div>              <!-- Floor · Ceiling · Swing · Strum · Vel -->
+  <div id="midi-tray" class="panel" hidden>                    <!-- Web MIDI: out device + per-voice program routing -->
+    <label class="outlabel">MIDI OUT <select id="midiout"><option value="">— none —</option></select></label>
+    <div id="midi-voices"></div>
+  </div>
+
+  <main id="app">
+    <!-- LEFT RAIL = PER-VOICE (tinted the focused voice's colour) -->
+    <section id="controls" class="panel">
+      <div id="voicestrip"></div>
+      <div id="channel-strip"></div>
+    </section>
+
+    <section id="stage">
+      <canvas id="viz"></canvas>
+      <div id="edit-dock" class="panel">
+        <span class="dock-label" id="edit-label">EDIT</span>
+        <button data-tool="draw" class="tool">✎ DRAW</button>
+        <button data-tool="erase" class="tool">⌫ ERASE</button>
+        <label class="snap-label">SNAP
+          <select id="snap"><option value="1">1</option><option value="0.5">½</option><option value="0.25">¼</option></select>
+        </label>
+        <button id="clear">CLEAR</button>
+      </div>
+    </section>
+  </main>
+
+  <button id="about-tab" title="about notes">▚ notes</button>
+  <div id="about-modal" hidden>
+    <div class="modal-box">
+      <button id="about-close">✕</button>
+      <h2>▚ NOTES</h2>
+      <p>Make little MIDI loops in the browser. This is <b>part 2</b>.</p>
+      <p><b>Part 1</b> (2015–2018) was a Python CLI that generated loopable MIDI files with the
+      <b>Molecular Music Box</b>: place a note, jump forward by one of two intervals, and flip to the
+      other interval every time you land on a beat you've already used — the rhythm falls out of the
+      collisions instead of being typed in.</p>
+      <p>The old code is preserved, documented, and affectionately roasted — including a
+      <code>--first_note</code> flag that <b>never once ran</b> across all 30,420 files it generated,
+      and a function that reinvented <code>[0]*n</code> in six lines.</p>
+      <p><a id="about-link" href="https://github.com/b38tn1k/notes/tree/master/archive" target="_blank" rel="noopener">read the full archive + roast on github →</a></p>
+    </div>
+  </div>
+
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>

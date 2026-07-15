@@ -1,0 +1,19 @@
+{
+  "name": "midi-loop-lab",
+  "version": "2.0.0",
+  "description": "Make little MIDI loops in the browser. Part 2 of the 2015 notes project.",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "node test/molecular.test.mjs"
+  },
+  "dependencies": {
+    "@tonejs/midi": "^2.0.28",
+    "tone": "^15.0.4"
+  },
+  "devDependencies": {
+    "vite": "^5.4.0"
+  }
+}
