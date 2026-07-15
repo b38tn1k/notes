@@ -5,13 +5,20 @@
 // Integer intervals reproduce the 2015 output exactly (see test/molecular.test.mjs).
 import { makeScaleWalker } from '../music.js';
 
-// Sensible jump sizes in beats (1 beat = a quarter note). Value + display label.
-const IVS = [
-  [1 / 8, '1/8'], [1 / 6, '1/6'], [1 / 4, '1/4'], [1 / 3, '1/3'], [3 / 8, '3/8'],
-  [1 / 2, '1/2'], [5 / 8, '5/8'], [2 / 3, '2/3'], [3 / 4, '3/4'], [7 / 8, '7/8'],
-  [1, '1'], [1.5, '1.5'], [2, '2'], [2.5, '2.5'], [3, '3'], [4, '4'], [5, '5'], [6, '6'], [7, '7'], [8, '8'],
-  [9, '9'], [10, '10'], [11, '11'], [12, '12'], [13, '13'], [14, '14'], [15, '15'], [16, '16'],
+// Every 1/8 and 1/6 division across whole beats, from 1/8 up to 16 (1 beat = a
+// quarter note). Union of the eighth and sixth grids, so 3.5, 3⅓, 3⅛ … all exist.
+const FRACS = [
+  [0, ''], [1 / 8, '1/8'], [1 / 6, '1/6'], [1 / 4, '1/4'], [1 / 3, '1/3'], [3 / 8, '3/8'],
+  [1 / 2, '1/2'], [5 / 8, '5/8'], [2 / 3, '2/3'], [3 / 4, '3/4'], [5 / 6, '5/6'], [7 / 8, '7/8'],
 ];
+const IVS = [];
+for (let i = 0; i <= 16; i++) {
+  for (const [f, fl] of FRACS) {
+    const v = i + f;
+    if (v < 1 / 8 - 1e-9 || v > 16 + 1e-9) continue;      // skip 0; cap at 16
+    IVS.push([v, i > 0 ? (fl ? `${i} ${fl}` : `${i}`) : fl]);
+  }
+}
 export const IV_VALUES = IVS.map((x) => x[0]);
 export const IV_LABELS = IVS.map((x) => x[1]);
 
