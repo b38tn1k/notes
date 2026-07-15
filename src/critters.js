@@ -1,11 +1,12 @@
 // Critter Herd simulation for generators/herd.js. A herd of creatures walks a
 // grid — each creature's column = beat, row = scale degree — and every step it
 // takes places a note. Traits are seeded, so a loop reproduces.
-import { degreeToPitch, rng } from './music.js';
+import { degreeToPitch, rng, baseBeats } from './music.js';
 
 export function simulateHerd(shared, p) {
   const { meter, loopLength, root, scale } = shared;
-  const beats = meter * loopLength;
+  const bb = baseBeats(shared.base);
+  const steps = Math.max(1, Math.round((meter * loopLength) / bb));   // one column per base unit
   const rows = p.rows;
   const rand = rng((p.seed || 1) * 2654435761);
   const notes = [];
@@ -20,7 +21,7 @@ export function simulateHerd(shared, p) {
   }));
 
   const density = p.density ?? 1;
-  for (let beat = 0; beat < beats; beat++) {
+  for (let s = 0; s < steps; s++) {
     const next = [];
     for (const c of herd) {
       if (rand() < c.intent * density) {             // it moves -> it plays (density gates note rate)
@@ -28,7 +29,7 @@ export function simulateHerd(shared, p) {
         if (c.row < 0) { c.row = 0; c.dir = 1; }
         if (c.row >= rows) { c.row = rows - 1; c.dir = -1; }
         if (rand() < 0.15) c.dir *= -1;              // occasional turn
-        notes.push({ pitch: degreeToPitch(root, scale, c.row), startBeat: beat, durationBeats: 1, velocity: c.vel });
+        notes.push({ pitch: degreeToPitch(root, scale, c.row), startBeat: s * bb, durationBeats: bb, velocity: c.vel });
       }
       // breeding: spawn a mutated offspring, capped by grid pressure
       if (rand() < p.breed * c.creativity && herd.length + next.length < p.size * 3) {

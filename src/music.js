@@ -14,6 +14,12 @@ export const SCALES = {
 
 export const SCALE_NAMES = Object.keys(SCALES);
 
+// Base step: the sequencing grid resolution in beats (1 beat = a quarter note).
+// T = triplet. Shared across engines, set in THEORY.
+export const BASES = { '1/4': 1, '1/8': 1 / 2, '1/8T': 1 / 3, '1/16': 1 / 4, '1/16T': 1 / 6 };
+export const BASE_NAMES = Object.keys(BASES);
+export function baseBeats(name) { return BASES[name] ?? 1; }
+
 // scales.py:37 next_step — step UP to the next diatonic degree; when we climb
 // past root+24, drop two octaves and keep going. Always ascending, always in key.
 export function makeScaleWalker(root, scaleName) {

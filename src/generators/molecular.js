@@ -8,9 +8,7 @@
 // Jump/length = value × base step (1/16 → a bar is 16 in 4/4; T = triplet); values
 // can be fractional (3.5). Occupancy tracked on a 1/144-beat grid. Integer
 // intervals reproduce the 2015 pitch+timing at base 1/4, onset (test/…).
-import { makeScaleWalker } from '../music.js';
-
-const BASES = { '1/4': 1, '1/8': 1 / 2, '1/8T': 1 / 3, '1/16': 1 / 4, '1/16T': 1 / 6 };
+import { makeScaleWalker, baseBeats } from '../music.js';
 
 const FRACS = [[0, ''], [1 / 4, '1/4'], [1 / 3, '1/3'], [1 / 2, '1/2'], [2 / 3, '2/3'], [3 / 4, '3/4']];
 const IVS = [];
@@ -28,7 +26,6 @@ export default {
   label: 'Molecular Music Box',
   blurb: 'Two modes (interval + note length); a collision switches mode. overlap = note lands while another rings (real MMB, length drives switching); onset = start-on-a-used-start (2015). Length < interval = gaps/stability; length = interval = full MMB.',
   params: [
-    { key: 'base', label: 'Base step', type: 'select', options: Object.keys(BASES), default: '1/16' },
     { key: 'intervalA', label: 'Interval A', type: 'steps', values: IV_VALUES, labels: IV_LABELS, default: 5 },
     { key: 'lengthA', label: 'Length A', type: 'steps', values: IV_VALUES, labels: IV_LABELS, default: 5 },
     { key: 'intervalB', label: 'Interval B', type: 'steps', values: IV_VALUES, labels: IV_LABELS, default: 7 },
@@ -41,11 +38,11 @@ export default {
   generate(shared, p) {
     const { meter, loopLength, root, scale } = shared;
     const totalBeats = meter * loopLength;
-    const baseBeats = BASES[p.base] ?? 1;                 // absent (port test) -> quarter, = heritage
-    const a = p.intervalA * baseBeats;
-    const b = p.intervalB * baseBeats;
-    const la = (p.lengthA ?? p.intervalA) * baseBeats;    // length defaults to legato (= interval)
-    const lb = (p.lengthB ?? p.intervalB) * baseBeats;
+    const bb = baseBeats(shared.base);                    // absent (port test) -> quarter, = heritage
+    const a = p.intervalA * bb;
+    const b = p.intervalB * bb;
+    const la = (p.lengthA ?? p.intervalA) * bb;           // length defaults to legato (= interval)
+    const lb = (p.lengthB ?? p.intervalB) * bb;
     const overlap = (p.collision ?? 'onset') === 'overlap';   // absent (port test) -> onset = heritage
 
     const Q = 144;

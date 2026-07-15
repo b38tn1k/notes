@@ -7,7 +7,7 @@ export const state = {
   genId: 'molecular',
   // loopLength = playback repeat window; seqLength = how much the generator fills.
   // lockLength keeps them equal (the default, and all it was before).
-  shared: { root: 48, scale: 'minor', meter: 4, loopLength: 4, seqLength: 4, lockLength: true, floor: 24, ceiling: 96 },
+  shared: { root: 48, scale: 'minor', meter: 4, loopLength: 4, seqLength: 4, lockLength: true, floor: 24, ceiling: 96, base: '1/16' },
   bpm: 120,
   human: { swing: 0, velVar: 0, strum: 0 },
   instrument: 'fm',

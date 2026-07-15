@@ -1,5 +1,5 @@
 // Euclidean rhythm (Bjorklund): spread `pulses` as evenly as possible over `steps`.
-import { makeScaleWalker } from '../music.js';
+import { makeScaleWalker, baseBeats } from '../music.js';
 
 export function bjorklund(steps, pulses) {
   pulses = Math.max(0, Math.min(pulses, steps));
@@ -21,16 +21,17 @@ export function bjorklund(steps, pulses) {
 export default {
   id: 'euclidean',
   label: 'Euclidean Rhythm',
-  blurb: 'Evenly-spread pulses. Rotate to taste. Great for drums.',
+  blurb: 'Evenly-spread pulses over the base-step grid. Rotate to taste. Great for drums.',
   params: [
-    { key: 'pulses', label: 'Pulses', type: 'range', min: 1, max: 16, step: 1, default: 5 },
-    { key: 'rotation', label: 'Rotate', type: 'range', min: 0, max: 15, step: 1, default: 0 },
+    { key: 'pulses', label: 'Pulses', type: 'range', min: 1, max: 32, step: 1, default: 5 },
+    { key: 'rotation', label: 'Rotate', type: 'range', min: 0, max: 32, step: 1, default: 0 },
     { key: 'pitch', label: 'Pitch', type: 'select', options: ['root', 'octaveUp', 'climb', 'kick+snare'], default: 'root' },
     { key: 'gate', label: 'Gate', type: 'range', min: 0.1, max: 1, step: 0.05, default: 0.5 },
   ],
   generate(shared, p) {
     const { meter, loopLength, root, scale } = shared;
-    const steps = meter * loopLength;
+    const bb = baseBeats(shared.base);
+    const steps = Math.max(1, Math.round((meter * loopLength) / bb));   // one step per base unit
     const pat = bjorklund(steps, p.pulses);
     const rot = ((p.rotation % steps) + steps) % steps;
     const walk = makeScaleWalker(root, scale);
@@ -44,7 +45,7 @@ export default {
       else if (p.pitch === 'octaveUp') pitch = root + 12;
       else if (p.pitch === 'kick+snare') { pitch = drum; drum = drum === 38 ? 36 : 38; }
       else { deg = walk(deg); pitch = deg; }
-      notes.push({ pitch, startBeat: i, durationBeats: p.gate, velocity: 100 });
+      notes.push({ pitch, startBeat: i * bb, durationBeats: p.gate * bb, velocity: 100 });
     }
     return notes;
   },

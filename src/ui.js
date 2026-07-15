@@ -1,6 +1,6 @@
 // Renders controls from declarative specs. Generators declare their params,
 // so there is no per-generator UI code. Native inputs only.
-import { SCALE_NAMES, pitchName } from './music.js';
+import { SCALE_NAMES, BASE_NAMES, pitchName } from './music.js';
 import { registry, getGenerator, defaultParams } from './generators/index.js';
 
 function el(tag, props = {}) { return Object.assign(document.createElement(tag), props); }
@@ -68,6 +68,7 @@ export function renderTheory(container, state, dispatch) {
   add({ label: 'Floor (fold up)', type: 'range', min: 12, max: 84, step: 1, fmt: pitchName, get: () => S.floor, set: (v) => (S.floor = v) }, regen);
   add({ label: 'Ceiling (fold down)', type: 'range', min: 36, max: 108, step: 1, fmt: pitchName, get: () => S.ceiling, set: (v) => (S.ceiling = v) }, regen);
   add({ label: 'Beats per bar', type: 'range', min: 2, max: 8, step: 1, get: () => S.meter, set: (v) => (S.meter = v) }, regen);
+  add({ label: 'Base step (grid)', type: 'select', options: BASE_NAMES, get: () => S.base, set: (v) => (S.base = v) }, regen);
 
   // Loop length drives playback/export; when locked, the sequence follows it.
   add({ label: 'Loop length (bars)', type: 'range', min: 1, max: 8, step: 1, get: () => S.loopLength, set: (v) => { S.loopLength = v; if (S.lockLength) S.seqLength = v; } }, regen);
