@@ -65,8 +65,8 @@ export function renderTheory(container, state, dispatch) {
 
   add({ label: 'Key (root)', type: 'range', min: 36, max: 72, step: 1, fmt: pitchName, get: () => S.root, set: (v) => (S.root = v) }, regen);
   add({ label: 'Scale', type: 'select', options: SCALE_NAMES, get: () => S.scale, set: (v) => (S.scale = v) }, regen);
-  add({ label: 'Floor (fold up)', type: 'range', min: 12, max: 84, step: 1, fmt: pitchName, get: () => S.floor, set: (v) => (S.floor = v) }, regen);
-  add({ label: 'Ceiling (fold down)', type: 'range', min: 36, max: 108, step: 1, fmt: pitchName, get: () => S.ceiling, set: (v) => (S.ceiling = v) }, regen);
+  add({ label: 'Floor (semitones below root)', type: 'range', min: 0, max: 48, step: 1, fmt: (v) => `-${v}`, get: () => S.floorDown, set: (v) => (S.floorDown = v) }, regen);
+  add({ label: 'Ceiling (semitones above root)', type: 'range', min: 0, max: 48, step: 1, fmt: (v) => `+${v}`, get: () => S.ceilingUp, set: (v) => (S.ceilingUp = v) }, regen);
   add({ label: 'Beats per bar', type: 'range', min: 2, max: 8, step: 1, get: () => S.meter, set: (v) => (S.meter = v) }, regen);
   add({ label: 'Base step (grid)', type: 'select', options: BASE_NAMES, get: () => S.base, set: (v) => (S.base = v) }, regen);
 
