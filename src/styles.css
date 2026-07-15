@@ -51,10 +51,13 @@ body { display: flex; flex-direction: column; }
 .more-toggle { align-self: flex-end; padding: 6px 10px; }
 #top-output { margin-left: auto; }        /* push output cluster to the right edge */
 .outlabel { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; }
-/* --- disclosure trays: GLOBAL (neutral). MORE = range/grid + feel; MIDI = web-midi device --- */
+/* --- disclosure trays: GLOBAL (neutral). MORE = range/grid + feel; MIDI = device + per-voice routing --- */
 #more-tray[hidden], #midi-tray[hidden] { display: none; }
 #more-tray, #midi-tray { display: flex; flex-wrap: wrap; gap: 16px; margin: 10px 10px 0; }
 #more-tray .ctl { margin: 0; width: 180px; }
+#midi-voices { display: flex; flex-wrap: wrap; gap: 12px; flex: 1 1 100%; }   /* per-voice program rows, below the device */
+#midi-voices .ctl { margin: 0; width: 160px; }
+.savicon { vertical-align: -2px; }   /* pixel save/download glyph on the export button */
 
 #controls { overflow-y: auto; min-height: 0; }
 #stage { display: flex; flex-direction: column; gap: 10px; min-width: 0; min-height: 0; }

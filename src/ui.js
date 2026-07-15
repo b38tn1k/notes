@@ -116,6 +116,21 @@ export function renderMoreTray(container, state, dispatch) {
   add({ label: 'Vel jitter', type: 'range', min: 0, max: 40, step: 5, get: () => state.human.velVar, set: (v) => (state.human.velVar = v) }, regen);
 }
 
+// MIDI tray — per-voice external routing (lives here, NOT the channel strip, and never
+// touches the exported .mid). Each voice → its own stable channel + GM program.
+// opts: { gm: [name, prog][], onProg(voice) }
+export function renderMidiVoices(container, state, opts = {}) {
+  container.innerHTML = '';
+  const gm = opts.gm || [];
+  state.voices.forEach((v, i) => {
+    container.append(makeControl({
+      label: `V${i + 1} → ch ${v.colorIdx + 1}`, type: 'select', options: gm.map(([name]) => name),
+      get: () => (gm.find(([, p]) => p === v.gm) || gm[0] || ['', 0])[0],
+      set: (name) => { const hit = gm.find(([n]) => n === name); v.gm = hit ? hit[1] : 0; },
+    }, () => opts.onProg && opts.onProg(v)));
+  });
+}
+
 // Channel strip — PER-VOICE, tinted: the focused voice's whole kit in one place.
 // instrument + register/character/length + external MIDI program + generator + export.
 // opts: { instruments: string[], gm: [name, prog][] }

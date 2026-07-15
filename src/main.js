@@ -3,7 +3,7 @@
 import './styles.css';
 import { state, regenerateAll, regenerateVoice, focusedVoice, makeVoice, MAX_VOICES, PALETTE,
          audibleVoices, voiceLoopBeats, totalBeats } from './state.js';
-import { renderTopGlobals, renderTempo, renderMoreTray, renderVoiceStrip, renderChannelStrip } from './ui.js';
+import { renderTopGlobals, renderTempo, renderMoreTray, renderVoiceStrip, renderChannelStrip, renderMidiVoices } from './ui.js';
 import * as audio from './audio.js';
 import * as midiout from './midiout.js';
 import { exportVoice, exportEach } from './export.js';
@@ -12,7 +12,9 @@ import { initEditor } from './editor.js';
 import { shuffleColors } from './sprites.js';
 
 const $ = (id) => document.getElementById(id);
-let seedCounter = 1;
+
+// General MIDI programs for per-voice external routing (shown in the MIDI tray)
+const GM = [['grand piano', 0], ['rhodes', 4], ['music box', 10], ['vibraphone', 11], ['nylon guitar', 24], ['fingered bass', 33], ['synth bass', 38], ['strings', 48], ['brass', 61], ['square lead', 80], ['saw lead', 81], ['warm pad', 88]];
 
 // audible voices → the audio scheduling plan (one Part per voice)
 const audioPlan = () => audibleVoices().map((v) => ({ id: v.id, name: v.instrument, notes: v.notes, loopBeats: voiceLoopBeats(v) }));
@@ -38,7 +40,7 @@ function midiResched() {
 
 // derived status: export button count + per-chip note badges
 function refreshStatus() {
-  $('export').textContent = `⭳ .MID ×${state.voices.length}`;
+  $('export-count').textContent = `×${state.voices.length}`;
   const chips = document.querySelectorAll('#voicestrip .voicechip');
   state.voices.forEach((v, i) => { const b = chips[i] && chips[i].querySelector('.vbadge'); if (b) b.textContent = `${v.notes.length}n`; });
 }
@@ -60,22 +62,16 @@ function refresh() {
   redraw();
 }
 
-function applyAll({ shuffle = false } = {}) {
-  if (shuffle) { seedCounter++; shuffleColors(seedCounter); }
-  regenerateAll();
-  refresh();
-}
-function applyVoice({ shuffle = false } = {}) {   // regen only the focused voice
-  if (shuffle) { seedCounter++; shuffleColors(seedCounter); }
-  regenerateVoice(focusedVoice());
-  refresh();
-}
+function applyAll() { regenerateAll(); refresh(); }                          // regen every voice
+function applyVoice() { regenerateVoice(focusedVoice()); refresh(); }        // regen only the focused voice
 
 const renderStrip = () => renderVoiceStrip($('voicestrip'), state, dispatch);
 const renderChannel = () => renderChannelStrip($('channel-strip'), focusedVoice(), state, dispatch, { instruments: audio.INSTRUMENTS });
+const renderMidi = () => renderMidiVoices($('midi-voices'), state, { gm: GM, onProg: (v) => { if (midiout.isEnabled()) midiout.programChange(v.gm, v.colorIdx); } });
 function syncFocusUI() {
   renderStrip();
   renderChannel();
+  renderMidi();
   document.documentElement.style.setProperty('--vcf', PALETTE[focusedVoice().colorIdx % PALETTE.length]);   // tint the per-voice rails
   $('edit-label').textContent = `EDIT V${state.focused + 1}`;
 }
@@ -112,7 +108,7 @@ function dispatch(kind) {
       audio.setBpm(state.bpm);
       midiResched();
       refreshStatus(); return;
-    case 'switch': renderChannel(); applyVoice({ shuffle: true }); return;   // generator changed → re-render its params
+    case 'switch': renderChannel(); applyVoice(); return;   // generator changed → re-render its params
     case 'regen-all': applyAll(); return;                        // global theory / feel
     case 'regen-voice': applyVoice(); return;                    // focused voice param / voice control
     case 'focus': syncFocusUI(); refreshStatus(); redraw(); return;   // no regen
@@ -172,7 +168,7 @@ function init() {
     if (tag === 'INPUT' || tag === 'SELECT' || tag === 'TEXTAREA' || e.target.isContentEditable) return;
     e.preventDefault(); togglePlay();
   });
-  $('regen').addEventListener('click', () => applyAll({ shuffle: true }));
+  $('regen').addEventListener('click', () => applyAll());
   $('export').addEventListener('click', () => exportEach(state.voices, state.shared, state.bpm, state.human));
 
   shuffleColors(1);

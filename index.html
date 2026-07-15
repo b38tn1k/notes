@@ -19,13 +19,17 @@
       <div id="tempo"></div>                                   <!-- BPM (rendered) -->
     </div>
     <div class="topcluster" id="top-output">
-      <button id="export">⭳ .MID</button>
+      <button id="export" title="download one .mid per voice">
+        <svg class="savicon" viewBox="0 0 16 16" width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M2 2h9l3 3v9H2z"/><path d="M5 2v4h5V2"/><rect x="4.5" y="9" width="7" height="5"/></svg>
+        .MID <span id="export-count"></span>
+      </button>
       <button id="midi-toggle" class="more-toggle">MIDI ▸</button>
     </div>
   </header>
   <div id="more-tray" class="panel" hidden></div>              <!-- Floor · Ceiling · Grid · Swing · Strum · Vel -->
-  <div id="midi-tray" class="panel" hidden>                    <!-- Web MIDI out device (tucked away) -->
+  <div id="midi-tray" class="panel" hidden>                    <!-- Web MIDI: out device + per-voice program routing -->
     <label class="outlabel">MIDI OUT <select id="midiout"><option value="">— none —</option></select></label>
+    <div id="midi-voices"></div>
   </div>
 
   <main id="app">
