@@ -50,8 +50,8 @@ export default {
 
     const Q = 144;
     const cellOf = (bt) => Math.round(bt * Q);
-    const covered = new Map();                            // cell -> is a note sounding here
-    const bump = (c) => covered.set(c, (covered.get(c) || 0) + 1);
+    const prev = new Map();                              // coverage from COMPLETED passes (the looping patterns)
+    let cur = new Map();                                 // this pass's coverage (not yet collidable)
     const notes = [];
 
     let usingA = true;
@@ -65,7 +65,7 @@ export default {
     let guard = 200000;
     while (iterations > 0 && guard-- > 0) {
       const k = cellOf(beat);
-      if ((covered.get(k) || 0) > 0) usingA = !usingA;   // collision -> switch mode
+      if ((prev.get(k) || 0) > 0) usingA = !usingA;      // collide with a PREVIOUS pass -> switch mode
 
       const jump = usingA ? a : b;
       const len = usingA ? la : lb;
@@ -74,13 +74,19 @@ export default {
       const dur = Math.max(0.05, Math.min(len, totalBeats - beat));
       notes.push({ pitch: current, startBeat: beat, durationBeats: dur, velocity: 100 });
 
-      // mark what's now "sounding": the whole note (overlap) or just the onset (onset)
-      if (overlap) { const end = cellOf(beat + dur); for (let c = k; c < end; c++) bump(c); }
-      else bump(k);
+      // record this pass's coverage: whole note incl. its end cell (overlap, so a note landing
+      // exactly where one ended still counts as touching) or just the onset (onset mode)
+      if (overlap) { const end = cellOf(beat + dur); for (let c = k; c <= end; c++) cur.set(c, 1); }
+      else cur.set(k, 1);
 
       current = nextStep(current);
       beat += jump;
-      if (beat >= totalBeats - 1e-9) { iterations -= 1; beat -= totalBeats; }  // notes.py:161 wrap
+      if (beat >= totalBeats - 1e-9) {                    // notes.py:161 wrap — this pass is now "previous"
+        iterations -= 1;
+        beat -= totalBeats;
+        for (const c of cur.keys()) prev.set(c, 1);
+        cur = new Map();
+      }
       if (notes.length > 4000) break;
     }
     return notes;
