@@ -76,12 +76,12 @@ function makeControl(spec, onChange) {
   return wrap;
 }
 
-// THEORY tab: key, scale, timing, tempo.
+// THEORY tab: global key, scale, register, grid, tempo. (Loop length is per-voice.)
 export function renderTheory(container, state, dispatch) {
   container.innerHTML = '';
   const S = state.shared;
   const add = (spec, onChange) => container.append(makeControl(spec, onChange));
-  const regen = () => dispatch('regen');
+  const regen = () => dispatch('regen-all');
 
   add({ label: 'Key (root)', type: 'range', min: 36, max: 72, step: 1, fmt: pitchName, get: () => S.root, set: (v) => (S.root = v) }, regen);
   add({ label: 'Scale', type: 'select', options: SCALE_NAMES, get: () => S.scale, set: (v) => (S.scale = v) }, regen);
@@ -89,22 +89,24 @@ export function renderTheory(container, state, dispatch) {
   add({ label: 'Ceiling (semitones above root)', type: 'range', min: 0, max: 48, step: 1, fmt: (v) => `+${v}`, get: () => S.ceilingUp, set: (v) => (S.ceilingUp = v) }, regen);
   add({ label: 'Beats per bar', type: 'range', min: 2, max: 8, step: 1, get: () => S.meter, set: (v) => (S.meter = v) }, regen);
   add({ label: 'Base step (grid)', type: 'select', options: BASE_NAMES, get: () => S.base, set: (v) => (S.base = v) }, regen);
-
-  // Loop length drives playback/export; when locked, the sequence follows it.
-  add({ label: 'Loop length (bars)', type: 'range', min: 1, max: 8, step: 1, get: () => S.loopLength, set: (v) => { S.loopLength = v; if (S.lockLength) S.seqLength = v; } }, regen);
-  add({ label: 'Lock sequence to loop', type: 'toggle', get: () => S.lockLength, set: (v) => { S.lockLength = v; if (v) S.seqLength = S.loopLength; } }, () => { renderTheory(container, state, dispatch); regen(); });
-  if (!S.lockLength) {
-    add({ label: 'Sequence length (bars)', type: 'range', min: 1, max: 16, step: 1, get: () => S.seqLength, set: (v) => (S.seqLength = v) }, regen);
-  }
-
   add({ label: 'BPM', type: 'range', min: 40, max: 200, step: 1, get: () => state.bpm, set: (v) => (state.bpm = v) }, () => dispatch('bpm'));
 }
 
-// FEEL tab: humanize.
+// per-voice controls (in the ENGINE panel): register + character + length
+export function renderVoiceControls(container, voice, dispatch) {
+  container.innerHTML = '';
+  const add = (spec, onChange) => container.append(makeControl(spec, onChange));
+  const regen = () => dispatch('regen-voice');
+  add({ label: 'Length (bars)', type: 'range', min: 1, max: 8, step: 1, get: () => voice.length, set: (v) => (voice.length = v) }, regen);
+  add({ label: 'Octave', type: 'range', min: -3, max: 3, step: 1, fmt: (v) => (v > 0 ? `+${v}` : `${v}`), get: () => voice.octave, set: (v) => (voice.octave = v) }, regen);
+  add({ label: 'Mono (bass / lead)', type: 'toggle', get: () => voice.mono, set: (v) => (voice.mono = v) }, regen);
+}
+
+// FEEL tab: humanize (global).
 export function renderFeel(container, state, dispatch) {
   container.innerHTML = '';
   const add = (spec, onChange) => container.append(makeControl(spec, onChange));
-  const regen = () => dispatch('regen');
+  const regen = () => dispatch('regen-all');
 
   add({ label: 'Swing', type: 'range', min: 0, max: 0.6, step: 0.05, get: () => state.human.swing, set: (v) => (state.human.swing = v) }, regen);
   add({ label: 'Strum (− down / + up)', type: 'range', min: -0.15, max: 0.15, step: 0.01, get: () => state.human.strum, set: (v) => (state.human.strum = v) }, regen);
@@ -125,7 +127,7 @@ export function renderGenParams(container, state, dispatch) {
   const P = state.genParams[state.genId];
   if (gen.blurb) container.append(el('p', { className: 'blurb', textContent: gen.blurb }));
   for (const spec of gen.params) {
-    container.append(makeControl({ ...spec, get: () => P[spec.key], set: (v) => (P[spec.key] = v) }, () => dispatch('regen')));
+    container.append(makeControl({ ...spec, get: () => P[spec.key], set: (v) => (P[spec.key] = v) }, () => dispatch('regen-voice')));
   }
 }
 
@@ -136,7 +138,7 @@ function renderMixer(container, state, dispatch) {
   container.innerHTML = '';
   const gen = getGenerator('mixed');
   const P = state.genParams.mixed;
-  const regen = () => dispatch('regen');
+  const regen = () => dispatch('regen-voice');
 
   const bar = el('div', { className: 'btnrow subtabs' });
   for (const [key, label] of [['a', 'SOURCE A'], ['b', 'SOURCE B'], ['mix', 'MIXING']]) {
@@ -178,8 +180,8 @@ function appendSlotParams(container, state, dispatch, slotKey, subId) {
   }
   const SP = P[slotKey];
   // per-slot base override (independent of the global THEORY base)
-  container.append(makeControl({ label: 'Base override', type: 'select', options: ['inherit', ...BASE_NAMES], get: () => SP._base, set: (v) => (SP._base = v) }, () => dispatch('regen')));
+  container.append(makeControl({ label: 'Base override', type: 'select', options: ['inherit', ...BASE_NAMES], get: () => SP._base, set: (v) => (SP._base = v) }, () => dispatch('regen-voice')));
   for (const spec of sub.params) {
-    container.append(makeControl({ ...spec, get: () => SP[spec.key], set: (v) => (SP[spec.key] = v) }, () => dispatch('regen')));
+    container.append(makeControl({ ...spec, get: () => SP[spec.key], set: (v) => (SP[spec.key] = v) }, () => dispatch('regen-voice')));
   }
 }

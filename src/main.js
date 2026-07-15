@@ -3,7 +3,7 @@
 import './styles.css';
 import { state, regenerateAll, regenerateVoice, focusedVoice, makeVoice, MAX_VOICES,
          audibleVoices, voiceLoopBeats, totalBeats } from './state.js';
-import { renderTheory, renderFeel, renderGenSelect, renderGenParams, renderVoiceStrip } from './ui.js';
+import { renderTheory, renderFeel, renderGenSelect, renderGenParams, renderVoiceStrip, renderVoiceControls } from './ui.js';
 import * as audio from './audio.js';
 import * as midiout from './midiout.js';
 import { downloadMidi } from './export.js';
@@ -56,9 +56,18 @@ function applyAll({ shuffle = false } = {}) {
   regenerateAll();
   refresh();
 }
+function applyVoice({ shuffle = false } = {}) {   // regen only the focused voice
+  if (shuffle) { seedCounter++; shuffleColors(seedCounter); }
+  regenerateVoice(focusedVoice());
+  refresh();
+}
 
 const renderStrip = () => renderVoiceStrip($('voicestrip'), state, dispatch);
-function renderEnginePanel() { renderGenSelect($('gen-select'), state, dispatch); renderGenParams($('gen-controls'), state, dispatch); }
+function renderEnginePanel() {
+  renderVoiceControls($('voice-controls'), focusedVoice(), dispatch);
+  renderGenSelect($('gen-select'), state, dispatch);
+  renderGenParams($('gen-controls'), state, dispatch);
+}
 function syncFocusUI() { renderStrip(); renderEnginePanel(); $('inst').value = focusedVoice().instrument; }
 
 function addVoice() {
@@ -83,13 +92,15 @@ function dispatch(kind) {
       audio.setBpm(state.bpm);
       if (audio.isPlaying() && midiout.isEnabled()) midiout.reschedule(midiNotes(), transportCfg());
       refreshReadout(); return;
-    case 'switch': renderEnginePanel(); applyAll({ shuffle: true }); return;
-    case 'focus': syncFocusUI(); redraw(); return;               // no regen
+    case 'switch': renderEnginePanel(); applyVoice({ shuffle: true }); return;
+    case 'regen-all': applyAll(); return;                        // global theory / feel
+    case 'regen-voice': applyVoice(); return;                    // focused voice param / voice control
+    case 'focus': syncFocusUI(); refreshReadout(); redraw(); return;   // no regen
     case 'voice-mix': renderStrip(); refresh(); return;          // mute/solo → reschedule, no regen
     case 'voice-add': addVoice(); return;
     case 'voice-remove': removeVoice(); return;
     case 'instrument': audio.setInstrument(focusedVoice().id, focusedVoice().instrument); return;
-    default: applyAll();                                          // 'regen' from a slider
+    default: applyAll();
   }
 }
 

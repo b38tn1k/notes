@@ -23,6 +23,7 @@ export function makeVoice(genId = 'molecular', over = {}) {
     instrument: 'synth',
     mono: false,
     octave: 0,               // register shift (window-fold), in octaves
+    length: 4,               // per-voice loop length in bars (voices phase against each other)
     mute: false, solo: false, shown: true,
     colorIdx: 0,             // stable palette slot
     notes: [],
@@ -31,8 +32,8 @@ export function makeVoice(genId = 'molecular', over = {}) {
 }
 
 export const state = {
-  // GLOBAL music theory + tempo + humanize; voices share these.
-  shared: { root: 48, scale: 'minor', meter: 4, loopLength: 4, seqLength: 4, lockLength: true, floorDown: 24, ceilingUp: 24, base: '1/16' },
+  // GLOBAL music theory + tempo + humanize; voices share these. (Loop length is per-voice.)
+  shared: { root: 48, scale: 'minor', meter: 4, floorDown: 24, ceilingUp: 24, base: '1/16' },
   bpm: 120,
   human: { swing: 0, velVar: 0, strum: 0 },
   voices: [makeVoice('molecular', { colorIdx: 0 })],
@@ -52,16 +53,17 @@ Object.defineProperties(state, {
   notes:      { get() { return focusedVoice().notes; }, set(v) { focusedVoice().notes = v; } },
 });
 
-// effective sequence length in bars (follows the loop when locked) — global for now
-export function seqLen() { return state.shared.lockLength ? state.shared.loopLength : state.shared.seqLength; }
-export function seqBeats() { return state.shared.meter * seqLen(); }
-export function loopBeats() { return state.shared.meter * state.shared.loopLength; }
-export function totalBeats() { return loopBeats(); }   // "total" == the loop, for playback/export
+// per-voice length in beats (each voice loops over its own length → phasing)
+export const voiceBeats = (v) => state.shared.meter * v.length;
+export const voiceLoopBeats = (v) => voiceBeats(v);
 
-// per-voice length (P3 makes these per-voice; for now they mirror the global length)
-export const voiceLoopBeats = (_v) => loopBeats();
-export const voiceSeqBeats = (_v) => seqBeats();
-export const masterBeats = (_shownOnly) => totalBeats();
+// master grid = longest voice (shown voices only when asked)
+export function masterBeats(shownOnly) {
+  let vs = shownOnly ? state.voices.filter((v) => v.shown !== false) : state.voices;
+  if (!vs.length) vs = state.voices;
+  return state.shared.meter * Math.max(1, ...vs.map((v) => v.length));
+}
+export function totalBeats() { return masterBeats(false); }   // the whole loop, for playback/export
 
 // solo overrides the pool (only soloed voices), else all; then mute silences within it
 export function audibleVoices() {
@@ -89,7 +91,7 @@ function collapseMono(notes) {
 // run one voice's generator -> humanize -> fold/clamp (per-voice octave window) -> voice.notes
 export function regenerateVoice(v) {
   const gen = getGenerator(v.genId);
-  const genShared = { ...state.shared, loopLength: seqLen() };   // fill the sequence
+  const genShared = { ...state.shared, loopLength: v.length };   // generators fill the voice's length
   let notes = [];
   try {
     notes = gen.generate(genShared, v.genParams[v.genId], { genParams: v.genParams }) || [];
@@ -98,14 +100,14 @@ export function regenerateVoice(v) {
     notes = [];
   }
   notes = humanize(notes, state.human);
-  const sb = seqBeats();
+  const sb = voiceBeats(v);
   const { root, floorDown, ceilingUp } = state.shared;
-  const oct = (v.octave || 0) * 12;                              // shift the fold WINDOW, not the pitch
+  const oct = (v.octave || 0) * 12;                              // transpose pitch AND the fold window together
   const floor = root - floorDown + oct, ceiling = root + ceilingUp + oct;
   let out = notes
     .filter((n) => n.startBeat < sb)
     .map((n) => ({
-      pitch: foldPitch(n.pitch, floor, ceiling),
+      pitch: foldPitch(n.pitch + oct, floor, ceiling),
       startBeat: Math.max(0, n.startBeat),
       durationBeats: Math.max(0.05, n.durationBeats),
       velocity: Math.max(1, Math.min(127, Math.round(n.velocity))),
