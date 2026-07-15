@@ -6,7 +6,7 @@ export const INSTRUMENTS = ['fm', 'am', 'synth', 'pluck', 'membrane', 'metal'];
 
 let inst = null;
 let part = null;
-let currentName = 'fm';
+let currentName = 'synth';
 
 function makeInst(name) {
   switch (name) {

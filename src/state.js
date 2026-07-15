@@ -10,7 +10,7 @@ export const state = {
   shared: { root: 48, scale: 'minor', meter: 4, loopLength: 4, seqLength: 4, lockLength: true, floorDown: 24, ceilingUp: 24, base: '1/16' },
   bpm: 120,
   human: { swing: 0, velVar: 0, strum: 0 },
-  instrument: 'fm',
+  instrument: 'synth',
   genParams: {},          // { [genId]: {...params} }
   notes: [],
   playing: false,
