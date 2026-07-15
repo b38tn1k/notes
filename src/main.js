@@ -96,10 +96,16 @@ function renderGlobals() {
 // ---- dice: shuffle everything into a fresh idea ----
 const pick = (a) => a[Math.floor(Math.random() * a.length)];
 const randInt = (lo, hi) => lo + Math.floor(Math.random() * (hi - lo + 1));
+const shuffle = (a) => { const b = a.slice(); for (let i = b.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [b[i], b[j]] = [b[j], b[i]]; } return b; };
+const biasLow = (n) => Math.min(n, Math.floor(Math.pow(Math.random(), 2.2) * (n + 1)));   // skew toward the low end of 0..n
 
 function randomizeParams(P, gen) {
   for (const s of gen.params) {
-    if (s.type === 'range') { const n = Math.round((s.max - s.min) / s.step); P[s.key] = +(s.min + s.step * randInt(0, n)).toFixed(4); }
+    if (s.type === 'range') {
+      const n = Math.round((s.max - s.min) / s.step);
+      const idx = s.key === 'iterations' ? biasLow(n) : randInt(0, n);   // iterations gets busy at the top — keep it modest
+      P[s.key] = +(s.min + s.step * idx).toFixed(4);
+    }
     else if (s.type === 'steps') P[s.key] = pick(s.values);
     else if (s.type === 'select') P[s.key] = pick(s.options);
     else if (s.type === 'toggle') P[s.key] = Math.random() < 0.5;
@@ -107,7 +113,6 @@ function randomizeParams(P, gen) {
 }
 function randomizeVoice(v) {
   v.genId = pick(registry.filter((g) => g.id !== 'mixed')).id;   // keep the dice simple + musical
-  v.instrument = pick(audio.INSTRUMENTS);
   v.length = pick([1, 2, 4, 8]);
   v.octave = randInt(-2, 2);
   v.mono = Math.random() < 0.4;
@@ -123,7 +128,13 @@ function randomizeAll() {
   for (const v of state.voices) audio.disposeVoice(v.id);        // free old Tone nodes
   state.voices = [];
   const n = randInt(1, MAX_VOICES);
-  for (let i = 0; i < n; i++) { const v = makeVoice('molecular', { colorIdx: i }); randomizeVoice(v); state.voices.push(v); }
+  const insts = shuffle(audio.INSTRUMENTS);                       // distinct instrument per voice (6 available, ≤4 voices)
+  for (let i = 0; i < n; i++) {
+    const v = makeVoice('molecular', { colorIdx: i });
+    randomizeVoice(v);
+    v.instrument = insts[i % insts.length];
+    state.voices.push(v);
+  }
   state.focused = 0;
   audio.setBpm(state.bpm);
   regenerateAll();
