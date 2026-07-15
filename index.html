@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+  <title>MIDI LOOP LAB</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><rect width='16' height='16' fill='%23000'/><rect x='2' y='6' width='3' height='3' fill='%230f0'/><rect x='11' y='6' width='3' height='3' fill='%230f0'/><rect x='6' y='9' width='4' height='2' fill='%23f0f'/></svg>" />
+</head>
+<body>
+  <header id="topbar">
+    <h1>▚ MIDI LOOP LAB</h1>
+    <span id="tagline">part 2 // the animals control the notes</span>
+  </header>
+
+  <main id="app">
+    <section id="controls" class="panel">
+      <div id="shared-controls"></div>
+      <hr />
+      <div id="gen-select-row">
+        <label for="gen-select">ENGINE</label>
+        <select id="gen-select"></select>
+      </div>
+      <div id="gen-controls"></div>
+    </section>
+
+    <section id="stage">
+      <canvas id="viz"></canvas>
+      <div id="transport" class="panel">
+        <div class="btnrow">
+          <button id="play">▶ PLAY</button>
+          <button id="stop">■ STOP</button>
+          <button id="regen">⟳ REGEN</button>
+          <button id="export">⭳ .MID</button>
+        </div>
+        <div class="selrow">
+          <label>INST <select id="inst"></select></label>
+          <label>MIDI OUT <select id="midiout"><option value="">— none —</option></select></label>
+        </div>
+        <pre id="readout"></pre>
+      </div>
+    </section>
+  </main>
+
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>

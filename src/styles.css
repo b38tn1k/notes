@@ -1,0 +1,112 @@
+/* MIDI LOOP LAB — punk-rock 8-bit.
+   HARD BAN (do not add): box-shadow, text-shadow, filter blur, gradients,
+   rgba/opacity blends, transitions, eased animation. Keep the jank. */
+
+:root {
+  --bg: #000;
+  --fg: #0f0;                 /* replaced live by shuffleColors() via --fg/--bg on :root */
+  --font: 'Courier New', Courier, monospace;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  height: 100%;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font);
+  text-transform: uppercase;
+  image-rendering: pixelated;
+  -webkit-font-smoothing: none;          /* no anti-aliased text where we can help it */
+}
+
+body { display: flex; flex-direction: column; }
+
+#topbar {
+  border-bottom: 2px solid var(--fg);
+  padding: 8px 12px;
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+#topbar h1 { margin: 0; font-size: 18px; letter-spacing: 2px; }
+#tagline { font-size: 11px; }
+
+#app {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  gap: 10px;
+  padding: 10px;
+  min-height: 0;
+}
+
+.panel { border: 2px solid var(--fg); padding: 10px; }
+
+#controls { overflow-y: auto; }
+#stage { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+
+#viz {
+  width: 100%;
+  flex: 1;
+  min-height: 200px;
+  border: 2px solid var(--fg);
+  background: #000;
+  display: block;
+  image-rendering: pixelated;
+}
+
+hr { border: none; border-top: 2px dashed var(--fg); margin: 12px 0; }
+
+/* --- controls --- */
+label { display: block; font-size: 11px; margin: 8px 0 2px; }
+.ctl { margin-bottom: 4px; }
+.ctl .val { float: right; }
+
+input[type=range] {
+  width: 100%;
+  accent-color: var(--fg);
+  background: #000;
+}
+select {
+  background: #000; color: var(--fg);
+  border: 1px solid var(--fg); border-radius: 0;
+  font: inherit; text-transform: uppercase; padding: 4px;
+}
+input[type=checkbox] { accent-color: var(--fg); transform: scale(1.3); }
+
+#gen-select-row label, .selrow label { display: inline; }
+#gen-select { width: 100%; margin-top: 4px; }
+
+/* --- buttons: instant hard invert, NO transition --- */
+button {
+  background: #000; color: var(--fg);
+  border: 2px solid var(--fg); border-radius: 0;
+  font: inherit; text-transform: uppercase;
+  padding: 8px 12px; cursor: pointer;
+}
+button:hover, button:active { background: var(--fg); color: #000; }
+button:disabled { opacity: 1; border-style: dashed; cursor: not-allowed; }
+
+.btnrow { display: flex; gap: 6px; flex-wrap: wrap; }
+.selrow { display: flex; gap: 16px; flex-wrap: wrap; margin-top: 10px; }
+
+#readout {
+  margin: 10px 0 0; padding: 6px;
+  border: 1px solid var(--fg);
+  font-size: 11px; white-space: pre-wrap; word-break: break-word;
+  min-height: 2em;
+}
+
+/* --- mobile: stack and let the page scroll --- */
+@media (max-width: 720px) {
+  html, body { height: auto; }
+  body { min-height: 100%; }
+  #app { flex: initial; display: block; padding: 8px; }
+  .panel { margin-bottom: 10px; }
+  #controls { max-height: none; overflow: visible; }
+  #stage { display: block; }
+  #viz { height: 44vh; min-height: 240px; }
+}

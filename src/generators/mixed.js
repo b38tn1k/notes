@@ -1,0 +1,53 @@
+// Mixed Media: blend two other generators. Layer them, take rhythm from one and
+// pitch from the other, or interleave across the bar. Optional grid + key align.
+import molecular from './molecular.js';
+import euclidean from './euclidean.js';
+import drunkwalk from './drunkwalk.js';
+import noise from './noise.js';
+import arp from './arp.js';
+import { snapToScale } from '../music.js';
+
+const SOURCES = { molecular, euclidean, drunkwalk, noise, arp };
+const IDS = Object.keys(SOURCES);
+
+function runSource(id, shared) {
+  const g = SOURCES[id] || molecular;
+  const p = {};
+  for (const s of g.params) p[s.key] = s.default;
+  return g.generate(shared, p) || [];
+}
+
+export default {
+  id: 'mixed',
+  label: 'Mixed Media',
+  blurb: 'Mutate two engines together — layer, rhythm+pitch, or interleave.',
+  params: [
+    { key: 'sourceA', label: 'Source A', type: 'select', options: IDS, default: 'euclidean' },
+    { key: 'sourceB', label: 'Source B', type: 'select', options: IDS, default: 'drunkwalk' },
+    { key: 'mode', label: 'Blend', type: 'select', options: ['layer', 'rhythm+pitch', 'interleave'], default: 'rhythm+pitch' },
+    { key: 'quantize', label: 'Quantize', type: 'toggle', default: false },
+    { key: 'keyLock', label: 'Key lock', type: 'toggle', default: true },
+  ],
+  generate(shared, p) {
+    const a = runSource(p.sourceA, shared);
+    const b = runSource(p.sourceB, shared);
+    let out;
+
+    if (p.mode === 'rhythm+pitch') {
+      const pitches = b.map((n) => n.pitch);
+      out = a.map((n, i) => ({ ...n, pitch: pitches.length ? pitches[i % pitches.length] : n.pitch }));
+    } else if (p.mode === 'interleave') {
+      // A owns even beats, B owns odd beats
+      out = [
+        ...a.filter((n) => Math.floor(n.startBeat) % 2 === 0),
+        ...b.filter((n) => Math.floor(n.startBeat) % 2 === 1),
+      ];
+    } else {
+      out = [...a, ...b]; // layer
+    }
+
+    if (p.quantize) out = out.map((n) => ({ ...n, startBeat: Math.round(n.startBeat * 2) / 2 }));
+    if (p.keyLock) out = out.map((n) => ({ ...n, pitch: snapToScale(shared.root, shared.scale, n.pitch) }));
+    return out;
+  },
+};
