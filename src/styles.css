@@ -145,6 +145,16 @@ button:disabled { opacity: 1; border-style: dashed; cursor: not-allowed; }
 .voiceexport { width: 100%; margin-top: 10px; border-color: var(--vcf); color: var(--vcf); }
 .voiceexport:hover { background: var(--vcf); color: #000; }
 
+/* desktop: pair the compact select params (e.g. Structure + Collision) onto one row so the
+   strip is shorter; sliders stay full-width for precision. (Mobile does its own 2-up below.) */
+@media (min-width: 721px) {
+  .gen-controls { display: flex; flex-wrap: wrap; column-gap: 12px; align-items: flex-start; }
+  .gen-controls > .blurb, .gen-controls > div:not(.ctl) { flex: 1 1 100%; }   /* blurb + mixer subtabs/pane full-width */
+  .gen-controls > .ctl { flex: 1 1 100%; }
+  .gen-controls > .ctl-select { flex: 1 1 calc(50% - 6px); }                  /* two adjacent selects share a row */
+  #controls { padding-bottom: 40px; }                                         /* clearance so the fixed ▚ notes button clears EXPORT */
+}
+
 /* --- edit dock: PER-VOICE (tinted --vcf). draw/erase/snap/clear, docked under the canvas --- */
 #edit-dock { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; border-color: var(--vcf); }
 .dock-label { color: var(--vcf); font-weight: bold; font-size: 12px; letter-spacing: 1px; }

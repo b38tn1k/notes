@@ -37,7 +37,7 @@ function nearestIdx(values, v) {
 
 // spec: { label, type:'range'|'select'|'toggle', min,max,step,options,fmt, get(), set(v) }
 function makeControl(spec, onChange) {
-  const wrap = el('div', { className: 'ctl' });
+  const wrap = el('div', { className: `ctl ctl-${spec.type}` });   // ctl-select/-range/-steps/-toggle: lets CSS pair selects
   const lab = el('label', { textContent: spec.label });
 
   if (spec.type === 'range') {
