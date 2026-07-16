@@ -147,10 +147,12 @@ button:disabled { opacity: 1; border-style: dashed; cursor: not-allowed; }
 /* desktop: pair the compact select params (e.g. Structure + Collision) onto one row so the
    strip is shorter; sliders stay full-width for precision. (Mobile does its own 2-up below.) */
 @media (min-width: 721px) {
-  .gen-controls { display: flex; flex-wrap: wrap; column-gap: 12px; align-items: flex-start; }
-  .gen-controls > .blurb, .gen-controls > div:not(.ctl) { flex: 1 1 100%; }   /* blurb + mixer subtabs/pane full-width */
-  .gen-controls > .ctl { flex: 1 1 100%; }
-  .gen-controls > .ctl-select { flex: 1 1 calc(50% - 6px); }                  /* two adjacent selects share a row */
+  #channel-strip, .gen-controls { display: flex; flex-wrap: wrap; column-gap: 12px; align-items: flex-start; }
+  #channel-strip > :not(.ctl),
+  .gen-controls > .blurb, .gen-controls > div:not(.ctl) { flex: 1 1 100%; }   /* structural rows (gen select, params, export, blurb) full-width */
+  #channel-strip > .ctl, .gen-controls > .ctl { flex: 1 1 100%; }             /* sliders full-width for precision */
+  #channel-strip > .ctl-select, #channel-strip > .ctl-toggle,
+  .gen-controls > .ctl-select, .gen-controls > .ctl-toggle { flex: 1 1 calc(50% - 6px); }  /* compact controls (select/toggle) pair 2-up */
   #controls { padding-bottom: 40px; }                                         /* clearance so the fixed ▚ notes button clears EXPORT */
 }
 

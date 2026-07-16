@@ -147,13 +147,13 @@ export function renderChannelStrip(container, voice, state, dispatch, opts = {})
   // no "▸ V{n}" header — the focused voice is already shown by the filled chip above
   // and the channel strip's tinted top border; repeating it just wastes a row.
 
-  // local Tone.js instrument (per voice)
+  // voice character — sound + mono/poly (both compact; pair 2-up on desktop)
   add({ label: 'Instrument', type: 'select', options: opts.instruments || [], get: () => voice.instrument, set: (v) => (voice.instrument = v) }, () => dispatch('instrument'));
+  add({ label: 'Mono', type: 'toggle', get: () => voice.mono, set: (v) => (voice.mono = v) }, regen);
 
-  // register + character + loop length
+  // register + loop length
   add({ label: 'Length (bars)', type: 'range', min: 1, max: 8, step: 1, get: () => voice.length, set: (v) => (voice.length = v) }, regen);
   add({ label: 'Octave', type: 'range', min: -3, max: 3, step: 1, fmt: (v) => (v > 0 ? `+${v}` : `${v}`), get: () => voice.octave, set: (v) => (voice.octave = v) }, regen);
-  add({ label: 'Mono (bass / lead)', type: 'toggle', get: () => voice.mono, set: (v) => (voice.mono = v) }, regen);
 
   // generator select + its params
   const genRow = el('div', { className: 'gen-select-row' });
