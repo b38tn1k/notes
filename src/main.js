@@ -236,10 +236,12 @@ function init() {
     if (t === 'roll') { resize(); redraw(); }   // canvas was display:none — re-measure it
   };
   mtabs.forEach((b) => b.addEventListener('click', () => setMtab(b.dataset.mtab)));
-  setMtab('engine');
+  setMtab('transport');
 
   const aboutModal = $('about-modal');
-  $('about-tab').addEventListener('click', () => { aboutModal.hidden = false; });
+  const openAbout = () => { aboutModal.hidden = false; };
+  $('about-tab').addEventListener('click', openAbout);       // desktop corner button
+  $('about-open').addEventListener('click', openAbout);      // mobile TRANSPORT tab button
   $('about-close').addEventListener('click', () => { aboutModal.hidden = true; });
   aboutModal.addEventListener('click', (e) => { if (e.target === aboutModal) aboutModal.hidden = true; });
 

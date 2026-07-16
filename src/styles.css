@@ -189,7 +189,7 @@ button:disabled { opacity: 1; border-style: dashed; cursor: not-allowed; }
 .modal-box code { border: 1px solid var(--fg); padding: 0 3px; }
 #about-close { position: absolute; top: 8px; right: 8px; padding: 4px 8px; }
 
-#mobile-tabs { display: none; }   /* mobile-only tab bar; desktop keeps the full layout */
+#mobile-tabs, #about-mobile { display: none; }   /* mobile-only; desktop keeps the full layout + ▚ corner */
 
 /* --- mobile: a tabbed APP SHELL. One panel at a time — TRANSPORT / ENGINE / ROLL
        / FEEL / MIDI — via a bottom tab bar; the active panel scrolls, the page does
@@ -226,6 +226,11 @@ button:disabled { opacity: 1; border-style: dashed; cursor: not-allowed; }
   #top-transport button { flex: 1; padding: 8px 4px; }
   #top-output { margin-left: 0; }
   #top-output #export { flex: 1; }
+
+  /* brief context + about, at the bottom of the TRANSPORT panel */
+  #about-mobile { display: block; flex: 1 1 100%; margin-top: 12px; border-top: 2px dashed var(--fg); padding-top: 12px; }
+  #about-mobile p { margin: 0 0 8px; font-size: 12px; line-height: 1.5; text-transform: none; }
+  #about-mobile #about-open { width: 100%; }
 
   /* TRAYS (FEEL / MIDI) — two-up (the tab bar already names them) */
   #feel-tray, #midi-tray { flex-wrap: wrap; gap: 8px 12px; }
