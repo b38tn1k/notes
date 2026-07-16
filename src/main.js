@@ -245,6 +245,12 @@ function init() {
 
   $('play').addEventListener('click', onPlay);
   $('stop').addEventListener('click', onStop);
+  // mobile/iOS gate the AudioContext until a user gesture. onPlay unlocks it too, but
+  // warm it on the FIRST tap/key anywhere so playback is instant and never depends on
+  // one code path (a stray await, etc.). once:true — fires a single time then detaches.
+  const warmAudio = () => audio.unlock();
+  window.addEventListener('pointerdown', warmAudio, { once: true });
+  window.addEventListener('keydown', warmAudio, { once: true });
   window.addEventListener('keydown', (e) => {
     if (e.code !== 'Space') return;
     const tag = e.target.tagName;
