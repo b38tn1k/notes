@@ -228,6 +228,16 @@ function init() {
   setupMidiOut();
   $('midi-toggle').addEventListener('click', () => toggleTray($('midi-toggle'), 'midi-tray', 'MIDI'));
 
+  // mobile tab bar: show one panel at a time (CSS keys off body[data-mtab]; desktop ignores it)
+  const mtabs = [...document.querySelectorAll('#mobile-tabs button')];
+  const setMtab = (t) => {
+    document.body.dataset.mtab = t;
+    mtabs.forEach((b) => b.classList.toggle('active', b.dataset.mtab === t));
+    if (t === 'roll') { resize(); redraw(); }   // canvas was display:none — re-measure it
+  };
+  mtabs.forEach((b) => b.addEventListener('click', () => setMtab(b.dataset.mtab)));
+  setMtab('engine');
+
   const aboutModal = $('about-modal');
   $('about-tab').addEventListener('click', () => { aboutModal.hidden = false; });
   $('about-close').addEventListener('click', () => { aboutModal.hidden = true; });

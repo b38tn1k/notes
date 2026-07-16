@@ -189,52 +189,59 @@ button:disabled { opacity: 1; border-style: dashed; cursor: not-allowed; }
 .modal-box code { border: 1px solid var(--fg); padding: 0 3px; }
 #about-close { position: absolute; top: 8px; right: 8px; padding: 4px 8px; }
 
-/* --- mobile: compact, workspace-first. Everything two-up; the set-and-forget
-       global trays sit inline at the bottom (no disclosure toggles — they only
-       make sense when desktop needs to avoid scrolling). Desktop is untouched. --- */
+#mobile-tabs { display: none; }   /* mobile-only tab bar; desktop keeps the full layout */
+
+/* --- mobile: a tabbed APP SHELL. One panel at a time — TRANSPORT / ENGINE / ROLL
+       / FEEL / MIDI — via a bottom tab bar; the active panel scrolls, the page does
+       not. Controls are two-up. Every rule is scoped here, so desktop is untouched. --- */
 @media (max-width: 720px) {
-  html, body { height: auto; }
-  body { min-height: 100%; }
+  html, body { height: 100%; }
+  body { overflow: hidden; }                 /* app shell: only the active panel scrolls */
+  #about-tab { display: none; }              /* the tab bar owns the bottom edge */
+  #app { display: contents; }                /* unwrap so #controls + #stage are tab panels too */
 
-  /* reorder body children: transport/globals → voices+channel+canvas → setup trays last */
-  #topbar { order: 0; margin: 8px 8px 0; gap: 8px; padding: 8px; }
-  #app { order: 1; flex: initial; display: block; padding: 8px 8px 48px; }
-  #feel-tray { order: 2; }
-  #midi-tray { order: 3; }
-  .panel { margin-bottom: 8px; padding: 8px; }
+  /* the five panels: hidden by default, one shown per tab, filling the space above the tab bar */
+  #topbar, #controls, #stage, #feel-tray, #midi-tray {
+    display: none; flex: 1 1 auto; min-height: 0; overflow-y: auto; margin: 8px 8px 0; padding: 8px;
+  }
+  body[data-mtab="transport"] #topbar { display: flex; align-content: flex-start; }
+  body[data-mtab="engine"] #controls { display: block; }
+  body[data-mtab="roll"] #stage { display: flex; flex-direction: column; }
+  body[data-mtab="feel"] #feel-tray { display: flex; align-content: flex-start; }
+  body[data-mtab="midi"] #midi-tray { display: flex; align-content: flex-start; }
 
-  /* TOP RAIL — 2-up controls, full-width button rows, no disclosure toggles */
+  /* tab bar — pinned to the bottom */
+  #mobile-tabs { display: flex; order: 100; border: 2px solid var(--fg); border-bottom: none; }
+  #mobile-tabs button { flex: 1; padding: 12px 2px; font-size: 10px; border: none; border-left: 2px solid var(--fg); }
+  #mobile-tabs button:first-child { border-left: none; }
+  #mobile-tabs button.active { background: var(--fg); color: #000; }
+
+  /* TOP RAIL (TRANSPORT) — 2-up controls, no disclosure toggles */
   .more-toggle { display: none; }
   #dice { padding: 5px; align-self: flex-start; }
   #dice svg { width: 22px; height: 22px; }
-  #top-globals { flex: 1 1 auto; }                              /* shares row 1 with the dice */
+  #top-globals { flex: 1 1 auto; }
   #top-time, #top-transport, #top-output { flex: 1 1 100%; }
   #top-globals .ctl, #top-time .ctl { width: 47%; flex: 1 1 47%; margin: 0; }
   #top-transport button { flex: 1; padding: 8px 4px; }
   #top-output { margin-left: 0; }
   #top-output #export { flex: 1; }
 
-  /* DISCLOSURE TRAYS — always open inline, labelled, two-up */
-  #feel-tray[hidden], #midi-tray[hidden] { display: flex; }
-  #feel-tray, #midi-tray { margin: 0 8px 8px; padding: 8px; }
-  #feel-tray::before, #midi-tray::before { flex: 1 1 100%; font-size: 10px; font-weight: bold; letter-spacing: 1px; color: var(--fg); }
-  #feel-tray::before { content: 'FEEL'; }
-  #midi-tray::before { content: 'MIDI OUT'; }
+  /* TRAYS (FEEL / MIDI) — two-up (the tab bar already names them) */
+  #feel-tray, #midi-tray { flex-wrap: wrap; gap: 8px 12px; }
   #feel-tray .ctl, #midi-tray .ctl, #midi-voices .ctl { width: 47%; flex: 1 1 47%; margin: 0; }
   #midi-tray .outlabel { flex: 1 1 100%; }
   #midi-tray .outlabel select { flex: 1; }
-
-  #controls { max-height: none; overflow: visible; }
 
   /* label + value can't rely on float:right at narrow widths — spread them */
   #channel-strip .ctl label, #top-globals .ctl label, #top-time .ctl label,
   #feel-tray .ctl label, #midi-tray .ctl label { display: flex; justify-content: space-between; align-items: baseline; gap: 4px; margin: 0 0 2px; }
 
-  /* VOICE STRIP — tappable, not enormous */
+  /* VOICE STRIP (ENGINE) — tappable, not enormous */
   #voicestrip .vname { font-size: 16px; }
   #voicestrip .vtog { padding: 6px 10px; font-size: 12px; }
 
-  /* CHANNEL STRIP — two controls per row (the big space win) */
+  /* CHANNEL STRIP (ENGINE) — two controls per row */
   #channel-strip,
   #channel-strip .gen-controls,
   #channel-strip .gen-controls > div { display: flex; flex-wrap: wrap; gap: 6px 12px; align-items: flex-start; }
@@ -247,8 +254,7 @@ button:disabled { opacity: 1; border-style: dashed; cursor: not-allowed; }
   #channel-strip .subtabs { flex-basis: 100%; width: 100%; }
   #channel-strip .cs-head { margin-top: 4px; }
 
-  /* STAGE */
-  #stage { display: block; }
-  #viz { height: 40vh; min-height: 220px; }
-  #edit-dock { flex-wrap: wrap; }
+  /* ROLL — canvas fills, edit dock pinned under it */
+  #viz { flex: 1 1 auto; height: auto; min-height: 200px; }
+  #edit-dock { flex-wrap: wrap; margin-top: 8px; }
 }
