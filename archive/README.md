@@ -12,8 +12,7 @@ until then had been control theory — and was proud enough to put on the intern
 like a rookie mistake here is really a domain expert learning web/software conventions in public.
 
 It's preserved here byte-for-byte as a museum piece. **Part 2** — a browser app that does the same
-thing but better, and lets little pixel animals control the notes — lives in the root of this repo.
-This folder is its origin story, its wiki, and its roast.
+thing but better — lives in the root of this repo. This folder is its origin story, its wiki, and its roast.
 
 > Blog writeup (2015): http://b38tn1k.com/code/2015/02/10/Procedural-Generation-with-MIDI/
 
@@ -62,5 +61,4 @@ The complete original source, unchanged:
 
 Part 1 is where b38tn1k figured out the algorithm. Part 2 keeps it, adds the humanization the 2015
 code was "too lazy" to write, wires in a pile of other generators, plays sound in the browser, and
-puts the whole thing behind an aesthetic that looks like the animals are running the sequencer.
-Because they are.
+wraps the whole thing in a punk 8-bit aesthetic.
