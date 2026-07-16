@@ -189,20 +189,66 @@ button:disabled { opacity: 1; border-style: dashed; cursor: not-allowed; }
 .modal-box code { border: 1px solid var(--fg); padding: 0 3px; }
 #about-close { position: absolute; top: 8px; right: 8px; padding: 4px 8px; }
 
-/* --- mobile: stack and let the page scroll --- */
+/* --- mobile: compact, workspace-first. Everything two-up; the set-and-forget
+       global trays sit inline at the bottom (no disclosure toggles — they only
+       make sense when desktop needs to avoid scrolling). Desktop is untouched. --- */
 @media (max-width: 720px) {
   html, body { height: auto; }
   body { min-height: 100%; }
-  #app { flex: initial; display: block; padding: 8px; }
-  .panel { margin-bottom: 10px; }
-  #topbar { margin: 8px 8px 0; }
-  #top-globals .ctl, #top-time .ctl, #feel-tray .ctl { width: 46%; flex: 1 1 46%; }
+
+  /* reorder body children: transport/globals → voices+channel+canvas → setup trays last */
+  #topbar { order: 0; margin: 8px 8px 0; gap: 8px; padding: 8px; }
+  #app { order: 1; flex: initial; display: block; padding: 8px 8px 48px; }
+  #feel-tray { order: 2; }
+  #midi-tray { order: 3; }
+  .panel { margin-bottom: 8px; padding: 8px; }
+
+  /* TOP RAIL — 2-up controls, full-width button rows, no disclosure toggles */
+  .more-toggle { display: none; }
+  #dice { padding: 5px; align-self: flex-start; }
+  #dice svg { width: 22px; height: 22px; }
+  #top-globals { flex: 1 1 auto; }                              /* shares row 1 with the dice */
+  #top-time, #top-transport, #top-output { flex: 1 1 100%; }
+  #top-globals .ctl, #top-time .ctl { width: 47%; flex: 1 1 47%; margin: 0; }
+  #top-transport button { flex: 1; padding: 8px 4px; }
   #top-output { margin-left: 0; }
-  #app { padding-bottom: 44px; }   /* clearance so the fixed NOTES button floats over empty space, not the edit dock */
-  #feel-tray, #midi-tray { margin: 0 8px 10px; }
+  #top-output #export { flex: 1; }
+
+  /* DISCLOSURE TRAYS — always open inline, labelled, two-up */
+  #feel-tray[hidden], #midi-tray[hidden] { display: flex; }
+  #feel-tray, #midi-tray { margin: 0 8px 8px; padding: 8px; }
+  #feel-tray::before, #midi-tray::before { flex: 1 1 100%; font-size: 10px; font-weight: bold; letter-spacing: 1px; color: var(--fg); }
+  #feel-tray::before { content: 'FEEL'; }
+  #midi-tray::before { content: 'MIDI OUT'; }
+  #feel-tray .ctl, #midi-tray .ctl, #midi-voices .ctl { width: 47%; flex: 1 1 47%; margin: 0; }
+  #midi-tray .outlabel { flex: 1 1 100%; }
+  #midi-tray .outlabel select { flex: 1; }
+
   #controls { max-height: none; overflow: visible; }
+
+  /* label + value can't rely on float:right at narrow widths — spread them */
+  #channel-strip .ctl label, #top-globals .ctl label, #top-time .ctl label,
+  #feel-tray .ctl label, #midi-tray .ctl label { display: flex; justify-content: space-between; align-items: baseline; gap: 4px; margin: 0 0 2px; }
+
+  /* VOICE STRIP — tappable, not enormous */
+  #voicestrip .vname { font-size: 16px; }
+  #voicestrip .vtog { padding: 6px 10px; font-size: 12px; }
+
+  /* CHANNEL STRIP — two controls per row (the big space win) */
+  #channel-strip,
+  #channel-strip .gen-controls,
+  #channel-strip .gen-controls > div { display: flex; flex-wrap: wrap; gap: 6px 12px; align-items: flex-start; }
+  #channel-strip .ctl { width: 47%; margin: 0; }
+  #channel-strip .cs-head,
+  #channel-strip .gen-select-row,
+  #channel-strip .gen-controls,
+  #channel-strip .blurb,
+  #channel-strip .voiceexport,
+  #channel-strip .subtabs { flex-basis: 100%; width: 100%; }
+  #channel-strip .cs-head { margin-top: 4px; }
+
+  /* STAGE */
   #stage { display: block; }
-  #viz { height: 44vh; min-height: 240px; }
-  #voicestrip .vtog { padding: 9px 13px; font-size: 13px; }   /* bigger M/S touch targets */
-  #voicestrip .vname { font-size: 20px; }
+  #viz { height: 40vh; min-height: 220px; }
+  #edit-dock { flex-wrap: wrap; }
 }
