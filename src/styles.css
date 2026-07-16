@@ -107,6 +107,7 @@ button {
 }
 button:hover, button:active { background: var(--fg); color: #000; }
 button:disabled { opacity: 1; border-style: dashed; cursor: not-allowed; }
+#play.sound-off { border-style: dashed; border-color: #ff0; color: #ff0; }   /* audio suspended/blocked — tap to enable */
 
 .btnrow { display: flex; gap: 6px; flex-wrap: wrap; }
 
@@ -242,6 +243,7 @@ button:disabled { opacity: 1; border-style: dashed; cursor: not-allowed; }
   #about-mobile { display: block; flex: 1 1 100%; margin-top: 12px; border-top: 2px dashed var(--fg); padding-top: 12px; }
   #about-mobile p { margin: 0 0 8px; font-size: 12px; line-height: 1.5; text-transform: none; }
   #about-mobile #about-open { width: 100%; }
+  #about-mobile .sound-note { margin: 10px 0 0; color: #ff0; font-size: 11px; }   /* mute is undetectable — passive nudge */
 
   /* TRAYS (FEEL / MIDI) — two-up (the tab bar already names them) */
   #feel-tray, #midi-tray { flex-wrap: wrap; gap: 8px 12px; }

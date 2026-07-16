@@ -196,8 +196,20 @@ function dispatch(kind) {
   }
 }
 
+// Surface "audio is blocked/suspended" on the PLAY button (dashed = tap to enable).
+// The device can't tell us it's muted or turned down, but it CAN tell us the context
+// is suspended/interrupted (autoplay gate, iOS backgrounding, a phone call) — reflect that.
+function reflectAudio() {
+  const b = $('play');
+  if (!b) return;
+  const off = audio.isSuspended();
+  b.classList.toggle('sound-off', off);
+  b.title = off ? 'tap to enable sound' : '';
+}
+
 async function onPlay() {
   await audio.unlock();
+  reflectAudio();
   if (!audio.isPlaying()) {
     audio.play(audioPlan(), state.bpm);
     if (midiout.isEnabled()) midiout.startLoop(midiPlan(), { bpm: state.bpm });
@@ -250,9 +262,11 @@ function init() {
   // mobile/iOS gate the AudioContext until a user gesture. onPlay unlocks it too, but
   // warm it on the FIRST tap/key anywhere so playback is instant and never depends on
   // one code path (a stray await, etc.). once:true — fires a single time then detaches.
-  const warmAudio = () => audio.unlock();
+  const warmAudio = () => audio.unlock().then(reflectAudio);
   window.addEventListener('pointerdown', warmAudio, { once: true });
   window.addEventListener('keydown', warmAudio, { once: true });
+  audio.onAudioStateChange(reflectAudio);                       // context suspend/resume (iOS backgrounding, call interruptions)
+  document.addEventListener('visibilitychange', reflectAudio);  // returning to the tab may leave it suspended
   window.addEventListener('keydown', (e) => {
     if (e.code !== 'Space') return;
     const tag = e.target.tagName;

@@ -67,7 +67,16 @@ export function stop() {
   for (const v of voices.values()) if (v.part) { v.part.dispose(); v.part = null; }
 }
 
-export async function unlock() { await Tone.start(); }        // must be in a user gesture
+export async function unlock() {                              // must be in a user gesture
+  // iOS 17+: opt into a "playback" audio session so sound comes through the hardware
+  // ring/silent switch instead of being muted by it. Safari-only API; ignored elsewhere.
+  try { if (navigator.audioSession) navigator.audioSession.type = 'playback'; } catch { /* older Safari / not iOS */ }
+  await Tone.start();
+}
+// "audio can't be heard right now" — suspended (autoplay gate), interrupted (iOS call/bg), or closed.
+// ponytail: this can't see the iOS <17 silent switch muting a *running* context — the passive hint covers that.
+export function isSuspended() { return Tone.getContext().state !== 'running'; }
+export function onAudioStateChange(fn) { Tone.getContext().rawContext.addEventListener('statechange', fn); }
 export function setBpm(bpm) { Tone.Transport.bpm.value = bpm; }
 export function isPlaying() { return Tone.Transport.state === 'started'; }
 export function transportSeconds() { return Tone.Transport.seconds; }
