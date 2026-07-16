@@ -144,7 +144,8 @@ export function renderChannelStrip(container, voice, state, dispatch, opts = {})
   const add = (spec, onChange) => container.append(makeControl(spec, onChange));
   const regen = () => dispatch('regen-voice');
 
-  container.append(el('div', { className: 'cs-head', textContent: `▸ V${idx + 1}` }));
+  // no "▸ V{n}" header — the focused voice is already shown by the filled chip above
+  // and the channel strip's tinted top border; repeating it just wastes a row.
 
   // local Tone.js instrument (per voice)
   add({ label: 'Instrument', type: 'select', options: opts.instruments || [], get: () => voice.instrument, set: (v) => (voice.instrument = v) }, () => dispatch('instrument'));

@@ -141,7 +141,6 @@ button:disabled { opacity: 1; border-style: dashed; cursor: not-allowed; }
 
 /* --- channel strip: PER-VOICE (tinted --vcf). the focused voice's whole kit --- */
 #channel-strip { border-top: 3px solid var(--vcf); margin-top: 12px; padding-top: 8px; }
-.cs-head { color: var(--vcf); font-weight: bold; font-size: 14px; margin-bottom: 6px; letter-spacing: 1px; }
 .voiceexport { width: 100%; margin-top: 10px; border-color: var(--vcf); color: var(--vcf); }
 .voiceexport:hover { background: var(--vcf); color: #000; }
 
@@ -261,13 +260,11 @@ button:disabled { opacity: 1; border-style: dashed; cursor: not-allowed; }
   #channel-strip .gen-controls,
   #channel-strip .gen-controls > div { display: flex; flex-wrap: wrap; gap: 6px 12px; align-items: flex-start; }
   #channel-strip .ctl { width: 47%; margin: 0; }
-  #channel-strip .cs-head,
   #channel-strip .gen-select-row,
   #channel-strip .gen-controls,
   #channel-strip .blurb,
   #channel-strip .voiceexport,
   #channel-strip .subtabs { flex-basis: 100%; width: 100%; }
-  #channel-strip .cs-head { margin-top: 4px; }
 
   /* ROLL — canvas fills, edit dock pinned under it */
   #viz { flex: 1 1 auto; height: auto; min-height: 200px; }
