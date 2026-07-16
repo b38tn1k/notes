@@ -30,15 +30,15 @@ export const IV_LABELS = IVS.map((x) => x[1]);
 export default {
   id: 'molecular',
   label: 'Molecular Music Box',
-  blurb: 'Diatonic walk; a collision flips length. Build stacks MMB layers; fold = all at once.',
+  blurb: 'Diatonic walk; a collision flips length. Fold = one dense loop; build = MMB layers stack.',
   params: [
     { key: 'intervalA', label: 'Interval A', type: 'steps', values: IV_VALUES, labels: IV_LABELS, default: 10 },
     { key: 'lengthA', label: 'Length A', type: 'steps', values: IV_VALUES, labels: IV_LABELS, default: 4 },
     { key: 'intervalB', label: 'Interval B', type: 'steps', values: IV_VALUES, labels: IV_LABELS, default: 3.5 },
     { key: 'lengthB', label: 'Length B', type: 'steps', values: IV_VALUES, labels: IV_LABELS, default: 5 },
-    { key: 'structure', label: 'Structure', type: 'select', options: ['build', 'fold'], default: 'build' },
+    { key: 'structure', label: 'Structure', type: 'select', options: ['fold', 'build'], default: 'fold' },
     { key: 'collision', label: 'Collision', type: 'select', options: ['onset', 'overlap'], default: 'onset' },
-    { key: 'iterations', label: 'Layers', type: 'range', min: 1, max: 24, step: 1, default: 4 },
+    { key: 'iterations', label: 'Iterations', type: 'range', min: 1, max: 24, step: 1, default: 4 },
     { key: 'startNote', label: 'Start note', type: 'range', min: 1, max: 8, step: 1, default: 1 },
     { key: 'startBeat', label: 'Start beat', type: 'range', min: 0, max: 16, step: 1, default: 0 },
   ],
