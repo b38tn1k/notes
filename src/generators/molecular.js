@@ -24,7 +24,7 @@ export const IV_LABELS = IVS.map((x) => x[1]);
 export default {
   id: 'molecular',
   label: 'Molecular Music Box',
-  blurb: 'Two modes (interval + note length); a collision switches mode. overlap = note lands while another rings (real MMB, length drives switching); onset = start-on-a-used-start (2015). Length < interval = gaps/stability; length = interval = full MMB.',
+  blurb: 'Two intervals; a collision flips between them. Overlap = real MMB, onset = 2015 mode.',
   params: [
     { key: 'intervalA', label: 'Interval A', type: 'steps', values: IV_VALUES, labels: IV_LABELS, default: 10 },
     { key: 'lengthA', label: 'Length A', type: 'steps', values: IV_VALUES, labels: IV_LABELS, default: 4 },
