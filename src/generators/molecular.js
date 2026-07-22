@@ -32,15 +32,17 @@ export default {
   label: 'Molecular Music Box',
   blurb: 'Diatonic walk; a collision flips length. Fold = one dense loop; build = MMB layers stack.',
   params: [
-    // default 8: on the 1/16 grid a 10 walks 32 distinct onsets before repeating — more than
-    // 4 iterations ever place, so it NEVER collides and the B params sit inert. 8 collides at note 9.
+    // Defaults picked by sweeping ~60k slider-legal patches scored on consonant overlap /
+    // groove / contour, then a 3-judge listen-off. A=8 collides early (an A of 10 on this
+    // grid never collides in 4 passes — inert B params); lengths > intervals sustain notes
+    // into each other, which is where the MMB pad/chord magic comes from.
     { key: 'intervalA', label: 'Interval A', type: 'steps', values: IV_VALUES, labels: IV_LABELS, default: 8 },
-    { key: 'lengthA', label: 'Length A', type: 'steps', values: IV_VALUES, labels: IV_LABELS, default: 4 },
-    { key: 'intervalB', label: 'Interval B', type: 'steps', values: IV_VALUES, labels: IV_LABELS, default: 3.5 },
-    { key: 'lengthB', label: 'Length B', type: 'steps', values: IV_VALUES, labels: IV_LABELS, default: 5 },
+    { key: 'lengthA', label: 'Length A', type: 'steps', values: IV_VALUES, labels: IV_LABELS, default: 6 },
+    { key: 'intervalB', label: 'Interval B', type: 'steps', values: IV_VALUES, labels: IV_LABELS, default: 5 },
+    { key: 'lengthB', label: 'Length B', type: 'steps', values: IV_VALUES, labels: IV_LABELS, default: 4 },
     { key: 'structure', label: 'Structure', type: 'select', options: ['fold', 'build'], default: 'fold' },
     { key: 'collision', label: 'Collision', type: 'select', options: ['onset', 'overlap'], default: 'onset' },
-    { key: 'iterations', label: 'Iterations', type: 'range', min: 1, max: 24, step: 1, default: 4 },
+    { key: 'iterations', label: 'Iterations', type: 'range', min: 1, max: 24, step: 1, default: 3 },
     { key: 'startNote', label: 'Start note', type: 'range', min: 1, max: 8, step: 1, default: 1 },
     { key: 'startBeat', label: 'Start beat', type: 'range', min: 0, max: 16, step: 1, default: 0 },
   ],
