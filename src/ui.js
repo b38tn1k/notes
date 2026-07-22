@@ -184,6 +184,7 @@ export function renderGenParams(container, state, dispatch) {
   const gen = getGenerator(state.genId);
   const P = state.genParams[state.genId];
   if (gen.blurb) container.append(el('p', { className: 'blurb', textContent: gen.blurb }));
+  if (state.genId === 'molecular') container.append(el('p', { className: 'blurb genstats' }));   // live COLLISIONS readout (filled by refreshStatus)
   for (const spec of gen.params) {
     container.append(makeControl({ ...spec, get: () => P[spec.key], set: (v) => (P[spec.key] = v) }, () => dispatch('regen-voice')));
   }

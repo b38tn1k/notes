@@ -45,6 +45,13 @@ function refreshStatus() {
   $('export-count').textContent = `×${state.voices.length}`;
   const chips = document.querySelectorAll('#voicestrip .voicechip');
   state.voices.forEach((v, i) => { const b = chips[i] && chips[i].querySelector('.vbadge'); if (b) b.textContent = `${v.notes.length}n`; });
+  // molecular's COLLISIONS readout: 0 collisions = the B params never engage — say so
+  const gs = document.querySelector('.genstats');
+  if (gs) {
+    const n = focusedVoice().stats?.collisions;
+    gs.textContent = n == null ? '' : n === 0 ? 'COLLISIONS: 0 — B UNUSED (RAISE ITERATIONS OR CHANGE A)' : `COLLISIONS: ${n}`;
+    gs.classList.toggle('warn', n === 0);
+  }
 }
 
 function playBeat() {

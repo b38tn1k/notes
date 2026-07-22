@@ -32,7 +32,9 @@ export default {
   label: 'Molecular Music Box',
   blurb: 'Diatonic walk; a collision flips length. Fold = one dense loop; build = MMB layers stack.',
   params: [
-    { key: 'intervalA', label: 'Interval A', type: 'steps', values: IV_VALUES, labels: IV_LABELS, default: 10 },
+    // default 8: on the 1/16 grid a 10 walks 32 distinct onsets before repeating — more than
+    // 4 iterations ever place, so it NEVER collides and the B params sit inert. 8 collides at note 9.
+    { key: 'intervalA', label: 'Interval A', type: 'steps', values: IV_VALUES, labels: IV_LABELS, default: 8 },
     { key: 'lengthA', label: 'Length A', type: 'steps', values: IV_VALUES, labels: IV_LABELS, default: 4 },
     { key: 'intervalB', label: 'Interval B', type: 'steps', values: IV_VALUES, labels: IV_LABELS, default: 3.5 },
     { key: 'lengthB', label: 'Length B', type: 'steps', values: IV_VALUES, labels: IV_LABELS, default: 5 },
@@ -65,7 +67,7 @@ export default {
       const cpp = Math.max(1, Math.round(P * Q));         // cells per pattern (loop period)
       const frozen = new Set();                           // local cells occupied by FROZEN, looping patterns
       let pending = [];                                   // the current pattern's own cells (not yet collidable)
-      let curK = 0, usingA = true;
+      let curK = 0, usingA = true, collisions = 0;
       let beat = p.startBeat || 0;                        // absolute walk position — continuous, never wraps
       const fresh = [];                                   // freshly-walked notes: {pitch, startBeat, dur, k}
 
@@ -75,7 +77,7 @@ export default {
         const k = Math.min(layers - 1, Math.floor(cell / cpp));
         if (k > curK) { for (const c of pending) frozen.add(c); pending = []; curK = k; }   // freeze finished patterns
         const local = cell % cpp;
-        if (frozen.has(local)) usingA = !usingA;          // collide with a PREVIOUS (looping) pattern -> flip length
+        if (frozen.has(local)) { usingA = !usingA; collisions++; }   // collide with a PREVIOUS (looping) pattern -> flip length
         const jump = usingA ? a : b;
         const len = usingA ? la : lb;
         if (jump <= 0) break;
@@ -90,6 +92,7 @@ export default {
 
       // each pattern loops forward across every later block (the loop-pedal build-up)
       const out = [];
+      out.collisions = collisions;                        // stat for the UI readout (dead-B patches say why)
       for (const n of fresh) {
         for (let r = 0; r <= layers - 1 - n.k; r++) {
           const sb = n.startBeat + r * P;
@@ -106,14 +109,14 @@ export default {
     let cur = new Map();                                 // this pass's coverage (not yet collidable)
     const notes = [];
 
-    let usingA = true;
+    let usingA = true, collisions = 0;
     let beat = (p.startBeat || 0) % totalBeats;
     let iterations = p.iterations;
 
     let guard = 200000;
     while (iterations > 0 && guard-- > 0) {
       const k = cellOf(beat);
-      if ((prev.get(k) || 0) > 0) usingA = !usingA;      // collide with a PREVIOUS pass -> switch mode
+      if ((prev.get(k) || 0) > 0) { usingA = !usingA; collisions++; }   // collide with a PREVIOUS pass -> switch mode
 
       const jump = usingA ? a : b;
       const len = usingA ? la : lb;
@@ -137,6 +140,7 @@ export default {
       }
       if (notes.length > 4000) break;
     }
+    notes.collisions = collisions;                       // stat for the UI readout
     return notes;
   },
 };

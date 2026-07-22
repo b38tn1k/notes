@@ -100,6 +100,7 @@ export function regenerateVoice(v) {
     console.error('generator error', v.genId, e);
     notes = [];
   }
+  v.stats = { collisions: notes.collisions ?? null };            // generator-reported stat (humanize drops array props)
   notes = humanize(notes, state.human);
   const sb = voiceBeats(v);
   const { root, floorDown, ceilingUp } = state.shared;
