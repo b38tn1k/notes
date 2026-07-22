@@ -44,7 +44,7 @@ export default {
     { key: 'lengthB', label: 'Length B', type: 'steps', values: IV_VALUES, labels: IV_LABELS, default: 3 },
     { key: 'structure', label: 'Structure', type: 'select', options: ['fold', 'build'], default: 'fold' },
     { key: 'collision', label: 'Collision', type: 'select', options: ['onset', 'overlap'], default: 'onset' },
-    { key: 'iterations', label: 'Iterations', type: 'range', min: 1, max: 24, step: 1, default: 4 },
+    { key: 'iterations', label: 'Iterations', type: 'range', min: 1, max: 24, step: 1, default: 3 },
     { key: 'startNote', label: 'Start note', type: 'range', min: 1, max: 8, step: 1, default: 1 },
     { key: 'startBeat', label: 'Start beat', type: 'range', min: 0, max: 16, step: 1, default: 0 },
   ],
