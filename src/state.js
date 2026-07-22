@@ -34,7 +34,11 @@ export function makeVoice(genId = 'molecular', over = {}) {
 
 export const state = {
   // GLOBAL music theory + tempo + humanize; voices share these. (Loop length is per-voice.)
-  shared: { root: 48, scale: 'minor', meter: 4, floorDown: 24, ceilingUp: 24, base: '1/16' },
+  // floor/ceiling: tight fold window (was ±24 = a 4-octave barn). The MMB walk only ascends,
+  // so the CEILING is the active fold edge — +14 makes it wrap often enough that the line
+  // weaves instead of reading as a rising scale. Floor is inert for every current engine
+  // (nothing generates below root); -12 just keeps the slider honest.
+  shared: { root: 48, scale: 'minor', meter: 4, floorDown: 12, ceilingUp: 14, base: '1/16' },
   bpm: 120,
   human: { swing: 0, velVar: 0, strum: 0 },
   voices: [makeVoice('molecular', { colorIdx: 0 })],

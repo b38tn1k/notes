@@ -32,17 +32,19 @@ export default {
   label: 'Molecular Music Box',
   blurb: 'Diatonic walk; a collision flips length. Fold = one dense loop; build = MMB layers stack.',
   params: [
-    // Defaults picked by sweeping ~60k slider-legal patches scored on consonant overlap /
-    // groove / contour, then a 3-judge listen-off. A=8 collides early (an A of 10 on this
-    // grid never collides in 4 passes — inert B params); lengths > intervals sustain notes
-    // into each other, which is where the MMB pad/chord magic comes from.
-    { key: 'intervalA', label: 'Interval A', type: 'steps', values: IV_VALUES, labels: IV_LABELS, default: 8 },
-    { key: 'lengthA', label: 'Length A', type: 'steps', values: IV_VALUES, labels: IV_LABELS, default: 6 },
-    { key: 'intervalB', label: 'Interval B', type: 'steps', values: IV_VALUES, labels: IV_LABELS, default: 5 },
-    { key: 'lengthB', label: 'Length B', type: 'steps', values: IV_VALUES, labels: IV_LABELS, default: 4 },
+    // Defaults picked by sweeping slider-legal patches through the real pipeline (scored on
+    // consonant overlap / groove / contour / anti-scale stream runs), then judge panels.
+    // Works WITH the tight fold window in state.shared (-12/+14): the walk wraps octaves
+    // often, so the line zigzags instead of reading as a scale. Lengths > intervals keep
+    // notes sustaining into each other — the MMB chord magic. A must collide within the
+    // default iterations or the B params sit inert (see the COLLISIONS readout).
+    { key: 'intervalA', label: 'Interval A', type: 'steps', values: IV_VALUES, labels: IV_LABELS, default: 12 },
+    { key: 'lengthA', label: 'Length A', type: 'steps', values: IV_VALUES, labels: IV_LABELS, default: 9 },
+    { key: 'intervalB', label: 'Interval B', type: 'steps', values: IV_VALUES, labels: IV_LABELS, default: 3.5 },
+    { key: 'lengthB', label: 'Length B', type: 'steps', values: IV_VALUES, labels: IV_LABELS, default: 3 },
     { key: 'structure', label: 'Structure', type: 'select', options: ['fold', 'build'], default: 'fold' },
     { key: 'collision', label: 'Collision', type: 'select', options: ['onset', 'overlap'], default: 'onset' },
-    { key: 'iterations', label: 'Iterations', type: 'range', min: 1, max: 24, step: 1, default: 3 },
+    { key: 'iterations', label: 'Iterations', type: 'range', min: 1, max: 24, step: 1, default: 4 },
     { key: 'startNote', label: 'Start note', type: 'range', min: 1, max: 8, step: 1, default: 1 },
     { key: 'startBeat', label: 'Start beat', type: 'range', min: 0, max: 16, step: 1, default: 0 },
   ],
