@@ -38,10 +38,14 @@ export default {
     // often, so the line zigzags instead of reading as a scale. Lengths > intervals keep
     // notes sustaining into each other — the MMB chord magic. A must collide within the
     // default iterations or the B params sit inert (see the COLLISIONS readout).
-    { key: 'intervalA', label: 'Interval A', type: 'steps', values: IV_VALUES, labels: IV_LABELS, default: 12 },
-    { key: 'lengthA', label: 'Length A', type: 'steps', values: IV_VALUES, labels: IV_LABELS, default: 9 },
-    { key: 'intervalB', label: 'Interval B', type: 'steps', values: IV_VALUES, labels: IV_LABELS, default: 3.5 },
-    { key: 'lengthB', label: 'Length B', type: 'steps', values: IV_VALUES, labels: IV_LABELS, default: 3 },
+    // Integer intervals keep every onset on the 16th grid — fractional jumps land on 32nd
+    // positions and read as smear once collisions flip modes (lengths may stay fractional;
+    // they only stretch sustains). A=16 = whole-bar jumps: a 4-slot orbit, so collisions
+    // arrive by pass 2 even at 3 iterations while the skeleton stays sparse.
+    { key: 'intervalA', label: 'Interval A', type: 'steps', values: IV_VALUES, labels: IV_LABELS, default: 16 },
+    { key: 'lengthA', label: 'Length A', type: 'steps', values: IV_VALUES, labels: IV_LABELS, default: 12 },
+    { key: 'intervalB', label: 'Interval B', type: 'steps', values: IV_VALUES, labels: IV_LABELS, default: 14 },
+    { key: 'lengthB', label: 'Length B', type: 'steps', values: IV_VALUES, labels: IV_LABELS, default: 10.5 },
     { key: 'structure', label: 'Structure', type: 'select', options: ['fold', 'build'], default: 'fold' },
     { key: 'collision', label: 'Collision', type: 'select', options: ['onset', 'overlap'], default: 'onset' },
     { key: 'iterations', label: 'Iterations', type: 'range', min: 1, max: 24, step: 1, default: 3 },
