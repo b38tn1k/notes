@@ -43,13 +43,15 @@ export default {
     // they only stretch sustains). A=16 = whole-bar jumps: a 4-slot orbit, so collisions
     // arrive by pass 2 even at 3 iterations while the skeleton stays sparse.
     { key: 'intervalA', label: 'Interval A', type: 'steps', values: IV_VALUES, labels: IV_LABELS, default: 16 },
-    { key: 'lengthA', label: 'Length A', type: 'steps', values: IV_VALUES, labels: IV_LABELS, default: 12 },
+    { key: 'lengthA', label: 'Length A', type: 'steps', values: IV_VALUES, labels: IV_LABELS, default: 14 },
     { key: 'intervalB', label: 'Interval B', type: 'steps', values: IV_VALUES, labels: IV_LABELS, default: 14 },
-    { key: 'lengthB', label: 'Length B', type: 'steps', values: IV_VALUES, labels: IV_LABELS, default: 10.5 },
+    { key: 'lengthB', label: 'Length B', type: 'steps', values: IV_VALUES, labels: IV_LABELS, default: 11 },
     { key: 'structure', label: 'Structure', type: 'select', options: ['fold', 'build'], default: 'fold' },
     { key: 'collision', label: 'Collision', type: 'select', options: ['onset', 'overlap'], default: 'onset' },
     { key: 'iterations', label: 'Iterations', type: 'range', min: 1, max: 24, step: 1, default: 3 },
-    { key: 'startNote', label: 'Start note', type: 'range', min: 1, max: 8, step: 1, default: 1 },
+    // start on the 3rd scale degree: the walk hits the fold ceiling almost immediately and
+    // CIRCLES from bar 1 instead of spending the whole loop climbing toward it (flat contour).
+    { key: 'startNote', label: 'Start note', type: 'range', min: 1, max: 8, step: 1, default: 3 },
     { key: 'startBeat', label: 'Start beat', type: 'range', min: 0, max: 16, step: 1, default: 0 },
   ],
   generate(shared, p) {
